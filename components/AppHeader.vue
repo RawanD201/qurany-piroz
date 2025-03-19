@@ -39,7 +39,7 @@ onMounted(() => {
     class="ease bg-transparent translate-z-0 sticky top-0 z-50 flex w-full transform items-center justify-between transition-[height,transform,background-color,color] duration-300 will-change-[height,transform] p-4 lg:p-2"
   >
     <NuxtLink to="/">
-      <span class="text-xl font-semibold">{{ __.translate(navigations.title) }}</span>
+      <span class="text-xl font-extrabold">{{ __.translate(navigations.title) }}</span>
     </NuxtLink>
 
 

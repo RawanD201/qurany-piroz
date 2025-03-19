@@ -13,7 +13,7 @@ const __ = inject('locale');
       v-motion
       :initial="{ opacity: 0, x: -100 }"
       :enter="{ opacity: 1, x: 0, transition: { duration: 800, ease: 'easeOut' } }"
-      class="flex flex-col items-start gap-8 p-4 lg:p-0 lg:w-1/3"
+      class="flex flex-col items-center gap-8 p-4 lg:items-start lg:p-0 lg:w-1/3"
     >
       <img
         v-motion
@@ -24,6 +24,7 @@ const __ = inject('locale');
         alt="Logo"
       />
       <span
+        class="px-2 text-justify"
         v-motion
         :initial="{ opacity: 0 }"
         :enter="{ opacity: 1, transition: { delay: 400, duration: 600 } }"
@@ -47,16 +48,28 @@ const __ = inject('locale');
             alt="App Store"
           >
         </NuxtLink>
-        <!-- <NuxtLink
-          to="/"
+        <a
+          href="/public/qurany-piroz108.apk"
+          download
           class="transition-all duration-300 transform hover:scale-105 hover:shadow-lg rounded-xl"
         >
-          <img
-            class="w-40 h-12 rounded-xl"
-            src="/images/play-store-badge.png"
-            alt="Google Play Store"
-          >
-        </NuxtLink> -->
+          <div class="flex items-center justify-around w-40 h-12 bg-black rounded-xl px-1.5">
+            <span class="font-sans text-xs font-semibold">Download (APK)</span>
+            <div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                height="32"
+                width="32"
+                viewBox="0 0 576 512"
+              >
+                <path
+                  fill="#ffffff"
+                  d="M420.6 301.9a24 24 0 1 1 24-24 24 24 0 0 1 -24 24m-265.1 0a24 24 0 1 1 24-24 24 24 0 0 1 -24 24m273.7-144.5 47.9-83a10 10 0 1 0 -17.3-10h0l-48.5 84.1a301.3 301.3 0 0 0 -246.6 0L116.2 64.5a10 10 0 1 0 -17.3 10h0l47.9 83C64.5 202.2 8.2 285.6 0 384H576c-8.2-98.5-64.5-181.8-146.9-226.6"
+                />
+              </svg>
+            </div>
+          </div>
+        </a>
       </div>
     </div>
     <div class="flex items-end self-end justify-end gap-4 p-4 lg:p-0">
