@@ -1,0 +1,8 @@
+/* kurdish and arabic fonts */
+
+@font-face {
+  font-family: 'rabar';
+  src: url('../fonts/rabar.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
