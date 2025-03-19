@@ -49,7 +49,7 @@ const __ = inject('locale');
           >
         </NuxtLink>
         <a
-          href="/public/qurany-piroz108.apk"
+          href="/qurany-piroz108.apk"
           download
           class="transition-all duration-300 transform hover:scale-105 hover:shadow-lg rounded-xl"
         >
