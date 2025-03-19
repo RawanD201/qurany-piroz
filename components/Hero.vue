@@ -54,7 +54,7 @@ const __ = inject('locale');
           class="transition-all duration-300 transform hover:scale-105 hover:shadow-lg rounded-xl"
         >
           <div class="flex items-center justify-around w-40 h-12 bg-black rounded-xl px-1.5">
-            <span class="font-sans text-xs font-semibold">Download (APK)</span>
+            <span class="font-sans text-xs font-semibold text-white">Download (APK)</span>
             <div>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
