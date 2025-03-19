@@ -65,7 +65,7 @@ const __ = inject('locale');
         :initial="{ opacity: 0, y: 100 }"
         :enter="{ opacity: 1, y: 0, transition: { delay: 400, duration: 800 } }"
         src="/images/2.png"
-        class="lg:max-w-xs max-w-[10rem] max-h-fit"
+        class="lg:max-w-xs max-w-[8rem] max-h-fit"
       />
       <iPhone15ProMockup
         v-motion

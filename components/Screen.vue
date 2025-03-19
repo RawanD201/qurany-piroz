@@ -112,7 +112,7 @@
             }"
             src="/images/3.png"
             :height="500"
-            class="w-full lg:w-1/2 max-h-fit lg:pt-24"
+            class="w-11/12 lg:w-1/2 max-h-fit lg:pt-24"
           />
           <span
             v-motion
