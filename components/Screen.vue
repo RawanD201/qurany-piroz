@@ -32,7 +32,7 @@
           }
         }"
         src="/images/6.png"
-        class="lg:max-w-[15rem] max-w-[10rem] max-h-fit lg:pt-24"
+        class="w-full max-h-fit lg:pt-24"
       />
       <iPhone15ProMockup
         v-motion
@@ -46,8 +46,8 @@
             ease: 'easeOut'
           }
         }"
-        src="/images/7.png"
-        class="lg:max-w-[15rem] max-w-[10rem] max-h-fit lg:pt-12"
+        src="/images/13.png"
+        class="w-full max-h-fit lg:pt-12"
       />
       <iPhone15ProMockup
         v-motion
@@ -62,7 +62,7 @@
           }
         }"
         src="/images/8.png"
-        class="lg:max-w-[15rem] max-w-[10rem] max-h-fit"
+        class="w-full max-h-fit"
       />
       <iPhone15ProMockup
         v-motion
@@ -76,8 +76,8 @@
             ease: 'easeOut'
           }
         }"
-        src="/images/9.png"
-        class="lg:max-w-[15rem] max-w-[10rem] max-h-fit lg:pt-12"
+        src="/images/12.png"
+        class="w-full max-h-fit lg:pt-12"
       />
       <iPhone15ProMockup
         v-motion
@@ -92,7 +92,7 @@
           }
         }"
         src="/images/11.png"
-        class="lg:max-w-[15rem] max-w-[10rem] max-h-fit lg:pt-24"
+        class="w-full max-h-fit lg:pt-24"
       />
     </div>
 
@@ -110,7 +110,7 @@
                 ease: 'easeOutQuint'
               }
             }"
-            src="/images/3.png"
+            src="/images/10.png"
             :height="500"
             class="w-11/12 lg:w-1/2 max-h-fit lg:pt-24"
           />
