@@ -46,7 +46,7 @@
 
   <template>
     <NuxtLayout>
-      <div class="mx-auto overflow-x-hidden max-w-[90rem] container">
+      <div class="container mx-auto overflow-x-hidden">
         <AppHeader />
         <NuxtPage />
         <AppFooter />
