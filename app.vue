@@ -1,5 +1,6 @@
   <script setup>
   import { ref, provide } from 'vue'
+  import { Analytics } from '@vercel/analytics/nuxt'
 
   const navigation = ref({
     state: false,
@@ -46,6 +47,7 @@
 
   <template>
     <NuxtLayout>
+      <Analytics />
       <div class="container mx-auto overflow-x-hidden">
         <AppHeader />
         <NuxtPage />
