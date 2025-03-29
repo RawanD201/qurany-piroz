@@ -162,6 +162,17 @@ onMounted(() => {
             </div>
           </a>
 
+          <a
+            href="/فەرهەنگی ڕیشەییی هێڤی.pdf"
+            class="transition-all duration-300 transform hover:scale-105 hover:shadow-lg rounded-xl"
+          >
+            <div class="flex items-center justify-center w-40 h-12 bg-black rounded-xl px-1.5 text-center">
+              <span class="font-sans text-xs font-semibold text-white">فەرهەنگی ڕیشەییی هێڤی (PDF)
+              </span>
+            </div>
+          </a>
+
+
         </div>
 
         <!-- Social media icons -->
