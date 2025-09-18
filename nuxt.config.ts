@@ -33,6 +33,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-02-26',
 
   // Add SEO settings for Qurany Piroz
+
   app: {
     head: {
       title: 'قورئانی پیرۆز — پەڕتووکی خودا',
