@@ -162,7 +162,7 @@ onMounted(() => {
             </div>
           </a>
 
-          <a
+          <!-- <a
             href="/فەرهەنگی ڕیشەییی هێڤی.pdf"
             class="transition-all duration-300 transform hover:scale-105 hover:shadow-lg rounded-xl"
           >
@@ -170,7 +170,7 @@ onMounted(() => {
               <span class="font-sans text-xs font-semibold text-white">فەرهەنگی ڕیشەییی هێڤی (PDF)
               </span>
             </div>
-          </a>
+          </a> -->
 
 
         </div>

@@ -70,7 +70,7 @@ const __ = inject('locale');
             </div>
           </div>
         </a>
-        <a
+        <!-- <a
           href="/فەرهەنگی ڕیشەییی هێڤی.pdf"
           class="transition-all duration-300 transform hover:scale-105 hover:shadow-lg rounded-xl"
         >
@@ -78,7 +78,7 @@ const __ = inject('locale');
             <span class="font-sans text-xs font-semibold text-white">فەرهەنگی ڕیشەییی هێڤی (PDF)
             </span>
           </div>
-        </a>
+        </a> -->
       </div>
     </div>
     <div class="flex items-end self-end justify-end gap-4 p-4 lg:p-0">
