@@ -4,6 +4,7 @@ import { inject } from 'vue';
 import iPhone15ProMockup from '~/components/iPhone15ProMockup.vue';
 
 const __ = inject('locale');
+const { ANDROID_APP_PATH, trackAndroidDownload } = useAndroidDownload();
 </script>
 
 <template>
@@ -49,12 +50,13 @@ const __ = inject('locale');
           >
         </NuxtLink>
         <a
-          href="/qurany-piroz.apk"
+          :href="ANDROID_APP_PATH"
           download
           class="transition-all duration-300 transform hover:scale-105 hover:shadow-lg rounded-xl"
+          @click="trackAndroidDownload('hero')"
         >
           <div class="flex items-center justify-around w-40 h-12 bg-black rounded-xl px-1.5">
-            <span class="font-sans text-xs font-semibold text-white">Download (APK)</span>
+            <span class="font-sans text-xs font-semibold text-white">Download (Android)</span>
             <div>
               <svg
                 xmlns="http://www.w3.org/2000/svg"

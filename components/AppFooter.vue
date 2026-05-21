@@ -4,6 +4,7 @@ import { inject, ref, onMounted } from 'vue';
 const navigation = inject('navigation');
 const currentYear = new Date().getFullYear();
 const __ = inject('locale');
+const { ANDROID_APP_PATH, trackAndroidDownload } = useAndroidDownload();
 
 // Animation refs
 const isVisible = ref(false);
@@ -140,12 +141,13 @@ onMounted(() => {
             >
           </NuxtLink> -->
           <a
-            href="/qurany-piroz.apk"
+            :href="ANDROID_APP_PATH"
             download
             class="transition-all duration-300 transform hover:scale-105 hover:shadow-lg rounded-xl"
+            @click="trackAndroidDownload('footer')"
           >
             <div class="flex items-center justify-around w-40 h-12 bg-black rounded-xl px-1.5">
-              <span class="font-sans text-xs font-semibold text-white">Download (APK)</span>
+              <span class="font-sans text-xs font-semibold text-white">Download (Android)</span>
               <div>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
