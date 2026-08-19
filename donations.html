@@ -2,7 +2,7 @@
 <html lang="ckb" dir="rtl">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>بەخشین — قورئانی پیرۆز</title>
     <meta name="description" content="بەشی بەخشین بۆ ئەپی «قورئانی پیرۆز — پەڕتووکی خودا»: خەزێنە، داواکارییە چالاکەکان، بەخشەران و خەرجییەکان — بە ڕاستەقینە کاتی و نوێبوونەوەی خۆکار.">
     <meta name="robots" content="noindex">
@@ -382,6 +382,10 @@
       <div id="content" aria-live="polite">
         <p class="skeleton">بارکردن...</p>
       </div>
+      <!-- Split from #content above so toggling a collapsible or picking a month only touches
+           these two cards' DOM — leaving the treasury card's logo <img> elements (and the rest
+           of #content) untouched instead of being torn down and rebuilt on every unrelated tap. -->
+      <div id="content-dynamic"></div>
     </main>
 
     <footer>
@@ -393,6 +397,17 @@
 
       document.getElementById('year').textContent = new Date().getFullYear();
 
+      // Blocks the two forms of desktop zoom the viewport meta tag can't reach: trackpad pinch
+      // (fires as wheel+ctrlKey in Chrome/Firefox/Edge) and the Ctrl/Cmd +/-/0 keyboard shortcuts.
+      // Mobile pinch-zoom is handled by maximum-scale=1, user-scalable=no on that tag instead.
+      document.addEventListener('wheel', (e) => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+      document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && ['+', '-', '=', '0'].includes(e.key)) e.preventDefault();
+      });
+      // Safari's own pinch-gesture events, separate from wheel+ctrlKey.
+      document.addEventListener('gesturestart', (e) => e.preventDefault());
+      document.addEventListener('gesturechange', (e) => e.preventDefault());
+
       // Anon (public) key only — the same one already shipped inside the mobile apps' own
       // bundles, protected entirely by each table's RLS policy, never the service_role key Hevi
       // Edit uses to write. This page only ever selects.
@@ -402,6 +417,7 @@
       );
 
       const content = document.getElementById('content');
+      const contentDynamic = document.getElementById('content-dynamic');
 
       function formatAmount(n) {
         const num = Number(n) || 0;
@@ -542,7 +558,7 @@
         return `
           <div class="card treasury-card">
             <div class="treasury-icon">🏛️</div>
-            <div class="muted small">خەزێنەی بەرنامە</div>
+            <div class="muted small">خەزێنەی ئێستای بەرنامە</div>
             <div class="treasury-balance">${formatAmount(treasury.balance)}</div>
             ${note}
             ${phone}
@@ -634,7 +650,7 @@
 
       window.__toggleUnlinked = function () {
         unlinkedExpanded = !unlinkedExpanded;
-        renderFromCache();
+        renderDynamicFromCache();
       };
 
       // A transparent overlay input (tap-anywhere-on-the-label) turned out unreliable in real
@@ -660,7 +676,7 @@
       window.__onUnlinkedMonthChange = function (value) {
         if (!value) return;
         selectedMonth = value;
-        renderFromCache();
+        renderDynamicFromCache();
       };
 
       // "بەخشەران" (Donators): every donor across every campaign and every spontaneous gift,
@@ -688,13 +704,14 @@
         const donors = aggregateDonors(campaignDonations, unlinkedDonations);
         if (!donors.length) return '';
 
-        // "هەموو بەخشەران" (All Donators), not just "بەخشەران": the active campaign's own card
-        // already uses that title for its per-transaction list right above this one — same word
-        // twice on one page reads as a bug, not two different things.
+        // "بەخشەران (بە کۆی بەخشینەکانیشیانەوە)", not bare "بەخشەران": the active campaign's own
+        // card already uses that word for its per-transaction list right above this one, so the
+        // parenthetical ("with their donation totals too") is what tells the two apart — this one
+        // is per-person totals, not individual transactions.
         const chevron = `<span class="chevron${donatorsExpanded ? ' open' : ''}">⌄</span>`;
         const header = `
           <button type="button" class="collapsible-header" onclick="window.__toggleDonators()">
-            <h2>هەموو بەخشەران</h2>
+            <h2>بەخشەران (بە کۆی بەخشینەکانیشیانەوە)</h2>
             ${chevron}
           </button>`;
 
@@ -712,7 +729,7 @@
 
       window.__toggleDonators = function () {
         donatorsExpanded = !donatorsExpanded;
-        renderFromCache();
+        renderDynamicFromCache();
       };
 
       function expensesCard(expenses) {
@@ -754,15 +771,32 @@
         renderFromCache();
       }
 
-      function renderFromCache() {
+      // Two containers, two render functions: بەخشینی خۆبەخشانە and هەموو بەخشەران are the only
+      // cards whose markup depends on UI-only state (unlinkedExpanded/selectedMonth,
+      // donatorsExpanded), so they alone live in #content-dynamic and re-render on every toggle
+      // or month change. The rest — including the treasury card's FIB/Qi/Fastpay logo <img>
+      // elements — sits in #content and is left alone unless the underlying data actually
+      // changed, so tapping a collapsible header no longer tears down and re-fetches those
+      // images (confirmed visible as a "reload" flash before this split).
+      function renderStaticFromCache() {
         content.innerHTML = [
           treasuryCard(lastTreasury),
           expensesCard(lastExpenses),
           campaignCard(lastCampaign, lastCampaignDonations),
           donorHistoryCard('بەخشەران', lastCampaignDonations),
+        ].join('');
+      }
+
+      function renderDynamicFromCache() {
+        contentDynamic.innerHTML = [
           unlinkedDonationsCard(lastUnlinked),
           donatorsCard(lastCampaignDonations, lastUnlinked),
         ].join('');
+      }
+
+      function renderFromCache() {
+        renderStaticFromCache();
+        renderDynamicFromCache();
       }
 
       fetchAndRenderAll();

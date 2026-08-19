@@ -2,7 +2,7 @@
 <html lang="ckb" dir="rtl">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>قورئانی پیرۆز — پەڕتووکی خودا</title>
     <meta name="description" content="بەرنامەی مۆبایلیی &quot;قورئانی پیرۆز — پەڕتووکی خودا&quot; بۆ گرتنەبەری گەشتێکی پڕ لە تێگەیشتنە بەنێو ئایەتەکانی قورئان بە زمانی شیرینی کوردی (هەرسێ زار و شێوەزاری کوردیی ناوەندی و بادینانی و هەورامانی) بەسیازدە تەفسیری کوردی و فەرهەنگێکی ڕیشەییی وشەکانی قورئانەوە.">
     <meta name="keywords" content="قورئان, قورئانی پیرۆز, کوردی, تەفسیر, پەڕتووکی خودا, Quran, Kurdish">
@@ -228,6 +228,17 @@
 
     <script>
       document.getElementById('year').textContent = new Date().getFullYear();
+
+      // Blocks the two forms of desktop zoom the viewport meta tag above can't reach: trackpad
+      // pinch (fires as wheel+ctrlKey in Chrome/Firefox/Edge) and the Ctrl/Cmd +/-/0 keyboard
+      // shortcuts. Mobile pinch-zoom is handled by maximum-scale=1, user-scalable=no instead.
+      document.addEventListener('wheel', (e) => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+      document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && ['+', '-', '=', '0'].includes(e.key)) e.preventDefault();
+      });
+      // Safari's own pinch-gesture events, separate from wheel+ctrlKey.
+      document.addEventListener('gesturestart', (e) => e.preventDefault());
+      document.addEventListener('gesturechange', (e) => e.preventDefault());
     </script>
   </body>
 </html>
