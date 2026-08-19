@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>بەخشین — قورئانی پیرۆز</title>
+    <meta name="description" content="بەشی بەخشین بۆ ئەپی «قورئانی پیرۆز — پەڕتووکی خودا»: خەزێنە، داواکارییە چالاکەکان، بەخشەران و خەرجییەکان — بە ڕاستەقینە کاتی و نوێبوونەوەی خۆکار.">
+    <meta name="robots" content="noindex">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="canonical" href="https://qurany-piroz.com/donations.html">
+
+    <style media="screen">
+      :root {
+        --brand: #A97D19;
+        --brand-dark: #8C6614;
+        --on-brand: #FFFFFF;
+        --bg: #F7F7FA;
+        --surface: #FFFFFF;
+        --text: #1D2231;
+        --muted: #5B6272;
+        --border: rgba(29, 34, 49, 0.14);
+        --shadow: 0 18px 40px rgba(29, 34, 49, 0.12);
+        --income: #1E8E5A;
+        --expense: #C0392B;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --brand: #E2BD37;
+          --brand-dark: #CBA62E;
+          --on-brand: #1A1405;
+          --bg: #12141C;
+          --surface: #1D2231;
+          --text: #F4F4F5;
+          --muted: #A9AEBD;
+          --border: rgba(226, 189, 55, 0.18);
+          --shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+          --income: #4CC38A;
+          --expense: #E5766B;
+        }
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      header.top {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        max-width: 640px;
+        margin: 0 auto;
+        padding: 24px 20px 8px;
+      }
+
+      header.top img {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+      }
+
+      header.top a {
+        color: var(--text);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 17px;
+      }
+
+      .back-link {
+        margin-inline-start: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--muted) !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+      }
+
+      main {
+        max-width: 640px;
+        margin: 0 auto;
+        padding: 12px 20px 56px;
+      }
+
+      h1.page-title {
+        font-size: 26px;
+        font-weight: 700;
+        margin: 12px 0 20px;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 18px;
+        margin-bottom: 16px;
+        box-shadow: var(--shadow);
+      }
+
+      .card h2 {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0 0 10px;
+      }
+
+      .muted { color: var(--muted); }
+      .small { font-size: 13px; }
+
+      .treasury-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .treasury-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: var(--brand);
+        color: var(--on-brand);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex: none;
+      }
+
+      .treasury-balance {
+        font-size: 22px;
+        font-weight: 700;
+      }
+
+      .pay-methods {
+        display: flex;
+        gap: 6px;
+        margin-top: 12px;
+      }
+
+      .pay-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      .phone-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 8px;
+        padding: 8px 14px;
+        border-radius: 20px;
+        background: color-mix(in srgb, var(--brand) 14%, transparent);
+        color: var(--brand-dark);
+        font-weight: 700;
+        text-decoration: none;
+        font-size: 15px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .phone-chip { color: var(--brand); }
+      }
+
+      .progress-track {
+        height: 8px;
+        border-radius: 4px;
+        background: var(--border);
+        overflow: hidden;
+        margin: 10px 0;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: var(--brand);
+        border-radius: 4px;
+        transition: width 0.4s ease;
+      }
+
+      .campaign-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+      }
+
+      .campaign-figures {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 8px;
+      }
+
+      .campaign-figures .remaining {
+        font-weight: 700;
+      }
+
+      .description-html {
+        font-size: 14px;
+        line-height: 1.9;
+      }
+
+      .description-html img { max-width: 100%; height: auto; border-radius: 10px; }
+
+      .name { font-size: 14px; }
+      .amount { font-size: 14px; font-weight: 700; flex: none; }
+      .amount.income { color: var(--income); }
+      .amount.expense { color: var(--expense); }
+
+      .collapsible-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+        font: inherit;
+        color: inherit;
+        text-align: inherit;
+      }
+
+      .collapsible-header h2 { margin: 0; }
+
+      .collapsible-header .chevron {
+        color: var(--muted);
+        font-size: 18px;
+        line-height: 1;
+        transition: transform 0.2s ease;
+      }
+
+      .collapsible-header .chevron.open { transform: rotate(180deg); }
+
+      .month-picker-row {
+        position: relative;
+        display: inline-block;
+        margin: 12px 0 6px;
+      }
+
+      .month-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 10px;
+        background: color-mix(in srgb, var(--brand) 10%, transparent);
+        color: var(--brand-dark);
+        font-weight: 700;
+        font-size: 13.5px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .month-label { color: var(--brand); }
+      }
+
+      /* The real <input type="month"> sits invisibly on top of the styled label above it, so
+         tapping anywhere on the label opens the native month picker — more reliable across
+         browsers than triggering showPicker() from a separate element. */
+      .month-input-overlay {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        border: none;
+        cursor: pointer;
+      }
+
+      .expense-row {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        padding: 9px 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .expense-row:last-child { border-bottom: none; }
+
+      .expense-row .top-line {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .expense-row .date { font-size: 12px; }
+
+      .empty-note {
+        color: var(--muted);
+        font-size: 14px;
+        text-align: center;
+        padding: 18px 0;
+      }
+
+      .skeleton {
+        color: var(--muted);
+        font-size: 14px;
+        text-align: center;
+        padding: 40px 0;
+      }
+
+      footer {
+        color: var(--muted);
+        font-size: 13px;
+        text-align: center;
+        padding: 0 24px 40px;
+      }
+
+      footer a { color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <a href="index.html"><img src="logo.png" alt="لۆگۆی قورئانی پیرۆز"></a>
+      <a href="index.html">قورئانی پیرۆز</a>
+      <a class="back-link" href="index.html">گەڕانەوە ›</a>
+    </header>
+
+    <main>
+      <h1 class="page-title">بەخشین</h1>
+
+      <div id="content" aria-live="polite">
+        <p class="skeleton">بارکردن...</p>
+      </div>
+    </main>
+
+    <footer>
+      © <span id="year"></span> قورئانی پیرۆز — پەڕتووکی خودا.
+    </footer>
+
+    <script type="module">
+      import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+      document.getElementById('year').textContent = new Date().getFullYear();
+
+      // Anon (public) key only — the same one already shipped inside the mobile apps' own
+      // bundles, protected entirely by each table's RLS policy, never the service_role key Hevi
+      // Edit uses to write. This page only ever selects.
+      const supabase = createClient(
+        'https://ugfipcwtkwmuukipmgst.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVnZmlwY3d0a3dtdXVraXBtZ3N0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE3MTIzODQsImV4cCI6MjA0NzI4ODM4NH0.oRKqjlM2mXTAsunBjSLRzcGjjWD12Wp8WZYony10en0'
+      );
+
+      const content = document.getElementById('content');
+
+      function formatAmount(n) {
+        const num = Number(n) || 0;
+        return num.toLocaleString('en-US') + ' د.ع';
+      }
+
+      function formatDate(isoOrDateString) {
+        return String(isoOrDateString).slice(0, 10);
+      }
+
+      const KURDISH_MONTHS = [
+        'کانوونی دووەم', 'شوبات', 'ئازار', 'نیسان', 'ئایار', 'حوزەیران',
+        'تەمووز', 'ئاب', 'ئەیلوول', 'تشرینی یەکەم', 'تشرینی دووەم', 'کانوونی یەکەم',
+      ];
+
+      function formatMonthLabel(yyyyMM) {
+        const [y, m] = yyyyMM.split('-').map(Number);
+        return `${KURDISH_MONTHS[m - 1]} ${y}`;
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;');
+      }
+
+      // ---- Fetchers -----------------------------------------------------------------------
+
+      async function fetchActiveCampaign() {
+        const { data } = await supabase
+          .from('donation_campaigns')
+          .select()
+          .eq('is_active', true)
+          .order('created_at', { ascending: false })
+          .limit(1);
+        return data && data[0] ? data[0] : null;
+      }
+
+      async function fetchDonationsForCampaign(campaignId) {
+        const { data } = await supabase
+          .from('donations')
+          .select()
+          .eq('campaign_id', campaignId)
+          .order('donated_at', { ascending: false });
+        return data || [];
+      }
+
+      async function fetchUnlinkedDonations() {
+        const { data } = await supabase
+          .from('donations')
+          .select()
+          .is('campaign_id', null)
+          .order('donated_at', { ascending: false });
+        return data || [];
+      }
+
+      async function fetchTreasury() {
+        const { data } = await supabase.from('app_treasury').select().eq('id', 1);
+        return data && data[0] ? data[0] : null;
+      }
+
+      async function fetchExpenses() {
+        const { data } = await supabase
+          .from('treasury_expenses')
+          .select()
+          .order('spent_at', { ascending: false });
+        return data || [];
+      }
+
+      // ---- Renderers ------------------------------------------------------------------------
+
+      function treasuryCard(treasury) {
+        if (!treasury) return '';
+        // No FIB/Qi/Fastpay brand logos here on purpose: this is a public page with no
+        // relationship to those companies, and reproducing their trademarked marks without
+        // rights to do so isn't something to embed sight-unseen. Plain text badges name the same
+        // three payment methods without that risk.
+        //
+        // dir="ltr" on the number itself, not just the chip: a plain phone number embedded in
+        // RTL text is a run of "weak" bidi characters (digits/spaces), so the browser is free to
+        // reorder its groups against the surrounding RTL paragraph — confirmed rendering as
+        // "8781 544 0772" instead of "0772 544 8781" without this.
+        const phone = treasury.contact_phone && treasury.contact_phone.trim()
+          ? `
+            <div class="pay-methods">
+              <span class="pay-badge">FIB</span>
+              <span class="pay-badge">Qi</span>
+              <span class="pay-badge">Fastpay</span>
+            </div>
+            <a class="phone-chip" href="tel:${escapeHtml(treasury.contact_phone)}"><span dir="ltr">${escapeHtml(treasury.contact_phone)}</span></a><br>`
+          : '';
+        const note = treasury.note && treasury.note.trim()
+          ? `<div class="muted small" style="margin-top:6px">${escapeHtml(treasury.note)}</div>`
+          : '';
+        return `
+          <div class="card">
+            <div class="treasury-row">
+              <div class="treasury-icon">🏛️</div>
+              <div>
+                <div class="muted small">خەزێنەی ئەپ</div>
+                <div class="treasury-balance">${formatAmount(treasury.balance)}</div>
+              </div>
+            </div>
+            ${note}
+            ${phone}
+          </div>`;
+      }
+
+      function campaignCard(campaign, donations) {
+        if (!campaign) return '';
+        const given = donations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
+        const remaining = Math.max(0, (Number(campaign.target_amount) || 0) - given);
+        const progress = campaign.target_amount > 0
+          ? Math.min(100, Math.max(0, (given / campaign.target_amount) * 100))
+          : 0;
+        const description = campaign.description_html && campaign.description_html.trim()
+          ? `<div class="card"><h2>ڕوونکردنەوە</h2><div class="description-html">${campaign.description_html}</div></div>`
+          : '';
+
+        return `
+          <div class="card">
+            <h2>${escapeHtml(campaign.beneficiary_name)}</h2>
+            <div class="muted small">${formatDate(campaign.start_date)} — ${formatDate(campaign.end_date)}</div>
+            <div class="progress-track"><div class="progress-fill" style="width:${progress}%"></div></div>
+            <div class="campaign-figures">
+              <div class="remaining">ماوە: ${formatAmount(remaining)}</div>
+              <div class="muted small">ئامانج: ${formatAmount(campaign.target_amount)}</div>
+            </div>
+          </div>
+          ${description}
+          <div class="card">
+            <h2>چۆن ببەخشیت؟</h2>
+            <p class="small">دەتوانیت بڕی پارەکە بنێریت بۆ ژمارەی دیاریکراو لە ڕێگەی FIB، Qi یان Fastpayـەوە. تکایە بڕی پارەکە و مەبەستی ناردنەکە بنووسە تاوەکو بتوانرێت وەک بەخشین تۆمار بکرێت.</p>
+          </div>`;
+      }
+
+      function donorHistoryCard(title, donations) {
+        if (!donations.length) return '';
+        const rows = donations.map(d => donorRow(d)).join('');
+        return `<div class="card"><h2>${title}</h2>${rows}</div>`;
+      }
+
+      function donorRow(d) {
+        const name = d.donor_province ? `${escapeHtml(d.donor_name)} — ${escapeHtml(d.donor_province)}` : escapeHtml(d.donor_name);
+        return `
+          <div class="expense-row">
+            <div class="top-line">
+              <div class="name">${name}</div>
+              <div class="amount income">${formatAmount(d.amount)}</div>
+            </div>
+            <div class="muted date">${formatDate(d.donated_at)}</div>
+          </div>`;
+      }
+
+      // State for "بەخشینی خۆبەخشانە" only: collapsed by default, and — once opened — narrowed
+      // to one month at a time (a tappable label swaps in the real underlying <input type="month">
+      // that drives it) rather than dumping every spontaneous gift ever recorded into one list.
+      let unlinkedExpanded = false;
+      let selectedMonth = new Date().toISOString().slice(0, 7);
+
+      function unlinkedDonationsCard(donations) {
+        if (!donations.length) return '';
+
+        const chevron = `<span class="chevron${unlinkedExpanded ? ' open' : ''}">⌄</span>`;
+        const header = `
+          <button type="button" class="collapsible-header" onclick="window.__toggleUnlinked()">
+            <h2>بەخشینی خۆبەخشانە</h2>
+            ${chevron}
+          </button>`;
+
+        if (!unlinkedExpanded) {
+          return `<div class="card">${header}</div>`;
+        }
+
+        const filtered = donations.filter(d => String(d.donated_at).slice(0, 7) === selectedMonth);
+        const rows = filtered.length
+          ? filtered.map(d => donorRow(d)).join('')
+          : `<p class="empty-note">هیچ بەخشینێکی خۆبەخشانە نییە بۆ ئەم مانگە</p>`;
+
+        return `
+          <div class="card">
+            ${header}
+            <div class="month-picker-row">
+              <span class="month-label">📅 ${formatMonthLabel(selectedMonth)}</span>
+              <input type="month" class="month-input-overlay" value="${selectedMonth}"
+                     aria-label="مانگ هەڵبژێرە" onchange="window.__onUnlinkedMonthChange(this.value)">
+            </div>
+            ${rows}
+          </div>`;
+      }
+
+      window.__toggleUnlinked = function () {
+        unlinkedExpanded = !unlinkedExpanded;
+        renderFromCache();
+      };
+
+      window.__onUnlinkedMonthChange = function (value) {
+        if (!value) return;
+        selectedMonth = value;
+        renderFromCache();
+      };
+
+      function expensesCard(expenses) {
+        if (!expenses.length) return '';
+        const rows = expenses.map(e => `
+          <div class="expense-row">
+            <div class="top-line">
+              <div class="name">${escapeHtml(e.description)}</div>
+              <div class="amount expense">${formatAmount(e.amount)}</div>
+            </div>
+            <div class="muted date">${formatDate(e.spent_at)}</div>
+          </div>`).join('');
+        return `<div class="card"><h2>خەرجییەکانی خەزێنە</h2>${rows}</div>`;
+      }
+
+      // ---- Full render ------------------------------------------------------------------------
+
+      // Last-fetched data, kept around so the collapsible/month-picker state above can re-render
+      // instantly from cache (no network round trip) instead of going through fetchAndRenderAll
+      // — which is reserved for an actual page load or a Realtime change notification.
+      let lastCampaign = null;
+      let lastTreasury = null;
+      let lastCampaignDonations = [];
+      let lastUnlinked = [];
+      let lastExpenses = [];
+
+      async function fetchAndRenderAll() {
+        const [campaign, treasury, unlinked, expenses] = await Promise.all([
+          fetchActiveCampaign(),
+          fetchTreasury(),
+          fetchUnlinkedDonations(),
+          fetchExpenses(),
+        ]);
+        lastCampaign = campaign;
+        lastTreasury = treasury;
+        lastUnlinked = unlinked;
+        lastExpenses = expenses;
+        lastCampaignDonations = campaign ? await fetchDonationsForCampaign(campaign.id) : [];
+        renderFromCache();
+      }
+
+      function renderFromCache() {
+        content.innerHTML = [
+          treasuryCard(lastTreasury),
+          expensesCard(lastExpenses),
+          campaignCard(lastCampaign, lastCampaignDonations),
+          donorHistoryCard('بەخشەران', lastCampaignDonations),
+          unlinkedDonationsCard(lastUnlinked),
+        ].join('');
+      }
+
+      fetchAndRenderAll();
+
+      // ---- Realtime: re-fetch and re-render whenever any of these tables change, so the page
+      // never needs a manual refresh to reflect what Hevi Edit just published or a visitor's
+      // donation. Toggling the collapsible section or picking a month re-renders from cache
+      // instead (see renderFromCache) — only an actual data change re-fetches. ------------------
+      supabase
+        .channel('public:donations-page')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'donation_campaigns' }, fetchAndRenderAll)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'donations' }, fetchAndRenderAll)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'app_treasury' }, fetchAndRenderAll)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'treasury_expenses' }, fetchAndRenderAll)
+        .subscribe();
+    </script>
+  </body>
+</html>

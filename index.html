@@ -102,52 +102,29 @@
         text-align: justify;
       }
 
-      .features {
-        list-style: none;
-        margin: 0 auto 36px;
-        padding: 0;
-        max-width: 420px;
-        text-align: start;
-      }
-
-      .features li {
-        position: relative;
-        padding-inline-start: 26px;
-        margin-bottom: 8px;
-        color: var(--muted);
-        font-size: 15px;
-      }
-
-      .features li::before {
-        content: "✓";
-        position: absolute;
-        inset-inline-start: 0;
-        color: var(--brand);
-        font-weight: 700;
-      }
-
       .downloads {
         display: flex;
-        flex-direction: column;
-        gap: 12px;
-        max-width: 340px;
+        flex-direction: row;
+        gap: 10px;
+        max-width: 420px;
         margin: 0 auto;
       }
 
       .btn {
         display: flex;
+        flex: 1;
         align-items: center;
         justify-content: center;
-        gap: 10px;
-        padding: 16px 20px;
-        border-radius: 14px;
+        gap: 6px;
+        padding: 11px 14px;
+        border-radius: 12px;
         text-decoration: none;
-        font-size: 16px;
+        font-size: 13px;
         font-weight: 600;
         transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
       }
 
-      .btn svg { width: 22px; height: 22px; flex: none; }
+      .btn svg { width: 17px; height: 17px; flex: none; }
 
       .btn-ios {
         background: var(--brand);
@@ -176,6 +153,26 @@
         max-width: 340px;
       }
 
+      .donations-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 28px;
+        padding: 10px 20px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        color: var(--text);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        transition: transform 0.15s ease, background 0.15s ease;
+      }
+
+      .donations-link:hover {
+        background: color-mix(in srgb, var(--brand) 10%, transparent);
+        transform: translateY(-2px);
+      }
+
       footer {
         color: var(--muted);
         font-size: 13px;
@@ -200,15 +197,6 @@
         بەرنامەی مۆبایلیی «قورئانی پیرۆز — پەڕتووکی خودا» بۆ گرتنەبەری گەشتێکی پڕ لە تێگەیشتنە بەنێو ئایەتەکانی قورئان بە زمانی شیرینی کوردی (هەرسێ زار و شێوەزاری کوردیی ناوەندی و بادینانی و هەورامانی) بەسیازدە تەفسیری کوردی و فەرهەنگێکی ڕیشەییی وشەکانی قورئانەوە.
       </p>
 
-      <ul class="features">
-        <li>سیانزە تەفسیری کوردی بۆ هەموو ئایەتەکانی قورئان (هێڤی، پوخت، هەژار، ئاسان، ڕامان، ڕێبەر و...)</li>
-        <li>بەردەستە بە هەرسێ شێوەزاری کوردی (ناوەندی، بادینی، هەورامی)</li>
-        <li>گەڕانی تەفسیر بۆ دۆزینەوەی ئایەت بەپێی ناوەڕۆک</li>
-        <li>فەرهەنگی ڕیشەیی وشەکانی قورئان</li>
-        <li>لیستی دڵخوازەکان و کۆپیکردنی دەقی ئایەتەکان</li>
-        <li>پشتگیریکردنی زمانی ئاماژە بۆ نابیستان</li>
-      </ul>
-
       <div class="downloads">
         <a id="ios-btn" class="btn btn-ios" href="https://apps.apple.com/us/app/%D9%82%D9%88%D8%B1%D8%A6%D8%A7%D9%86%DB%8C-%D9%BE%DB%8C%D8%B1%DB%86%D8%B2-%D9%BE%DB%95%DA%95%D8%AA%D9%88%D9%88%DA%A9%DB%8C-%D8%AE%D9%88%D8%AF%D8%A7/id1240368293?ign-itscg=30200&ign-itsct=apps_box_link&mttnsubad=1240368293" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -228,6 +216,10 @@
       <p class="note">
         بۆ ئەندرۆید: دوای داگرتن، ڕێگە بە دامەزراندنی ئەپ لە سەرچاوەی نەناسراو بدە.
       </p>
+
+      <a class="donations-link" href="donations.html">
+        <span>🤍 بەخشین</span>
+      </a>
     </main>
 
     <footer>
