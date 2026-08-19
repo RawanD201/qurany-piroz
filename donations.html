@@ -367,6 +367,104 @@
         opacity: 1;
         transform: translate(-50%, 0);
       }
+
+      /* One donor's own donation history, opened by tapping their row in
+         "بەخشەران (بە کۆی بەخشینەکانیشیانەوە)". Same lazily-created-on-first-use pattern as
+         #toast above, rather than sitting empty in the static markup. */
+      .donor-row {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 0;
+        border: none;
+        border-bottom: 1px solid var(--border);
+        background: none;
+        font: inherit;
+        color: inherit;
+        text-align: inherit;
+        cursor: pointer;
+      }
+
+      .donor-row:last-child { border-bottom: none; }
+      .donor-row:hover, .donor-row:focus-visible { background: color-mix(in srgb, var(--brand) 6%, transparent); }
+
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        z-index: 200;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+      }
+
+      .modal-overlay.show {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .modal-box {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+        width: 100%;
+        max-width: 420px;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        transform: translateY(10px) scale(0.98);
+        transition: transform 0.2s ease;
+      }
+
+      .modal-overlay.show .modal-box {
+        transform: translateY(0) scale(1);
+      }
+
+      .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 16px 18px 12px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .modal-header h3 {
+        margin: 0;
+        font-size: 16px;
+      }
+
+      .modal-close {
+        background: none;
+        border: none;
+        color: var(--muted);
+        font-size: 18px;
+        line-height: 1;
+        padding: 4px;
+        cursor: pointer;
+        flex: none;
+      }
+
+      .modal-body {
+        padding: 4px 18px;
+        overflow-y: auto;
+      }
+
+      .modal-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 18px 16px;
+        border-top: 1px solid var(--border);
+        font-weight: 700;
+      }
     </style>
   </head>
   <body>
@@ -611,6 +709,16 @@
           </div>`;
       }
 
+      // Same date + amount, without the name — used inside the per-donor modal below, where the
+      // name is already the modal's own title and repeating it on every row would be noise.
+      function donationDateAmountRow(d) {
+        return `
+          <div class="simple-row">
+            <div class="muted small">${formatDate(d.donated_at)}</div>
+            <div class="amount income">${formatAmount(d.amount)}</div>
+          </div>`;
+      }
+
       // State for "بەخشینی خۆبەخشانە" only: collapsed by default, and — once opened — narrowed
       // to one month at a time (a tappable label swaps in the real underlying <input type="month">
       // that drives it) rather than dumping every spontaneous gift ever recorded into one list.
@@ -700,8 +808,18 @@
         return Array.from(totals.values()).sort((a, b) => b.total - a.total);
       }
 
+      // Both filled in by donatorsCard on every render, read back by __showDonorDetail when a row
+      // is tapped: the aggregated list itself (so the modal knows which donor/total was clicked,
+      // by index — sidesteps escaping a name into an inline onclick string) and the full
+      // transaction list it was built from (so the modal can list that one donor's individual
+      // gifts with their dates).
+      let lastDonorsList = [];
+      let lastAllDonations = [];
+
       function donatorsCard(campaignDonations, unlinkedDonations) {
         const donors = aggregateDonors(campaignDonations, unlinkedDonations);
+        lastDonorsList = donors;
+        lastAllDonations = [...campaignDonations, ...unlinkedDonations];
         if (!donors.length) return '';
 
         // "بەخشەران (بە کۆی بەخشینەکانیشیانەوە)", not bare "بەخشەران": the active campaign's own
@@ -719,12 +837,71 @@
           return `<div class="card">${header}</div>`;
         }
 
-        const rows = donors.map(d => {
+        const rows = donors.map((d, i) => {
           const name = d.province ? `${escapeHtml(d.name)} — ${escapeHtml(d.province)}` : escapeHtml(d.name);
-          return `<div class="simple-row"><div class="name">${name}</div><div class="amount income">${formatAmount(d.total)}</div></div>`;
+          return `
+            <button type="button" class="donor-row" onclick="window.__showDonorDetail(${i})">
+              <div class="name">${name}</div>
+              <div class="amount income">${formatAmount(d.total)}</div>
+            </button>`;
         }).join('');
 
         return `<div class="card">${header}${rows}</div>`;
+      }
+
+      // Opened by tapping a donor's row above — a small modal listing that one person's own
+      // donations with their dates, and their running total at the bottom, rather than sending
+      // them off to scroll and mentally filter the campaign/بەخشینی-خۆبەخشانە lists themselves.
+      window.__showDonorDetail = function (index) {
+        const donor = lastDonorsList[index];
+        if (!donor) return;
+
+        const donations = lastAllDonations
+          .filter(d => d.donor_name === donor.name && (d.donor_province || '') === (donor.province || ''))
+          .sort((a, b) => String(b.donated_at).localeCompare(String(a.donated_at)));
+
+        const rows = donations.length
+          ? donations.map(d => donationDateAmountRow(d)).join('')
+          : `<p class="empty-note">هیچ بەخشینێک نەدۆزرایەوە</p>`;
+        const nameLabel = donor.province ? `${escapeHtml(donor.name)} — ${escapeHtml(donor.province)}` : escapeHtml(donor.name);
+
+        let modal = document.getElementById('donor-modal');
+        if (!modal) {
+          modal = document.createElement('div');
+          modal.id = 'donor-modal';
+          modal.className = 'modal-overlay';
+          // Backdrop tap closes it — only when the tap lands on the backdrop itself, not
+          // anything bubbling up from inside the box.
+          modal.addEventListener('click', (e) => { if (e.target === modal) window.__closeDonorModal(); });
+          document.body.appendChild(modal);
+        }
+        modal.innerHTML = `
+          <div class="modal-box">
+            <div class="modal-header">
+              <h3>${nameLabel}</h3>
+              <button type="button" class="modal-close" onclick="window.__closeDonorModal()" aria-label="داخستن">✕</button>
+            </div>
+            <div class="modal-body">${rows}</div>
+            <div class="modal-footer">
+              <span>کۆی گشتی</span>
+              <span class="amount income">${formatAmount(donor.total)}</span>
+            </div>
+          </div>`;
+        // Reflow before adding .show, same trick showToast uses, so the open transition actually
+        // plays instead of the box appearing pre-shown on the very first modal of the page.
+        void modal.offsetWidth;
+        modal.classList.add('show');
+        document.addEventListener('keydown', __donorModalEscHandler);
+      };
+
+      window.__closeDonorModal = function () {
+        const modal = document.getElementById('donor-modal');
+        if (modal) modal.classList.remove('show');
+        document.removeEventListener('keydown', __donorModalEscHandler);
+      };
+
+      function __donorModalEscHandler(e) {
+        if (e.key === 'Escape') window.__closeDonorModal();
       }
 
       window.__toggleDonators = function () {
