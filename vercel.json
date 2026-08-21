@@ -2,8 +2,8 @@
   "framework": null,
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/ayat/:surat/:ayat", "destination": "/ayat.html" },
-    { "source": "/quiz/:code", "destination": "/quiz.html" }
+    { "source": "/ayat/:path*", "destination": "/ayat" },
+    { "source": "/quiz/:path*", "destination": "/quiz" }
   ],
   "headers": [
     {

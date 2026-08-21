@@ -6,11 +6,15 @@ app** instead of on this website's front page. Two link shapes exist, and both a
 
 | Link | Opens |
 | --- | --- |
-| `https://qurany-piroz.com/ayat/<surat>/<ayat>` | that verse, in the Quran tab |
-| `https://qurany-piroz.com/quiz/<CODE>` | the online-quiz lobby for that invite code, already joined |
+| `https://www.qurany-piroz.com/ayat/<surat>/<ayat>` | that verse, in the Quran tab |
+| `https://www.qurany-piroz.com/quiz/<CODE>` | the online-quiz lobby for that invite code, already joined |
 
-Always the apex domain, never `www` — a Universal Link only fires on the exact host that
-served the association file without a redirect.
+**Always `www`, never the bare apex.** Vercel serves this site on `www.qurany-piroz.com` and
+308-redirects `qurany-piroz.com` to it. Neither iOS nor Android follows a redirect when it
+fetches an association file, so an apex link never verifies and always falls out into a
+browser. Both apps still *parse* apex links, in case somebody types one, and both are listed
+in the iOS entitlement — if the apex is ever made Vercel's primary domain, they start working
+with no code change.
 
 ## What is in this repo for it
 
@@ -48,34 +52,36 @@ iOS. If the Flutter app is ever released on the App Store too, add
 `5YY9H4RAS5.com.alandkawaali.quraniPirozPartukiXwda` to `appIDs` — but note that when two
 installed apps claim the same path, which one iOS picks is not something you control.
 
-**Android.** `assetlinks.json` lists two SHA-256 fingerprints:
+**Android.** `assetlinks.json` names one SHA-256 fingerprint, `B3:B6:5C:…` — the certificate
+in `~/upload-keystore.jks`, which `android/app/build.gradle.kts` now uses for release builds
+(it reads `android/key.properties`). Any APK signed with anything else will not verify.
 
-| Fingerprint starting | Key |
-| --- | --- |
-| `56:5E:5D:…` | the Android **debug** key that signs the APK released today |
-| `B3:B6:5C:…` | `~/upload-keystore.jks`, for when release signing is switched over |
+That means the released APK has to be a **release** build. `flutter run` and
+`flutter build apk --debug` still sign with the debug key, so App Links will not auto-open on
+a debug install — test with `flutter build apk --release`, or use the `quranipiroz://` scheme,
+which needs no verification at all.
 
-The debug key is there because `android/app/build.gradle.kts` still has
-`signingConfig = signingConfigs.getByName("debug")` in its release block, so that is what
-actually signed `qurany-piroz.apk`. Once the release build is wired to `key.properties`,
-drop the `56:5E:…` line — and until then, be aware that a debug key is a weaker thing to
-grant a domain to than a real release key. Nothing breaks if verification fails, by the way:
-the fallback page's "open in the app" button still gets the reader in, it just costs them
-one extra tap.
+Nothing breaks outright if verification fails, by the way: the fallback page's "open in the
+app" button still gets the reader in, it just costs them one extra tap.
 
 ## Checking it works
 
 ```
-curl -sI https://qurany-piroz.com/.well-known/apple-app-site-association   # 200, application/json, no redirect
-curl -s  https://qurany-piroz.com/.well-known/assetlinks.json | python3 -m json.tool
-curl -sI https://qurany-piroz.com/ayat/2/255                              # 200
-curl -sI https://qurany-piroz.com/quiz/K7F2                               # 200
+curl -sI https://www.qurany-piroz.com/.well-known/apple-app-site-association   # 200, application/json, no redirect
+curl -s  https://www.qurany-piroz.com/.well-known/assetlinks.json | python3 -m json.tool
+curl -sI https://www.qurany-piroz.com/ayat/2/255                              # 200 text/html
+curl -sI https://www.qurany-piroz.com/quiz/K7F2                               # 200 text/html
 ```
 
-Apple's own validator: `https://app-site-association.cdn-apple.com/a/v1/qurany-piroz.com`
+A 404 on the last two means the `rewrites` in `vercel.json` are not resolving. Note their
+destinations are `/ayat` and `/quiz`, **not** `/ayat.html` and `/quiz.html`: with
+`cleanUrls: true` Vercel registers every page at its extensionless path, so an `.html`
+destination points at a route that no longer exists and returns Vercel's own 404 page.
+
+Apple's own validator: `https://app-site-association.cdn-apple.com/a/v1/www.qurany-piroz.com`
 (this is the CDN copy iOS actually reads; it can lag your deploy by up to 24h).
 
-Google's: `https://digitalassetlinks.googleapis.com/v1/statements:list?source.web.site=https://qurany-piroz.com&relation=delegate_permission/common.handle_all_urls`
+Google's: `https://digitalassetlinks.googleapis.com/v1/statements:list?source.web.site=https://www.qurany-piroz.com&relation=delegate_permission/common.handle_all_urls`
 
 On a device: `adb shell pm verify-app-links --re-verify com.alandkawaali.qurani_piroz_partuki_xwda`
 then `adb shell pm get-app-links com.alandkawaali.qurani_piroz_partuki_xwda`.
