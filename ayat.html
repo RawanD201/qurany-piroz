@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ئایەتێک — قورئانی پیرۆز</title>
+    <meta name="description" content="ئەم بەستەرە ڕاستەوخۆ ئەم ئایەتە لە بەرنامەی «قورئانی پیرۆز — پەڕتووکی خودا» دەکاتەوە.">
+    <meta name="robots" content="noindex">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="stylesheet" href="/deeplink.css">
+  </head>
+  <body>
+    <main>
+      <img class="logo" src="/logo.png" alt="لۆگۆی ئەپی قورئانی پیرۆز" width="96" height="96">
+
+      <h1>ئایەتێکت بۆ هاتووە</h1>
+      <p class="subtitle">ئەم بەستەرە ڕاستەوخۆ ئەم ئایەتە لە بەرنامەکەدا دەکاتەوە.</p>
+
+      <div class="target-card" id="target-card">
+        <p class="target-label">سوورەت و ئایەت</p>
+        <p class="target-value" id="reference">…</p>
+      </div>
+
+      <div class="actions">
+        <a class="btn btn-primary" id="open-btn" href="#">کردنەوە لە بەرنامەکەدا</a>
+
+        <a class="btn btn-secondary" id="ios-btn" href="https://apps.apple.com/us/app/%D9%82%D9%88%D8%B1%D8%A6%D8%A7%D9%86%DB%8C-%D9%BE%DB%8C%D8%B1%DB%86%D8%B2-%D9%BE%DB%95%DA%95%D8%AA%D9%88%D9%88%DA%A9%DB%8C-%D8%AE%D9%88%D8%AF%D8%A7/id1240368293?ign-itscg=30200&ign-itsct=apps_box_link&mttnsubad=1240368293">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M16.365 1.43c0 1.14-.42 2.2-1.12 3-.79.9-2.06 1.6-3.09 1.52-.13-1.1.44-2.25 1.11-3.01.76-.87 2.1-1.53 3.1-1.51zM20.9 17.03c-.55 1.27-.81 1.84-1.52 2.96-.99 1.56-2.39 3.5-4.12 3.51-1.54.02-1.94-1-4.03-.99-2.09.01-2.52 1.01-4.06.99-1.73-.01-3.06-1.76-4.05-3.32C.32 15.8-.02 10.7 1.72 8.03c1.24-1.9 3.2-3.01 5.04-3.01 1.87 0 3.05 1.03 4.6 1.03 1.5 0 2.42-1.03 4.59-1.03 1.64 0 3.37.89 4.61 2.43-4.05 2.22-3.39 8.01.34 9.58z"/>
+          </svg>
+          <span>دابارکردن لە App Store</span>
+        </a>
+
+        <a class="btn btn-secondary" id="android-btn" href="https://github.com/RawanD201/qurany-piroz/releases/download/2.0.2/qurany-piroz.apk" download>
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M17.6 9.48l1.84-3.18a.38.38 0 10-.66-.38l-1.87 3.23a11.4 11.4 0 00-9.82 0L5.22 5.92a.38.38 0 10-.66.38L6.4 9.48A10.7 10.7 0 001 17.86h22a10.7 10.7 0 00-5.4-8.38zM7 14.87a.92.92 0 110-1.84.92.92 0 010 1.84zm10 0a.92.92 0 110-1.84.92.92 0 010 1.84z"/>
+          </svg>
+          <span>دابارکردنی APK بۆ Android</span>
+        </a>
+      </div>
+
+      <p class="note" id="open-hint">ئەگەر بەرنامەکەت دامەزراندبێت، بەشێوەی ئاسایی بەستەرەکە خۆی بەرنامەکە دەکاتەوە. ئەگەر ئەوە ڕووی نەدا، دوگمەی سەرەوە دابگرە.</p>
+      <p class="note">بەرنامەی «قورئانی پیرۆز — پەڕتووکی خودا» — قورئان بە زمانی کوردی، بە سیازدە تەفسیرەوە.</p>
+    </main>
+
+    <footer>© <span id="year"></span> <a href="/">قورئانی پیرۆز — پەڕتووکی خودا</a></footer>
+
+    <script src="/surats.js"></script>
+    <script src="/open-in-app.js"></script>
+    <script>
+      (function () {
+        QPDeepLink.init();
+
+        // /ayat/<surat>/<ayat>
+        var segments = QPDeepLink.pathSegments();
+        var suratNum = parseInt(segments[1], 10);
+        var ayatNum = parseInt(segments[2], 10);
+
+        var surat = window.QP_SURATS[suratNum];
+        if (!surat || !ayatNum || ayatNum < 1 || ayatNum > surat[2]) {
+          QPDeepLink.showBroken('ئەم ئایەتە نەدۆزرایەوە. ڕەنگە بەستەرەکە بەتەواوی کۆپی نەکرابێت.');
+          return;
+        }
+
+        var suratLabel = 'سوورەتی ' + surat[1] + ' (' + surat[0] + ')';
+        var ayatLabel = 'ئایەتی ' + QPDeepLink.toArabicDigits(ayatNum);
+        document.getElementById('reference').textContent = suratLabel + ' — ' + ayatLabel;
+        document.title = suratLabel + ' ' + ayatLabel + ' — قورئانی پیرۆز';
+
+        QPDeepLink.wireOpenButton('quranipiroz://ayat/' + suratNum + '/' + ayatNum);
+      })();
+    </script>
+  </body>
+</html>

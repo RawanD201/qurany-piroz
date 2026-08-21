@@ -1,0 +1,174 @@
+/* Shared look for the two "open this in the app" landing pages (/ayat/… and /quiz/…).
+   Same tokens as index.html so a reader who lands here from a shared link recognises the
+   site immediately; kept in its own file because both pages use every rule in it. */
+
+:root {
+  --brand: #A97D19;
+  --brand-dark: #8C6614;
+  --on-brand: #FFFFFF;
+  --bg: #F7F7FA;
+  --surface: #FFFFFF;
+  --text: #1D2231;
+  --muted: #5B6272;
+  --border: rgba(29, 34, 49, 0.14);
+  --shadow: 0 18px 40px rgba(29, 34, 49, 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --brand: #E2BD37;
+    --brand-dark: #CBA62E;
+    --on-brand: #1A1405;
+    --bg: #12141C;
+    --surface: #1D2231;
+    --text: #F4F4F5;
+    --muted: #A9AEBD;
+    --border: rgba(226, 189, 55, 0.18);
+    --shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  }
+}
+
+* { box-sizing: border-box; }
+
+/* .btn sets display: inline-flex, which otherwise wins over the hidden attribute's own
+   display: none — the buttons open-in-app.js hides (the wrong platform's download, the
+   "open in the app" button on a broken link) would stay on screen without this. */
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, "Noto Naskh Arabic", sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 56px 24px 40px;
+  text-align: center;
+}
+
+.logo {
+  width: 96px;
+  height: 96px;
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+}
+
+h1 {
+  font-size: 24px;
+  margin: 22px 0 6px;
+  line-height: 1.5;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 15px;
+  margin: 0 0 26px;
+  line-height: 1.8;
+}
+
+/* The thing the link actually points at — the verse reference, or the quiz code. */
+.target-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  padding: 24px 20px;
+  margin-bottom: 26px;
+}
+
+.target-label {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0 0 10px;
+}
+
+.target-value {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Quiz codes are Latin letters and digits inside an RTL page, so they need their own
+   direction — otherwise a code ending in a digit renders with that digit moved. */
+.code {
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: 8px;
+  color: var(--brand);
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 15px 20px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background: var(--brand);
+  color: var(--on-brand);
+}
+
+.btn-primary:hover { background: var(--brand-dark); }
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.btn svg { width: 20px; height: 20px; flex: none; }
+
+.note {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.9;
+  margin: 0 0 8px;
+}
+
+.error {
+  color: #C0392B;
+  font-weight: 600;
+}
+
+footer {
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+  padding: 0 24px 32px;
+}
+
+footer a { color: inherit; }
+
+@media (max-width: 480px) {
+  main { padding-top: 36px; }
+  h1 { font-size: 21px; }
+  .code { font-size: 34px; letter-spacing: 6px; }
+}

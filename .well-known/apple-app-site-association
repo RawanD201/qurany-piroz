@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appID": "5YY9H4RAS5.com.hevie.quranPiroz",
+        "appIDs": ["5YY9H4RAS5.com.hevie.quranPiroz"],
+        "paths": ["/ayat/*", "/quiz/*"],
+        "components": [
+          { "/": "/ayat/*" },
+          { "/": "/quiz/*" }
+        ]
+      }
+    ]
+  }
+}

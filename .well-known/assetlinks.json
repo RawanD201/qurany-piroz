@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.alandkawaali.qurani_piroz_partuki_xwda",
+      "sha256_cert_fingerprints": [
+        "56:5E:5D:57:35:10:9C:F8:3A:A9:5A:FF:F5:93:D7:FA:BC:A4:38:F9:02:23:94:C4:AA:EA:7E:2D:EE:A1:34:E1",
+        "B3:B6:5C:2D:72:9D:04:48:C0:47:22:34:C2:2D:5E:2E:8A:92:B5:1E:85:ED:64:96:1F:B6:33:62:9B:F1:04:74"
+      ]
+    }
+  }
+]
