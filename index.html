@@ -146,6 +146,10 @@
         pointer-events: none;
       }
 
+      /* .btn sets display: flex, which otherwise wins over the hidden attribute's own
+         display: none — the button for the platform the reader is not on would stay on screen. */
+      [hidden] { display: none !important; }
+
       .note {
         color: var(--muted);
         font-size: 13px;
@@ -198,23 +202,27 @@
       </p>
 
       <div class="downloads">
-        <a id="ios-btn" class="btn btn-ios" href="https://apps.apple.com/us/app/%D9%82%D9%88%D8%B1%D8%A6%D8%A7%D9%86%DB%8C-%D9%BE%DB%8C%D8%B1%DB%86%D8%B2-%D9%BE%DB%95%DA%95%D8%AA%D9%88%D9%88%DA%A9%DB%8C-%D8%AE%D9%88%D8%AF%D8%A7/id1240368293?ign-itscg=30200&ign-itsct=apps_box_link&mttnsubad=1240368293" target="_blank" rel="noopener">
+        <a id="ios-btn" class="btn btn-ios" hidden href="https://apps.apple.com/us/app/%D9%82%D9%88%D8%B1%D8%A6%D8%A7%D9%86%DB%8C-%D9%BE%DB%8C%D8%B1%DB%86%D8%B2-%D9%BE%DB%95%DA%95%D8%AA%D9%88%D9%88%DA%A9%DB%8C-%D8%AE%D9%88%D8%AF%D8%A7/id1240368293?ign-itscg=30200&ign-itsct=apps_box_link&mttnsubad=1240368293" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M16.365 1.43c0 1.14-.42 2.2-1.12 3-.79.9-2.06 1.6-3.09 1.52-.13-1.1.44-2.25 1.11-3.01.76-.87 2.1-1.53 3.1-1.51zM20.9 17.03c-.55 1.27-.81 1.84-1.52 2.96-.99 1.56-2.39 3.5-4.12 3.51-1.54.02-1.94-1-4.03-.99-2.09.01-2.52 1.01-4.06.99-1.73-.01-3.06-1.76-4.05-3.32C.32 15.8-.02 10.7 1.72 8.03c1.24-1.9 3.2-3.01 5.04-3.01 1.87 0 3.05 1.03 4.6 1.03 1.5 0 2.42-1.03 4.59-1.03 1.64 0 3.37.89 4.61 2.43-4.05 2.22-3.39 8.01.34 9.58z"/>
           </svg>
-          <span>دابارکردن لە App Store</span>
+          <span>دابارکردن</span>
         </a>
 
-        <a id="android-btn" class="btn btn-android" href="https://github.com/RawanD201/qurany-piroz/releases/download/2.0.2/qurany-piroz.apk" download>
+        <a id="android-btn" class="btn btn-android" hidden href="https://github.com/RawanD201/qurany-piroz/releases/download/2.0.2/qurany-piroz.apk" download>
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M17.6 9.48l1.84-3.18a.38.38 0 10-.66-.38l-1.87 3.23a11.4 11.4 0 00-9.82 0L5.22 5.92a.38.38 0 10-.66.38L6.4 9.48A10.7 10.7 0 001 17.86h22a10.7 10.7 0 00-5.4-8.38zM7 14.87a.92.92 0 110-1.84.92.92 0 010 1.84zm10 0a.92.92 0 110-1.84.92.92 0 010 1.84z"/>
           </svg>
-          <span>دابارکردنی APK بۆ Android</span>
+          <span>دابارکردن</span>
         </a>
       </div>
 
-      <p class="note">
+      <p class="note" id="android-note" hidden>
         بۆ ئەندرۆید: دوای دابارکردن، ڕێگە بە دامەزراندنی ئەپ لە سەرچاوەی نەناسراو بدە.
+      </p>
+
+      <p class="note" id="unsupported-note" hidden>
+        ئەم بەرنامەیە تەنیا بۆ ئەندرۆید و ئایئۆئێس بەردەستە.
       </p>
 
       <a class="donations-link" href="donations">
@@ -226,8 +234,18 @@
       © <span id="year"></span> قورئانی پیرۆز — پەڕتووکی خودا. هەموو مافەکان پارێزراوە.
     </footer>
 
+    <script src="/platform.js"></script>
     <script>
       document.getElementById('year').textContent = new Date().getFullYear();
+
+      // Only the store this reader can actually install from — an APK link on an iPhone and an
+      // App Store link on an Android phone are both dead ends. Neither platform gets both.
+      QPPlatform.applyDownloadVisibility({
+        iosButtonId: 'ios-btn',
+        androidButtonId: 'android-btn',
+        androidNoteId: 'android-note',
+        unsupportedNoteId: 'unsupported-note'
+      });
 
       // Blocks the two forms of desktop zoom the viewport meta tag above can't reach: trackpad
       // pinch (fires as wheel+ctrlKey in Chrome/Firefox/Edge) and the Ctrl/Cmd +/-/0 keyboard

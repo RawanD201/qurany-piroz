@@ -25,14 +25,10 @@
   var ANDROID_PACKAGE = 'com.alandkawaali.qurani_piroz_partuki_xwda';
   var SCHEME = 'quranipiroz';
 
-  var isAndroid = /android/i.test(navigator.userAgent);
-  // The iPadOS 13+ half of this ("reports itself as a Mac, but has touch points") also
-  // matches a desktop browser emulating a phone, so an explicit Android UA wins over it —
-  // otherwise both download buttons get hidden and the reader is offered nothing.
-  var isIOS = !isAndroid && (
-    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-  );
+  // From platform.js, which every page that shows a download button shares — see there for why
+  // telling an iPad from a Mac is the fiddly part.
+  var isAndroid = QPPlatform.isAndroid;
+  var isIOS = QPPlatform.isIOS;
 
   // "٢٥٥" rather than "255": every number the app itself shows a reader is in Arabic-Indic
   // digits, and this page is the same text in a different place.
@@ -62,14 +58,16 @@
       ';end';
   }
 
-  // Only the platform's own store/download button is worth showing: an iPhone reader has no
-  // use for an APK, and an Android reader has none for an App Store page. Desktop readers
-  // get both, since we have no idea which phone they'll install it on.
+  // Only the platform's own store/download button is worth showing: an iPhone reader has no use
+  // for an APK, and an Android reader has none for an App Store page. On anything else neither
+  // button is offered — the app is built for these two platforms and no others — and the note
+  // saying so takes their place. Same rule as the front page, through the same helper.
   function showRelevantDownload() {
-    var ios = document.getElementById('ios-btn');
-    var android = document.getElementById('android-btn');
-    if (isIOS && android) android.hidden = true;
-    if (isAndroid && ios) ios.hidden = true;
+    QPPlatform.applyDownloadVisibility({
+      iosButtonId: 'ios-btn',
+      androidButtonId: 'android-btn',
+      unsupportedNoteId: 'unsupported-note'
+    });
   }
 
   window.QPDeepLink = {
