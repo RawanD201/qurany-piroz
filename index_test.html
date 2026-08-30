@@ -3,16 +3,16 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>قورئانی پیرۆز — پەڕتووکی خودا</title>
+    <title>تاقیکردنەوەی ڕێنمایی ئەندرۆید — قورئانی پیرۆز</title>
     <meta name="description" content="بەرنامەی مۆبایلیی &quot;قورئانی پیرۆز — پەڕتووکی خودا&quot; بۆ گرتنەبەری گەشتێکی پڕ لە تێگەیشتنە بەنێو ئایەتەکانی قورئان بە زمانی شیرینی کوردی (هەرسێ زار و شێوەزاری کوردیی ناوەندی و بادینانی و هەورامانی) بەسیازدە تەفسیری کوردی و فەرهەنگێکی ڕیشەییی وشەکانی قورئانەوە.">
     <meta name="keywords" content="قورئان, قورئانی پیرۆز, کوردی, تەفسیر, پەڕتووکی خودا, Quran, Kurdish">
     <meta name="format-detection" content="telephone=no">
+    <meta name="robots" content="noindex, nofollow">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="manifest" href="site.webmanifest">
-    <link rel="canonical" href="https://qurany-piroz.com">
 
     <meta property="og:title" content="قورئانی پیرۆز — پەڕتووکی خودا">
     <meta property="og:description" content="بەرنامەی مۆبایلیی بۆ گرتنەبەری گەشتێکی پڕ لە تێگەیشتنە بەنێو ئایەتەکانی قورئان بە زمانی شیرینی کوردی">
@@ -184,6 +184,26 @@
         padding: 0 24px 40px;
       }
 
+      /* Test page only — makes it impossible to mistake this file for the real front page. */
+      .test-banner {
+        background: #C0392B;
+        color: #FFFFFF;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.7;
+        text-align: center;
+        padding: 12px 18px;
+      }
+
+      .test-banner code {
+        background: rgba(255, 255, 255, 0.18);
+        border-radius: 4px;
+        padding: 1px 5px;
+        direction: ltr;
+        unicode-bidi: isolate;
+        display: inline-block;
+      }
+
       @media (max-width: 480px) {
         main { padding-top: 40px; }
         h1 { font-size: 28px; }
@@ -192,6 +212,11 @@
     </style>
   </head>
   <body>
+    <div class="test-banner">
+      ⚠️ لاپەڕەی تاقیکردنەوەیە، نەک لاپەڕەی ڕاستەقینە — دۆخی ئەندرۆید بەزۆر هەڵکراوە تاکو ڕێنمایی
+      دامەزراندن لەسەر کۆمپیوتەر ببینرێت. لاپەڕەی ڕاستەقینە <code>/index.html</code>ە.
+    </div>
+
     <main>
       <img class="logo" src="logo.png" alt="لۆگۆی ئەپی قورئانی پیرۆز" width="132" height="132">
 
@@ -225,7 +250,7 @@
         ئەم بەرنامەیە تەنیا بۆ ئەندرۆید و ئایئۆئێس بەردەستە.
       </p>
 
-      <a class="donations-link" href="donations">
+      <a class="donations-link" href="donations.html">
         <span>🤍 بەخشین</span>
       </a>
     </main>
@@ -234,8 +259,44 @@
       © <span id="year"></span> قورئانی پیرۆز — پەڕتووکی خودا. هەموو مافەکان پارێزراوە.
     </footer>
 
-    <script src="/platform.js"></script>
-    <script src="/android-install-guide.js"></script>
+    <script src="platform.js"></script>
+
+    <!-- The only thing this page changes. platform.js reads the real user agent, which on a Mac
+         says "not Android", so the APK button stays hidden and the install guide that hangs off
+         it is never built. This block puts the Android path on screen instead — it runs after
+         platform.js has decided and before anything has read its answer.
+         
+         Two overrides are needed, not one. android-install-guide.js reads the public
+         QPPlatform.isAndroid property, so the flag alone is enough for it. But
+         applyDownloadVisibility decides from the `isAndroid`/`isIOS` variables inside
+         platform.js's own closure, which nothing out here can reach — assigning the property
+         does not change what that function sees, and it would go on hiding the very button
+         this page exists to show. So the function is replaced as well.
+
+         Everything else the page loads is the production file, unmodified, so what appears in
+         the sheet is exactly what an Android reader gets. -->
+    <script>
+      QPPlatform.isAndroid = true;
+      QPPlatform.isIOS = false;
+      QPPlatform.isSupported = true;
+
+      QPPlatform.applyDownloadVisibility = function (ids) {
+        ids = ids || {};
+
+        var show = function (id, visible) {
+          if (!id) return;
+          var element = document.getElementById(id);
+          if (element) element.hidden = !visible;
+        };
+
+        show(ids.iosButtonId, false);
+        show(ids.androidButtonId, true);
+        show(ids.androidNoteId, true);
+        show(ids.unsupportedNoteId, false);
+      };
+    </script>
+
+    <script src="android-install-guide.js"></script>
     <script>
       document.getElementById('year').textContent = new Date().getFullYear();
 
