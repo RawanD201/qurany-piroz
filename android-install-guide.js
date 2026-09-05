@@ -10,9 +10,10 @@
 //     over by a browser rather than by the Play Store. Its wording ("Unsafe app blocked")
 //     reads like an accusation, so a reader who gets it usually just stops.
 //
-// So the tap opens a sheet that says both things in Kurdish first, and starts the download
-// from a second, deliberate tap inside it. It is a dialog rather than a page of its own
-// because the reader is one tap away from the thing they came for, and navigating them
+// So the tap opens a sheet that says both things in Kurdish first, and holds the download
+// behind two deliberate taps inside it: "I understand", and then an answer to a plain question
+// about whether the instructions were actually read. It is a dialog rather than a page of its
+// own because the reader is one tap away from the thing they came for, and navigating them
 // somewhere else to read instructions loses more of them than the instructions save.
 //
 // Android only, on every page that offers the APK — index.html and the two deep-link landing
@@ -42,9 +43,10 @@
     return self.src.replace(/[^/]*$/, '');
   })();
 
-  // One screenshot inside a numbered step. Filenames are fixed — see android_guide/README.md
-  // for which phone screen each one is. A missing file removes its own figure once the page
-  // loads (see below), so the written steps stand on their own until the images are added.
+  // One screenshot of a phone screen, either inside a numbered step or beside the text that
+  // introduces them. Filenames are fixed — see android_guide/README.md for which screen each
+  // one is. A missing file removes its own figure once the page loads (see below), so the
+  // written steps stand on their own until the images are added.
   function shot(file, alt) {
     return '<img class="qp-ig-shot" src="' + ASSET_BASE + 'android_guide/' + file +
       '" alt="' + alt + '" loading="lazy">';
@@ -97,16 +99,45 @@
     '  background: var(--border, rgba(29, 34, 49, 0.14));',
     '}',
 
-    '.qp-ig-title {',
-    '  font-size: 19px;',
-    '  font-weight: 700;',
-    '  margin: 0 0 6px;',
+    /* The title and its one-line summary sit in a tinted band, so the first thing a reader
+       sees on the sheet is the instruction to read it — not the download button below. The
+       plain rgba line before each color-mix is the same brand tint for browsers that don't
+       support color-mix, which would otherwise drop the declaration and leave the band
+       invisible. */
+    '.qp-ig-head {',
+    '  background: rgba(169, 125, 25, 0.1);',
+    '  background: color-mix(in srgb, var(--brand, #A97D19) 12%, transparent);',
+    '  border: 1px solid rgba(169, 125, 25, 0.28);',
+    '  border: 1px solid color-mix(in srgb, var(--brand, #A97D19) 28%, transparent);',
+    '  border-radius: 16px;',
+    '  padding: 13px 15px 14px;',
+    '  margin: 0 0 18px;',
     '}',
+
+    '.qp-ig-title {',
+    '  display: flex;',
+    '  align-items: center;',
+    '  gap: 8px;',
+    '  font-size: 20px;',
+    '  font-weight: 800;',
+    '  line-height: 1.55;',
+    '  margin: 0 0 4px;',
+    '}',
+    /* In an RTL sheet the flex start edge is the right one, so the mark leads the title. */
+    '.qp-ig-title::before {',
+    '  content: "⚠";',
+    '  flex: none;',
+    '  font-size: 18px;',
+    '  color: var(--brand, #A97D19);',
+    '}',
+    /* The sheet moves focus here when it opens (see open()); that is for screen readers and
+       to keep the sheet scrolled to its top, and shouldn't draw a focus ring. */
+    '.qp-ig-title:focus { outline: none; }',
 
     '.qp-ig-lead {',
     '  color: var(--muted, #5B6272);',
     '  font-size: 14px;',
-    '  margin: 0 0 18px;',
+    '  margin: 0;',
     '}',
 
     '.qp-ig-step {',
@@ -239,6 +270,18 @@
     '  margin-top: 6px;',
     '}',
 
+    /* The question asked between "I understand" and the download itself. */
+    '.qp-ig-ask {',
+    '  font-size: 15px;',
+    '  font-weight: 700;',
+    '  text-align: center;',
+    '  margin: 0 0 12px;',
+    '  padding: 11px 13px;',
+    '  border-radius: 14px;',
+    '  background: rgba(169, 125, 25, 0.1);',
+    '  background: color-mix(in srgb, var(--brand, #A97D19) 12%, transparent);',
+    '}',
+
     '@media (prefers-reduced-motion: reduce) {',
     '  .qp-ig-backdrop, .qp-ig-sheet { transition: none; }',
     '}'
@@ -248,8 +291,10 @@
     '<div class="qp-ig-sheet" role="dialog" aria-modal="true" aria-labelledby="qp-ig-title">' +
       '<span class="qp-ig-grabber" aria-hidden="true"></span>' +
 
-      '<h2 class="qp-ig-title" id="qp-ig-title">پێش دابەزاندن ئەمە بخوێنەوە</h2>' +
-      '<p class="qp-ig-lead">دوو هەنگاوی کورت هەن؛ بەبێ ئەوان دامەزراندنی ئەپەکە سەرکەوتوو نابێت.</p>' +
+      '<div class="qp-ig-head">' +
+        '<h2 class="qp-ig-title" id="qp-ig-title" tabindex="-1">پێش دابەزاندن ئەمە بخوێنەوە</h2>' +
+        '<p class="qp-ig-lead">دوو هەنگاوی کورت هەن؛ بەبێ ئەوان دامەزراندنی ئەپەکە سەرکەوتوو نابێت.</p>' +
+      '</div>' +
 
       '<div class="qp-ig-step">' +
         '<span class="qp-ig-num">١</span>' +
@@ -277,10 +322,14 @@
 
       '<details class="qp-ig-details">' +
         '<summary>ئەگەر «Play Protect» ڕێگری لە دامەزراندنەکە کرد</summary>' +
-        '<p>پەیامی <span class="qp-ig-ui">Unsafe app blocked</span> یان ' +
-          '<span class="qp-ig-ui">Blocked by Play Protect</span> واتای ئەوە نییە کە ئەپەکە زیانبەخشە — ' +
-          'Play Protect هەموو ئەو ئەپانە بە «نەناسراو» دەژمێرێت کە لە Google Play دانەبەزێنراون. ' +
-          'بەم هەنگاوانە ڕێگەی پێ دەدەیت:</p>' +
+        '<p>پەیامی <span class="qp-ig-ui">Unsafe app blocked</span>، ' +
+          '<span class="qp-ig-ui">Blocked by Play Protect</span> یان ' +
+          '<span class="qp-ig-ui">App blocked to protect your device</span> واتای ئەوە نییە کە ' +
+          'ئەپەکە زیانبەخشە — Play Protect هەموو ئەو ئەپانە بە «نەناسراو» دەژمێرێت کە لە ' +
+          'Google Play دانەبەزێنراون.</p>' +
+        shot('app-blocked-to-protect-your-device.jpg',
+          'دیالۆگی Google Play Protect کە دامەزراندنی ئەپەکە ڕاگرتووە') +
+        '<p>بەم هەنگاوانە ڕێگەی پێ دەدەیت:</p>' +
         '<ol>' +
           '<li><span class="qp-ig-ui">Settings</span> (ڕێکخستنەکان) بکەرەوە و لە خانەی گەڕاندا ' +
             'بنووسە <span class="qp-ig-ui">Play Protect</span>.' +
@@ -300,8 +349,20 @@
         '</ol>' +
       '</details>' +
 
-      '<a class="qp-ig-go" id="qp-ig-go" href="#">تێگەیشتم — دەستپێکردنی دابەزاندن</a>' +
-      '<button type="button" class="qp-ig-cancel" id="qp-ig-cancel">پاشگەزبوونەوە</button>' +
+      // Two footers, one shown at a time. "I understand" no longer starts the download
+      // itself; it asks the question below first, because a reader who taps it two seconds
+      // after the sheet appears hasn't read anything, and they are the reader this whole
+      // sheet exists for.
+      '<div id="qp-ig-ack-stage">' +
+        '<button type="button" class="qp-ig-go" id="qp-ig-ack">تێگەیشتم — دەستپێکردنی دابەزاندن</button>' +
+        '<button type="button" class="qp-ig-cancel" id="qp-ig-cancel">پاشگەزبوونەوە</button>' +
+      '</div>' +
+
+      '<div id="qp-ig-confirm-stage" hidden>' +
+        '<p class="qp-ig-ask" id="qp-ig-ask">ڕێنمایییەکانی پێش دابەزاندت خوێندەوە؟</p>' +
+        '<a class="qp-ig-go" id="qp-ig-go" href="#" aria-describedby="qp-ig-ask">بەڵێ، دەستی پێبکە</a>' +
+        '<button type="button" class="qp-ig-cancel" id="qp-ig-back">نەخێر، دەیخوێنمەوە</button>' +
+      '</div>' +
     '</div>';
 
   var style = document.createElement('style');
@@ -324,15 +385,28 @@
   });
 
   var sheet = backdrop.querySelector('.qp-ig-sheet');
+  var title = backdrop.querySelector('#qp-ig-title');
+  var ackStage = backdrop.querySelector('#qp-ig-ack-stage');
+  var confirmStage = backdrop.querySelector('#qp-ig-confirm-stage');
+  var ackButton = backdrop.querySelector('#qp-ig-ack');
+  var backButton = backdrop.querySelector('#qp-ig-back');
   var goButton = backdrop.querySelector('#qp-ig-go');
   var cancelButton = backdrop.querySelector('#qp-ig-cancel');
 
   // The download is started by a real tap on a real link inside the sheet, carrying the same
   // href and download attribute as the button that was intercepted. Re-dispatching a click on
   // the original button instead would be a synthetic navigation, which some Android browsers
-  // treat as a pop-up and block.
+  // treat as a pop-up and block. That is also why the confirmation is a second stage of the
+  // sheet rather than a window.confirm(): the reader's last tap has to land on this link.
   goButton.href = trigger.href;
   goButton.setAttribute('download', trigger.getAttribute('download') || '');
+
+  // Back to the "I understand" footer — on the way out, so a reader who reopens the sheet is
+  // asked again rather than finding the download a single tap away.
+  function resetStages() {
+    confirmStage.hidden = true;
+    ackStage.hidden = false;
+  }
 
   var lastFocused = null;
   var previousOverflow = '';
@@ -350,7 +424,10 @@
     // until the reader came back to the page.
     void backdrop.offsetHeight;
     backdrop.classList.add('is-open');
-    goButton.focus();
+    // The title, not a button: it is what the reader has to take in, a screen reader
+    // announces the sheet by it, and on a short screen focusing anything further down would
+    // scroll the sheet past it.
+    title.focus();
 
     document.addEventListener('keydown', onKeyDown);
   }
@@ -361,9 +438,11 @@
     document.body.style.overflow = previousOverflow;
 
     // Kept in the DOM until the slide-out finishes; hiding it immediately would cut the
-    // animation off half way.
+    // animation off half way. The footer goes back to its first stage at the same moment, so
+    // the swap happens behind the closed sheet rather than in front of the reader.
     window.setTimeout(function () {
       backdrop.hidden = true;
+      resetStages();
     }, 240);
 
     if (lastFocused && lastFocused.focus) lastFocused.focus();
@@ -379,7 +458,13 @@
 
     // Keeps Tab inside the sheet while it is up — with the page behind it still focusable, a
     // keyboard or screen-reader user tabs straight out of a dialog they haven't answered.
-    var focusable = sheet.querySelectorAll('a[href], button, summary, [tabindex]:not([tabindex="-1"])');
+    // Whichever footer stage is hidden is dropped from the ring: an offsetParent of null is
+    // how a `hidden` ancestor shows up here, and Tab must not reach a stage the reader can't
+    // see. (The title carries tabindex="-1" and so is already out of the selector.)
+    var focusable = Array.prototype.filter.call(
+      sheet.querySelectorAll('a[href], button, summary, [tabindex]:not([tabindex="-1"])'),
+      function (element) { return element.offsetParent !== null; }
+    );
     if (!focusable.length) return;
 
     var first = focusable[0];
@@ -397,6 +482,21 @@
   trigger.addEventListener('click', function (event) {
     event.preventDefault();
     open();
+  });
+
+  // "I understand" only swaps the footer for the question.
+  ackButton.addEventListener('click', function () {
+    ackStage.hidden = true;
+    confirmStage.hidden = false;
+    goButton.focus();
+  });
+
+  // "No, let me read it" puts the footer back and returns the reader to the top of the sheet,
+  // where the two steps are.
+  backButton.addEventListener('click', function () {
+    resetStages();
+    sheet.scrollTop = 0;
+    title.focus();
   });
 
   // Not preventDefault'd: the tap has to follow the link, which is what actually downloads the
