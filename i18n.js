@@ -10,10 +10,13 @@
 //   1. ?lang=en on the URL — for testing, and so a link can be shared in a chosen language.
 //   2. A choice the reader made with the switcher before (localStorage).
 //   3. Where the reader is: the device's own IANA time zone, which follows the phone or
-//      computer's location setting. Pakistan -> Urdu, the UK/US and the rest of the mainly
-//      English-speaking countries -> English, Iraq/Iran/Syria/Turkey -> Kurdish.
-//   4. The browser's own language list, for a location the map above doesn't name.
-//   5. Kurdish.
+//      computer's location setting. Pakistan -> Urdu, the mainly English-speaking countries ->
+//      English, the Arab states -> Arabic, Afghanistan -> Persian.
+//   4. For the four countries where more than one of these languages is genuinely spoken —
+//      Iraq, Iran, Turkey, Syria — the browser's language list picks between that country's
+//      own candidates, and only decides nothing if it names none of them.
+//   5. The browser's language list on its own, for a location the map doesn't name.
+//   6. Kurdish.
 //
 // Time zone rather than an IP lookup on purpose: it needs no network round trip (so nothing
 // flashes in the wrong language while a request is in flight), it works on file:// and behind
@@ -29,17 +32,22 @@
   // this one rather than showing a bare key.
   var DEFAULT_LANG = 'ckb';
 
-  // Switcher order, left to right, and fixed regardless of which language is showing so the
-  // buttons don't move under the reader's finger when they tap one.
-  var ORDER = ['ckb', 'en', 'ur'];
+  // Menu order: the site's own language, then the one that reaches furthest, then the
+  // neighbours, working outwards from the app's audience.
+  var ORDER = ['ckb', 'en', 'ar', 'fa', 'tr', 'ur'];
 
   var LANGS = {
     // Endonyms — a language is always offered in its own name, so a reader who can't read the
     // current one can still find theirs.
-    ckb: { label: 'کوردی', dir: 'rtl', digits: '٠١٢٣٤٥٦٧٨٩' },
+    //
+    // Two sets of Arabic-Indic numerals are in play: ٠١٢… (U+0660) for Kurdish and Arabic, and
+    // ۰۱۲… (U+06F0) for Urdu and Persian. Same digits to look at, different code points, and a
+    // language shown the wrong set looks foreign in a way a reader notices.
+    ckb: { label: 'کوردیی ناوەندی', dir: 'rtl', digits: '٠١٢٣٤٥٦٧٨٩' },
     en:  { label: 'English', dir: 'ltr', digits: null },
-    // Urdu writes its numerals with the extended Arabic-Indic set (۰۱۲…), not the ٠١٢… that
-    // Kurdish and Arabic use — different code points for the same digits.
+    ar:  { label: 'العربية', dir: 'rtl', digits: '٠١٢٣٤٥٦٧٨٩' },
+    fa:  { label: 'فارسی', dir: 'rtl', digits: '۰۱۲۳۴۵۶۷۸۹' },
+    tr:  { label: 'Türkçe', dir: 'ltr', digits: null },
     ur:  { label: 'اردو', dir: 'rtl', digits: '۰۱۲۳۴۵۶۷۸۹' }
   };
 
@@ -53,7 +61,11 @@
   //
   // A Naskh face sits on a flat baseline the way the Kurdish text already does, so it fits the
   // layout as it stands and stays clear at body sizes. It is loaded only for the reader who is
-  // actually on Urdu — a Kurdish or English visitor never fetches it.
+  // actually on Urdu — nobody else fetches it.
+  //
+  // Arabic and Persian need none of this. They are Arabic script too, but no system routes them
+  // to a calligraphic face: they get the same flat-baseline Naskh the Kurdish text is already
+  // rendered in, and read correctly in the stack the pages define.
   var URDU_FONT_HREF =
     'https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400..700&display=swap';
 
@@ -90,14 +102,29 @@
 
   // ---- Where the reader is ------------------------------------------------------------------
 
-  // Only the countries whose answer we actually know. Everything else falls through to the
-  // browser's language list, which is a better guess than any default we could pick here.
+  // Countries with one clear answer. Everything else falls through to the browser's language
+  // list, which is a better guess than any default we could pick here.
   var COUNTRY_LANG = {
     PK: 'ur',
     GB: 'en', US: 'en', IE: 'en', CA: 'en', AU: 'en', NZ: 'en', ZA: 'en',
-    // Where Kurdish is spoken — the app's home audience, and already the site's default, but
-    // named here so a Kurdish reader whose browser is set to English still lands on Kurdish.
-    IQ: 'ckb', IR: 'ckb', SY: 'ckb', TR: 'ckb'
+    SA: 'ar', AE: 'ar', EG: 'ar', JO: 'ar', KW: 'ar', QA: 'ar', BH: 'ar', OM: 'ar',
+    LB: 'ar', YE: 'ar', LY: 'ar', DZ: 'ar', MA: 'ar', TN: 'ar', SD: 'ar', PS: 'ar',
+    AF: 'fa'
+  };
+
+  // The four countries where more than one of the site's languages is genuinely somebody's own.
+  // Picking a national language outright would hand Kurdish to every Iraqi Arab and Turkish to
+  // every Kurd in Turkey, so here the browser's language list decides — but only between that
+  // country's own candidates, so a phone set to English in Erbil still gets Kurdish rather than
+  // English. `fallback` is for a browser that names none of them.
+  //
+  // Iraq falls back to Kurdish rather than Arabic: it is where the app comes from and where most
+  // of its readers are, and an Iraqi Arab reader's browser almost always says so.
+  var MIXED_COUNTRIES = {
+    IQ: { candidates: ['ckb', 'ar'], fallback: 'ckb' },
+    IR: { candidates: ['fa', 'ckb'], fallback: 'fa' },
+    TR: { candidates: ['tr', 'ckb'], fallback: 'tr' },
+    SY: { candidates: ['ar', 'ckb'], fallback: 'ar' }
   };
 
   // IANA zone -> country, for the countries above. Zones are listed rather than pattern-matched
@@ -132,7 +159,15 @@
     'Asia/Baghdad': 'IQ', 'Asia/Erbil': 'IQ',
     'Asia/Tehran': 'IR',
     'Asia/Damascus': 'SY',
-    'Europe/Istanbul': 'TR', 'Asia/Istanbul': 'TR'
+    'Europe/Istanbul': 'TR', 'Asia/Istanbul': 'TR',
+
+    'Asia/Riyadh': 'SA', 'Asia/Dubai': 'AE', 'Africa/Cairo': 'EG', 'Asia/Amman': 'JO',
+    'Asia/Kuwait': 'KW', 'Asia/Qatar': 'QA', 'Asia/Bahrain': 'BH', 'Asia/Muscat': 'OM',
+    'Asia/Beirut': 'LB', 'Asia/Aden': 'YE', 'Africa/Tripoli': 'LY', 'Africa/Algiers': 'DZ',
+    'Africa/Casablanca': 'MA', 'Africa/El_Aaiun': 'MA', 'Africa/Tunis': 'TN',
+    'Africa/Khartoum': 'SD', 'Asia/Gaza': 'PS', 'Asia/Hebron': 'PS',
+
+    'Asia/Kabul': 'AF'
   };
 
   // The three US zone families that live one level deeper, plus the legacy "US/Eastern" names
@@ -156,18 +191,43 @@
     return null;
   }
 
-  // "ur-PK" -> ur, "en-GB" -> en, "ckb-IQ"/"ku" -> ckb. Anything else is skipped rather than
-  // guessed at, so a reader whose first language the site doesn't have still gets their second.
-  function langFromNavigator() {
+  // A language tag's primary subtag ("en-GB" -> "en") mapped to one of the site's six. Matched
+  // whole rather than by prefix: "ar" as a prefix also swallows "arn", which is Mapudungun.
+  var NAV_LANG = {
+    ckb: 'ckb', ku: 'ckb', kmr: 'ckb', sdh: 'ckb',
+    en: 'en',
+    ar: 'ar', arb: 'ar', arz: 'ar', ary: 'ar',
+    fa: 'fa', fas: 'fa', per: 'fa', prs: 'fa',
+    tr: 'tr', tur: 'tr',
+    ur: 'ur', urd: 'ur'
+  };
+
+  // The reader's languages, in their own order of preference, narrowed to the ones this site
+  // has and with duplicates dropped. A language the site doesn't have is skipped rather than
+  // guessed at, so a reader whose first choice is missing still gets their second.
+  function navigatorLangs() {
     var tags = navigator.languages && navigator.languages.length
       ? navigator.languages
       : [navigator.language || ''];
 
+    var found = [];
     for (var i = 0; i < tags.length; i++) {
-      var tag = String(tags[i]).toLowerCase();
-      if (tag.indexOf('ur') === 0) return 'ur';
-      if (tag.indexOf('en') === 0) return 'en';
-      if (tag.indexOf('ckb') === 0 || tag.indexOf('ku') === 0) return 'ckb';
+      var lang = NAV_LANG[String(tags[i]).toLowerCase().split('-')[0]];
+      if (lang && found.indexOf(lang) < 0) found.push(lang);
+    }
+    return found;
+  }
+
+  function langFromNavigator() {
+    return navigatorLangs()[0] || null;
+  }
+
+  // The same list, but answering only with one of `candidates` — what a mixed country asks, so
+  // that a browser set to some unrelated language does not override where the reader is.
+  function langFromNavigatorAmong(candidates) {
+    var listed = navigatorLangs();
+    for (var i = 0; i < listed.length; i++) {
+      if (candidates.indexOf(listed[i]) >= 0) return listed[i];
     }
     return null;
   }
@@ -194,7 +254,11 @@
     if (chosen) return chosen;
 
     var country = countryFromTimeZone();
-    if (country && COUNTRY_LANG[country]) return COUNTRY_LANG[country];
+    if (country) {
+      var mixed = MIXED_COUNTRIES[country];
+      if (mixed) return langFromNavigatorAmong(mixed.candidates) || mixed.fallback;
+      if (COUNTRY_LANG[country]) return COUNTRY_LANG[country];
+    }
 
     return langFromNavigator() || DEFAULT_LANG;
   }
@@ -535,6 +599,339 @@
     'test.banner': '⚠️ یہ ٹیسٹ صفحہ ہے، اصل نہیں — اینڈرائیڈ موڈ زبردستی آن کیا گیا ہے تاکہ انسٹالیشن گائیڈ کمپیوٹر پر دیکھی جا سکے۔ اصل صفحہ <code>/index.html</code> ہے۔'
   };
 
+  // ---- Arabic -------------------------------------------------------------------------------
+  //
+  // The month names are the Levantine/Iraqi set (كانون الثاني، شباط، آذار…) rather than the
+  // Egyptian one, to match the Kurdish months this page already shows and the country the
+  // donations themselves are counted in.
+
+  STRINGS.ar = {
+    'common.langGroup': 'اللغة',
+    'common.appName': 'قرآني بيروز — كتاب الله',
+    'common.appShort': 'قرآني بيروز',
+    'common.logoAlt': 'شعار تطبيق قرآني بيروز',
+    'common.download': 'تنزيل',
+    'common.unsupported': 'هذا التطبيق متاح لنظامَي أندرويد و iOS فقط.',
+    'common.footer': '© {year} قرآني بيروز — كتاب الله. جميع الحقوق محفوظة.',
+    'common.footerLinked': '© {year} <a href="/">قرآني بيروز — كتاب الله</a>',
+
+    'index.pageTitle': 'قرآني بيروز — كتاب الله',
+    'index.metaDescription': 'تطبيق «قرآني بيروز — كتاب الله» للهواتف: رحلة فهم بين آيات القرآن باللغة الكردية — باللهجات الثلاث جميعها (السورانية والبادينية والهورامية)، مع ثلاثة عشر تفسيرًا كرديًا ومعجم لجذور ألفاظ القرآن.',
+    'index.metaKeywords': 'القرآن, قرآني بيروز, القرآن بالكردية, تفسير, كتاب الله, سوراني, باديني, هورامي',
+    'index.ogDescription': 'تطبيق للهواتف لرحلة فهم بين آيات القرآن باللغة الكردية',
+    'index.description': 'يأخذك تطبيق «قرآني بيروز — كتاب الله» للهواتف في رحلة فهم بين آيات القرآن باللغة الكردية — باللهجات الثلاث جميعها: السورانية والبادينية والهورامية — مع ثلاثة عشر تفسيرًا كرديًا ومعجم لجذور ألفاظ القرآن.',
+    'index.androidNote': 'على أندرويد: بعد التنزيل، اسمح بتثبيت التطبيق من مصدر غير معروف.',
+    'index.donations': '🤍 تبرّع',
+
+    'link.openHint': 'إذا كان التطبيق مثبتًا لديك، فالرابط يفتحه عادةً من تلقاء نفسه. وإن لم يحدث ذلك، فاضغط الزر أعلاه.',
+    'link.brokenLabel': 'هذا الرابط لا يعمل',
+
+    'ayat.pageTitle': 'آية — قرآني بيروز',
+    'ayat.metaDescription': 'يفتح هذا الرابط هذه الآية مباشرةً في تطبيق «قرآني بيروز — كتاب الله».',
+    'ayat.heading': 'شارَكك أحدهم آية',
+    'ayat.subtitle': 'يفتح هذا الرابط الآية مباشرةً في التطبيق.',
+    'ayat.targetLabel': 'السورة والآية',
+    'ayat.openButton': 'افتح في التطبيق',
+    'ayat.appNote': 'تطبيق «قرآني بيروز — كتاب الله» — القرآن باللغة الكردية، مع ثلاثة عشر تفسيرًا.',
+    'ayat.suratLabel': 'سورة {ar}',
+    'ayat.ayatLabel': 'الآية {n}',
+    'ayat.docTitle': '{surat} {ayat} — قرآني بيروز',
+    'ayat.broken': 'لم يُعثر على هذه الآية. ربما لم يُنسخ الرابط كاملًا.',
+
+    'quiz.pageTitle': 'دعوة إلى مسابقة — قرآني بيروز',
+    'quiz.metaDescription': 'دعوة إلى مسابقة قرآنية على الإنترنت في تطبيق «قرآني بيروز — كتاب الله».',
+    'quiz.heading': 'دعوة إلى مسابقة قرآنية',
+    'quiz.subtitle': 'دعاك صديق إلى مسابقة على الإنترنت. يأخذك هذا الرابط إليها مباشرةً — لا حاجة إلى كتابة الرمز.',
+    'quiz.codeLabel': 'رمز المسابقة',
+    'quiz.openButton': 'انضم إلى المسابقة',
+    'quiz.note': 'ملاحظة: لا يمكن الانضمام إلى المسابقة إلا قبل بدئها. فإذا كان المضيف قد بدأها، فاطلب منه رمزًا جديدًا.',
+    'quiz.docTitle': 'دعوة إلى مسابقة {code} — قرآني بيروز',
+    'quiz.broken': 'تعذّرت قراءة رمز المسابقة. ربما لم يُنسخ الرابط كاملًا.',
+
+    'donations.pageTitle': 'التبرعات — قرآني بيروز',
+    'donations.metaDescription': 'قسم التبرعات في تطبيق «قرآني بيروز — كتاب الله»: الخزينة والحملات النشطة والمتبرعون والمصروفات — مباشرةً ومحدَّثة تلقائيًا.',
+    'donations.logoAlt': 'شعار قرآني بيروز',
+    'donations.back': 'رجوع ›',
+    'donations.heading': 'التبرعات',
+    'donations.loading': 'جارٍ التحميل…',
+    'donations.currency': 'د.ع',
+    'donations.treasuryLabel': 'خزينة التطبيق الحالية',
+    'donations.description': 'التفاصيل',
+    'donations.remaining': 'المتبقي: {amount}',
+    'donations.target': 'الهدف: {amount}',
+    'donations.howTitle': 'كيف تتبرّع؟',
+    'donations.howBody': 'يمكنك إرسال المبلغ إلى الرقم المذكور عبر FIB أو Qi أو Fastpay. يُرجى كتابة المبلغ والغرض من الإرسال حتى يمكن تسجيله كتبرّع.',
+    'donations.donors': 'المتبرعون',
+    'donations.spontaneous': 'تبرعات تطوعية',
+    'donations.spontaneousEmpty': 'لا توجد تبرعات تطوعية لهذا الشهر',
+    'donations.monthLabel': 'اختر شهرًا',
+    'donations.donorsTotals': 'المتبرعون (مع مجموع تبرعاتهم)',
+    'donations.noDonations': 'لم يُعثر على أي تبرّع',
+    'donations.total': 'المجموع',
+    'donations.close': 'إغلاق',
+    'donations.expenses': 'مصروفات الخزينة',
+    'donations.copied': 'تم نسخ الرقم.',
+    'donations.months': [
+      'كانون الثاني', 'شباط', 'آذار', 'نيسان', 'أيار', 'حزيران',
+      'تموز', 'آب', 'أيلول', 'تشرين الأول', 'تشرين الثاني', 'كانون الأول'
+    ],
+
+    'guide.title': 'اقرأ هذا قبل التنزيل',
+    'guide.lead': 'هناك خطوتان قصيرتان؛ وبدونهما لن ينجح تثبيت التطبيق.',
+    'guide.num1': '١',
+    'guide.num2': '٢',
+    'guide.step1Title': 'احذف أولًا النسخة القديمة من التطبيق',
+    'guide.step1Body': 'إذا كان تطبيق «قرآني بيروز» موجودًا على هاتفك، فاحذفه قبل كل شيء: اضغط مطوّلًا على أيقونته، ثم اختر <span class="qp-ig-ui">Uninstall</span> (إلغاء التثبيت).',
+    'guide.step1Warn': 'تحمل النسختان اسم الحزمة نفسه، فإن لم تحذف القديمة واجه أندرويد تعارضًا في الحزمة <span class="qp-ig-ui">(package conflict)</span> وأوقف التثبيت — غالبًا برسالة <span class="qp-ig-ui">App not installed</span> وحدها.',
+    'guide.step2Title': 'اسمح بالتثبيت من مصدر غير معروف',
+    'guide.step2Body': 'بعد انتهاء التنزيل، افتح الملف. فإذا منعه أندرويد، فاضغط <span class="qp-ig-ui">Settings</span> واسمح للمتصفح الذي نزّلت به بتثبيت التطبيقات، ثم ارجع واضغط <span class="qp-ig-ui">Install</span>.',
+    'guide.ppSummary': 'إذا منع «Play Protect» التثبيت',
+    'guide.ppIntro': 'رسالة <span class="qp-ig-ui">Unsafe app blocked</span> أو <span class="qp-ig-ui">Blocked by Play Protect</span> أو <span class="qp-ig-ui">App blocked to protect your device</span> لا تعني أن التطبيق ضار — فـ Play Protect يَعُدّ كل تطبيق لم يُنزَّل من Google Play «غير معروف».',
+    'guide.ppLead': 'تسمح بذلك بهذه الخطوات:',
+    'guide.pp1': 'افتح <span class="qp-ig-ui">Settings</span> (الإعدادات) واكتب في خانة البحث <span class="qp-ig-ui">Play Protect</span>.',
+    'guide.pp2': 'ومن النتائج اختر <span class="qp-ig-ui">Security and privacy</span> ← <span class="qp-ig-ui">App security</span>.',
+    'guide.pp3': 'اضغط <span class="qp-ig-ui">Google Play Protect</span>.',
+    'guide.pp4': 'في أعلى الصفحة، اضغط أيقونة الإعدادات (⚙).',
+    'guide.pp5': 'أطفئ المفتاحين كليهما: <span class="qp-ig-ui">Scan apps with Play Protect</span> و<span class="qp-ig-ui">Improve harmful app detection</span>.',
+    'guide.pp6': 'ارجع إلى الملف المنزَّل وأعد محاولة التثبيت.',
+    'guide.pp7': 'وبعد انتهاء التثبيت، أعد تشغيل المفتاحين كليهما لتبقى حماية هاتفك.',
+    'guide.altBlocked': 'مربع حوار Google Play Protect الذي أوقف التثبيت',
+    'guide.alt01': 'نتائج البحث عن Play Protect في الإعدادات',
+    'guide.alt02': 'صفحة App security وموضع Google Play Protect فيها',
+    'guide.alt03': 'صفحة Play Protect وأيقونة الإعدادات في أعلاها',
+    'guide.alt04': 'مفتاحا إعدادات Play Protect كلاهما',
+    'guide.ack': 'فهمت — ابدأ التنزيل',
+    'guide.cancel': 'إلغاء',
+    'guide.ask': 'هل قرأت الإرشادات أعلاه؟',
+    'guide.go': 'نعم، ابدأ',
+    'guide.back': 'لا، سأقرأها',
+
+    'test.pageTitle': 'اختبار دليل أندرويد — قرآني بيروز',
+    'test.banner': '⚠️ هذه صفحة اختبار وليست الصفحة الحقيقية — فُرِض وضع أندرويد كي يمكن رؤية دليل التثبيت على الحاسوب. الصفحة الحقيقية هي <code>/index.html</code>.'
+  };
+
+  // ---- Persian ------------------------------------------------------------------------------
+  //
+  // Persian names the surats with their Arabic names, as Urdu does, so it needs no name table of
+  // its own — QP_SURATS already carries them. The months are the Gregorian ones in Persian,
+  // because the dates being labelled come out of the database as Gregorian.
+
+  STRINGS.fa = {
+    'common.langGroup': 'زبان',
+    'common.appName': 'قرآنی پیروز — کتاب خدا',
+    'common.appShort': 'قرآنی پیروز',
+    'common.logoAlt': 'نشان برنامهٔ قرآنی پیروز',
+    'common.download': 'دانلود',
+    'common.unsupported': 'این برنامه تنها برای اندروید و iOS در دسترس است.',
+    'common.footer': '© {year} قرآنی پیروز — کتاب خدا. همهٔ حقوق محفوظ است.',
+    'common.footerLinked': '© {year} <a href="/">قرآنی پیروز — کتاب خدا</a>',
+
+    'index.pageTitle': 'قرآنی پیروز — کتاب خدا',
+    'index.metaDescription': 'برنامهٔ موبایل «قرآنی پیروز — کتاب خدا»: سفری برای فهم آیات قرآن به زبان کُردی — در هر سه گویش (سورانی، بادینی و هورامی)، همراه با سیزده تفسیر کُردی و فرهنگ ریشه‌های واژه‌های قرآنی.',
+    'index.metaKeywords': 'قرآن, قرآنی پیروز, قرآن کُردی, تفسیر, کتاب خدا, سورانی, بادینی, هورامی',
+    'index.ogDescription': 'برنامه‌ای موبایلی برای سفری در فهم آیات قرآن به زبان کُردی',
+    'index.description': 'برنامهٔ موبایل «قرآنی پیروز — کتاب خدا» شما را به سفری برای فهم آیات قرآن به زبان کُردی می‌برد — در هر سه گویش: سورانی، بادینی و هورامی — همراه با سیزده تفسیر کُردی و فرهنگ ریشه‌های واژه‌های قرآنی.',
+    'index.androidNote': 'در اندروید: پس از دانلود، اجازهٔ نصب برنامه از منبع ناشناس را بدهید.',
+    'index.donations': '🤍 کمک مالی',
+
+    'link.openHint': 'اگر برنامه را نصب کرده باشید، پیوند معمولاً خودش آن را باز می‌کند. اگر چنین نشد، دکمهٔ بالا را بزنید.',
+    'link.brokenLabel': 'این پیوند کار نمی‌کند',
+
+    'ayat.pageTitle': 'یک آیه — قرآنی پیروز',
+    'ayat.metaDescription': 'این پیوند این آیه را مستقیم در برنامهٔ «قرآنی پیروز — کتاب خدا» باز می‌کند.',
+    'ayat.heading': 'کسی آیه‌ای را با شما به اشتراک گذاشته است',
+    'ayat.subtitle': 'این پیوند آیه را مستقیم در برنامه باز می‌کند.',
+    'ayat.targetLabel': 'سوره و آیه',
+    'ayat.openButton': 'باز کردن در برنامه',
+    'ayat.appNote': 'برنامهٔ «قرآنی پیروز — کتاب خدا» — قرآن به زبان کُردی، با سیزده تفسیر.',
+    'ayat.suratLabel': 'سورهٔ {ar}',
+    'ayat.ayatLabel': 'آیهٔ {n}',
+    'ayat.docTitle': '{surat} {ayat} — قرآنی پیروز',
+    'ayat.broken': 'این آیه پیدا نشد. شاید پیوند به‌طور کامل کپی نشده باشد.',
+
+    'quiz.pageTitle': 'دعوت به آزمون — قرآنی پیروز',
+    'quiz.metaDescription': 'دعوت به آزمون آنلاین قرآن در برنامهٔ «قرآنی پیروز — کتاب خدا».',
+    'quiz.heading': 'دعوت به آزمون قرآن',
+    'quiz.subtitle': 'دوستی شما را به یک آزمون آنلاین دعوت کرده است. این پیوند شما را مستقیم به آزمون می‌برد — نیازی به نوشتن کد نیست.',
+    'quiz.codeLabel': 'کد آزمون',
+    'quiz.openButton': 'ورود به آزمون',
+    'quiz.note': 'توجه: تنها پیش از آغاز آزمون می‌توان در آن شرکت کرد. اگر میزبان آن را آغاز کرده باشد، از او کد تازه‌ای بخواهید.',
+    'quiz.docTitle': 'دعوت به آزمون {code} — قرآنی پیروز',
+    'quiz.broken': 'کد آزمون خوانده نشد. شاید پیوند به‌طور کامل کپی نشده باشد.',
+
+    'donations.pageTitle': 'کمک‌های مالی — قرآنی پیروز',
+    'donations.metaDescription': 'بخش کمک‌های مالی برنامهٔ «قرآنی پیروز — کتاب خدا»: خزانه، کارزارهای فعال، یاری‌رسانان و هزینه‌ها — زنده و با به‌روزرسانی خودکار.',
+    'donations.logoAlt': 'نشان قرآنی پیروز',
+    'donations.back': 'بازگشت ›',
+    'donations.heading': 'کمک‌های مالی',
+    'donations.loading': 'در حال بارگذاری…',
+    'donations.currency': 'IQD',
+    'donations.treasuryLabel': 'خزانهٔ کنونی برنامه',
+    'donations.description': 'توضیح',
+    'donations.remaining': 'مانده: {amount}',
+    'donations.target': 'هدف: {amount}',
+    'donations.howTitle': 'چگونه کمک کنیم؟',
+    'donations.howBody': 'می‌توانید مبلغ را از راه FIB، Qi یا Fastpay به شمارهٔ نشان‌داده‌شده بفرستید. لطفاً مبلغ و هدف از فرستادن را هم بنویسید تا بتوان آن را به‌عنوان کمک ثبت کرد.',
+    'donations.donors': 'یاری‌رسانان',
+    'donations.spontaneous': 'کمک‌های داوطلبانه',
+    'donations.spontaneousEmpty': 'برای این ماه کمک داوطلبانه‌ای نیست',
+    'donations.monthLabel': 'ماهی را برگزینید',
+    'donations.donorsTotals': 'یاری‌رسانان (همراه با مجموع کمک‌هایشان)',
+    'donations.noDonations': 'هیچ کمکی پیدا نشد',
+    'donations.total': 'مجموع',
+    'donations.close': 'بستن',
+    'donations.expenses': 'هزینه‌های خزانه',
+    'donations.copied': 'شماره کپی شد.',
+    'donations.months': [
+      'ژانویه', 'فوریه', 'مارس', 'آوریل', 'مه', 'ژوئن',
+      'ژوئیه', 'اوت', 'سپتامبر', 'اکتبر', 'نوامبر', 'دسامبر'
+    ],
+
+    'guide.title': 'پیش از دانلود این را بخوانید',
+    'guide.lead': 'دو گام کوتاه هست؛ بدون آن‌ها نصب برنامه موفق نمی‌شود.',
+    'guide.num1': '۱',
+    'guide.num2': '۲',
+    'guide.step1Title': 'نخست نسخهٔ قدیمی برنامه را حذف کنید',
+    'guide.step1Body': 'اگر برنامهٔ «قرآنی پیروز» از پیش روی گوشی شماست، پیش از هر کار آن را حذف کنید: انگشت را روی نماد آن نگه دارید، سپس <span class="qp-ig-ui">Uninstall</span> (حذف) را برگزینید.',
+    'guide.step1Warn': 'هر دو نسخه نام بستهٔ یکسانی دارند، پس اگر نسخهٔ قدیمی را حذف نکنید اندروید با ناسازگاری بسته <span class="qp-ig-ui">(package conflict)</span> روبه‌رو می‌شود و نصب را متوقف می‌کند — بیشتر وقت‌ها تنها با پیام <span class="qp-ig-ui">App not installed</span>.',
+    'guide.step2Title': 'اجازهٔ نصب از منبع ناشناس را بدهید',
+    'guide.step2Body': 'پس از پایان دانلود، فایل را باز کنید. اگر اندروید جلوی آن را گرفت، <span class="qp-ig-ui">Settings</span> را بزنید و به مرورگری که با آن دانلود کرده‌اید اجازهٔ نصب برنامه بدهید، سپس بازگردید و <span class="qp-ig-ui">Install</span> را بزنید.',
+    'guide.ppSummary': 'اگر «Play Protect» جلوی نصب را گرفت',
+    'guide.ppIntro': 'پیام <span class="qp-ig-ui">Unsafe app blocked</span>، <span class="qp-ig-ui">Blocked by Play Protect</span> یا <span class="qp-ig-ui">App blocked to protect your device</span> به این معنا نیست که برنامه زیان‌بار است — Play Protect هر برنامه‌ای را که از Google Play دانلود نشده باشد «ناشناس» می‌شمارد.',
+    'guide.ppLead': 'با این گام‌ها اجازه می‌دهید:',
+    'guide.pp1': '<span class="qp-ig-ui">Settings</span> (تنظیمات) را باز کنید و در کادر جست‌وجو بنویسید <span class="qp-ig-ui">Play Protect</span>.',
+    'guide.pp2': 'از میان نتیجه‌ها <span class="qp-ig-ui">Security and privacy</span> ← <span class="qp-ig-ui">App security</span> را برگزینید.',
+    'guide.pp3': 'روی <span class="qp-ig-ui">Google Play Protect</span> بزنید.',
+    'guide.pp4': 'در بالای صفحه، نماد تنظیمات (⚙) را بزنید.',
+    'guide.pp5': 'هر دو کلید را خاموش کنید: <span class="qp-ig-ui">Scan apps with Play Protect</span> و <span class="qp-ig-ui">Improve harmful app detection</span>.',
+    'guide.pp6': 'به فایل دانلودشده بازگردید و نصب را دوباره بیازمایید.',
+    'guide.pp7': 'پس از پایان نصب، هر دو کلید را دوباره روشن کنید تا گوشی شما در امان بماند.',
+    'guide.altBlocked': 'کادر گفت‌وگوی Google Play Protect که نصب را متوقف کرده است',
+    'guide.alt01': 'نتیجه‌های جست‌وجوی Play Protect در تنظیمات',
+    'guide.alt02': 'صفحهٔ App security و جای Google Play Protect در آن',
+    'guide.alt03': 'صفحهٔ Play Protect و نماد تنظیمات در بالای آن',
+    'guide.alt04': 'هر دو کلید تنظیمات Play Protect',
+    'guide.ack': 'فهمیدم — دانلود را آغاز کن',
+    'guide.cancel': 'انصراف',
+    'guide.ask': 'آیا راهنمای بالا را خواندید؟',
+    'guide.go': 'بله، آغاز کن',
+    'guide.back': 'نه، می‌خوانمش',
+
+    'test.pageTitle': 'آزمون راهنمای اندروید — قرآنی پیروز',
+    'test.banner': '⚠️ این صفحهٔ آزمایشی است، نه صفحهٔ اصلی — حالت اندروید به‌زور روشن شده تا راهنمای نصب روی رایانه دیده شود. صفحهٔ اصلی <code>/index.html</code> است.'
+  };
+
+  // ---- Turkish ------------------------------------------------------------------------------
+  //
+  // Left to right, like English. Surat names follow the Turkish convention ("Bakara sûresi"),
+  // which is a naming tradition of its own rather than a transliteration of the Arabic — see
+  // QP_SURAT_NAMES_TR in surats.js.
+
+  STRINGS.tr = {
+    'common.langGroup': 'Dil',
+    'common.appName': 'Qurany Piroz — Allah\'ın Kitabı',
+    'common.appShort': 'Qurany Piroz',
+    'common.logoAlt': 'Qurany Piroz uygulama logosu',
+    'common.download': 'İndir',
+    'common.unsupported': 'Bu uygulama yalnızca Android ve iOS için mevcuttur.',
+    'common.footer': '© {year} Qurany Piroz — Allah\'ın Kitabı. Tüm hakları saklıdır.',
+    'common.footerLinked': '© {year} <a href="/">Qurany Piroz — Allah\'ın Kitabı</a>',
+
+    'index.pageTitle': 'Qurany Piroz — Allah\'ın Kitabı',
+    'index.metaDescription': '“Qurany Piroz — Allah\'ın Kitabı” mobil uygulaması: Kürtçe Kur\'an âyetleri arasında bir anlama yolculuğu — üç lehçenin hepsinde (Sorani, Badini ve Hawrami), on üç Kürtçe tefsir ve Kur\'an kelimelerinin kök sözlüğü ile.',
+    'index.metaKeywords': 'Kuran, Qurany Piroz, Kürtçe Kuran, tefsir, Allah\'ın Kitabı, Sorani, Badini, Hawrami',
+    'index.ogDescription': 'Kürtçe Kur\'an âyetleri arasında bir anlama yolculuğu için mobil uygulama',
+    'index.description': '“Qurany Piroz — Allah\'ın Kitabı” mobil uygulaması sizi Kürtçe Kur\'an âyetleri arasında bir anlama yolculuğuna çıkarır — üç lehçenin hepsinde: Sorani, Badini ve Hawrami — on üç Kürtçe tefsir ve Kur\'an kelimelerinin kök sözlüğü ile.',
+    'index.androidNote': 'Android\'de: indirdikten sonra uygulamanın bilinmeyen kaynaktan yüklenmesine izin verin.',
+    'index.donations': '🤍 Bağış',
+
+    'link.openHint': 'Uygulama zaten kuruluysa bağlantı normalde onu kendisi açar. Bu olmadıysa yukarıdaki düğmeye dokunun.',
+    'link.brokenLabel': 'Bu bağlantı çalışmıyor',
+
+    'ayat.pageTitle': 'Bir âyet — Qurany Piroz',
+    'ayat.metaDescription': 'Bu bağlantı bu âyeti doğrudan “Qurany Piroz — Allah\'ın Kitabı” uygulamasında açar.',
+    'ayat.heading': 'Sizinle bir âyet paylaşıldı',
+    'ayat.subtitle': 'Bu bağlantı âyeti doğrudan uygulamada açar.',
+    'ayat.targetLabel': 'Sûre ve âyet',
+    'ayat.openButton': 'Uygulamada aç',
+    'ayat.appNote': '“Qurany Piroz — Allah\'ın Kitabı” uygulaması — on üç tefsirle birlikte Kürtçe Kur\'an.',
+    'ayat.suratLabel': '{tr} sûresi ({ar})',
+    'ayat.ayatLabel': '{n}. âyet',
+    'ayat.docTitle': '{surat} {ayat} — Qurany Piroz',
+    'ayat.broken': 'Bu âyet bulunamadı. Bağlantı tam olarak kopyalanmamış olabilir.',
+
+    'quiz.pageTitle': 'Sınav daveti — Qurany Piroz',
+    'quiz.metaDescription': '“Qurany Piroz — Allah\'ın Kitabı” uygulamasındaki çevrim içi Kur\'an sınavına davet.',
+    'quiz.heading': 'Kur\'an sınavı daveti',
+    'quiz.subtitle': 'Bir arkadaşınız sizi çevrim içi bir sınava davet etti. Bu bağlantı sizi doğrudan sınava götürür — kodu yazmanıza gerek yok.',
+    'quiz.codeLabel': 'Sınav kodu',
+    'quiz.openButton': 'Sınava katıl',
+    'quiz.note': 'Not: Bir sınava yalnızca başlamadan önce katılabilirsiniz. Düzenleyen kişi sınavı çoktan başlattıysa ondan yeni bir kod isteyin.',
+    'quiz.docTitle': 'Sınav daveti {code} — Qurany Piroz',
+    'quiz.broken': 'Sınav kodu okunamadı. Bağlantı tam olarak kopyalanmamış olabilir.',
+
+    'donations.pageTitle': 'Bağışlar — Qurany Piroz',
+    'donations.metaDescription': '“Qurany Piroz — Allah\'ın Kitabı” uygulamasının bağış bölümü: kasa, etkin kampanyalar, bağışçılar ve giderler — canlı ve otomatik güncellenir.',
+    'donations.logoAlt': 'Qurany Piroz logosu',
+    'donations.back': '‹ Geri',
+    'donations.heading': 'Bağışlar',
+    'donations.loading': 'Yükleniyor…',
+    'donations.currency': 'IQD',
+    'donations.treasuryLabel': 'Uygulamanın mevcut kasası',
+    'donations.description': 'Ayrıntılar',
+    'donations.remaining': 'Kalan: {amount}',
+    'donations.target': 'Hedef: {amount}',
+    'donations.howTitle': 'Nasıl bağış yapılır?',
+    'donations.howBody': 'Tutarı, gösterilen numaraya FIB, Qi veya Fastpay üzerinden gönderebilirsiniz. Bağış olarak kaydedilebilmesi için lütfen tutarı ve gönderme amacını da yazın.',
+    'donations.donors': 'Bağışçılar',
+    'donations.spontaneous': 'Gönüllü bağışlar',
+    'donations.spontaneousEmpty': 'Bu ay için gönüllü bağış yok',
+    'donations.monthLabel': 'Bir ay seçin',
+    'donations.donorsTotals': 'Bağışçılar (toplamlarıyla birlikte)',
+    'donations.noDonations': 'Bağış bulunamadı',
+    'donations.total': 'Toplam',
+    'donations.close': 'Kapat',
+    'donations.expenses': 'Kasa giderleri',
+    'donations.copied': 'Numara kopyalandı.',
+    'donations.months': [
+      'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+      'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+    ],
+
+    'guide.title': 'İndirmeden önce bunu okuyun',
+    'guide.lead': 'İki kısa adım var; bunlar olmadan kurulum başarılı olmaz.',
+    'guide.num1': '1',
+    'guide.num2': '2',
+    'guide.step1Title': 'Önce uygulamanın eski sürümünü kaldırın',
+    'guide.step1Body': '“Qurany Piroz” telefonunuzda zaten varsa her şeyden önce onu kaldırın: simgesine basılı tutun, sonra <span class="qp-ig-ui">Uninstall</span> (Kaldır) seçeneğini seçin.',
+    'guide.step1Warn': 'Her iki sürüm de aynı paket adını taşır; eskisini kaldırmazsanız Android bir <span class="qp-ig-ui">package conflict</span> ile karşılaşır ve kurulumu durdurur — çoğu zaman yalnızca <span class="qp-ig-ui">App not installed</span> mesajıyla.',
+    'guide.step2Title': 'Bilinmeyen kaynaktan kuruluma izin verin',
+    'guide.step2Body': 'İndirme bittiğinde dosyayı açın. Android engellerse <span class="qp-ig-ui">Settings</span> düğmesine dokunun ve indirme yaptığınız tarayıcıya uygulama kurma izni verin, sonra geri dönüp <span class="qp-ig-ui">Install</span> düğmesine dokunun.',
+    'guide.ppSummary': 'Play Protect kurulumu engellerse',
+    'guide.ppIntro': '<span class="qp-ig-ui">Unsafe app blocked</span>, <span class="qp-ig-ui">Blocked by Play Protect</span> veya <span class="qp-ig-ui">App blocked to protect your device</span> mesajı uygulamanın zararlı olduğu anlamına gelmez — Play Protect, Google Play\'den indirilmemiş her uygulamayı “bilinmeyen” sayar.',
+    'guide.ppLead': 'Şu adımlarla izin verirsiniz:',
+    'guide.pp1': '<span class="qp-ig-ui">Settings</span> (Ayarlar) uygulamasını açın ve arama kutusuna <span class="qp-ig-ui">Play Protect</span> yazın.',
+    'guide.pp2': 'Sonuçlardan <span class="qp-ig-ui">Security and privacy</span> → <span class="qp-ig-ui">App security</span> seçin.',
+    'guide.pp3': '<span class="qp-ig-ui">Google Play Protect</span> öğesine dokunun.',
+    'guide.pp4': 'Sayfanın üstünde ayarlar simgesine (⚙) dokunun.',
+    'guide.pp5': 'Her iki anahtarı da kapatın: <span class="qp-ig-ui">Scan apps with Play Protect</span> ve <span class="qp-ig-ui">Improve harmful app detection</span>.',
+    'guide.pp6': 'İndirilen dosyaya geri dönüp kurulumu yeniden deneyin.',
+    'guide.pp7': 'Kurulum bittikten sonra, telefonunuz korunmaya devam etsin diye her iki anahtarı da yeniden açın.',
+    'guide.altBlocked': 'Kurulumu durduran Google Play Protect iletişim kutusu',
+    'guide.alt01': 'Ayarlarda Play Protect arama sonuçları',
+    'guide.alt02': 'App security sayfası ve Google Play Protect\'in oradaki yeri',
+    'guide.alt03': 'Play Protect sayfası ve üstündeki ayarlar simgesi',
+    'guide.alt04': 'Play Protect ayarlarının her iki anahtarı',
+    'guide.ack': 'Anladım — indirmeyi başlat',
+    'guide.cancel': 'Vazgeç',
+    'guide.ask': 'Yukarıdaki yönergeleri okudunuz mu?',
+    'guide.go': 'Evet, başlat',
+    'guide.back': 'Hayır, okuyayım',
+
+    'test.pageTitle': 'Android kılavuz testi — Qurany Piroz',
+    'test.banner': '⚠️ Bu bir test sayfasıdır, gerçek sayfa değil — kurulum kılavuzu bilgisayarda görülebilsin diye Android modu zorlanmıştır. Gerçek sayfa <code>/index.html</code>.'
+  };
+
   // ---- Lookup -------------------------------------------------------------------------------
 
   var current = detect();
@@ -620,72 +1017,108 @@
     '.qp-lang-bar:empty { display: none; }',
 
     '.qp-lang-switch {',
+    '  position: relative;',
     '  display: inline-flex;',
-    '  gap: 2px;',
-    '  padding: 3px;',
+    '  align-items: center;',
     '  border-radius: 999px;',
-    // Fixed left-to-right so the three buttons keep the same order in every language and none
-    // of them moves under the finger of the reader who just tapped it.
-    '  direction: ltr;',
     '  background: var(--surface, #FFFFFF);',
     '  border: 1px solid var(--border, rgba(29, 34, 49, 0.14));',
     '}',
 
-    '.qp-lang-switch button {',
+    // A globe at the leading edge and a chevron at the trailing one, both drawn rather than
+    // fetched, and both transparent to the pointer so the whole pill is the select's own
+    // hit area. Logical inset properties, so they swap ends by themselves in English and
+    // Turkish without a second rule.
+    '.qp-lang-switch::before {',
+    '  content: "🌐";',
+    '  position: absolute;',
+    '  inset-inline-start: 12px;',
+    '  top: 50%;',
+    '  transform: translateY(-50%);',
+    '  font-size: 12px;',
+    '  line-height: 1;',
+    '  opacity: 0.75;',
+    '  pointer-events: none;',
+    '}',
+
+    '.qp-lang-switch::after {',
+    '  content: "";',
+    '  position: absolute;',
+    '  inset-inline-end: 14px;',
+    '  top: 50%;',
+    '  width: 6px;',
+    '  height: 6px;',
+    '  margin-top: -5px;',
+    '  border-right: 2px solid var(--muted, #5B6272);',
+    '  border-bottom: 2px solid var(--muted, #5B6272);',
+    '  transform: rotate(45deg);',
+    '  pointer-events: none;',
+    '}',
+
+    // A real <select>, not a custom popover: six languages is where a row of pills stops
+    // fitting a phone, and the native control brings its own keyboard handling, its own
+    // dismissal, and the system picker on iOS and Android — none of which a hand-built menu
+    // gets right for free.
+    '.qp-lang-select {',
     '  -webkit-appearance: none;',
     '  appearance: none;',
     '  margin: 0;',
     '  border: 0;',
-    '  padding: 6px 14px;',
     '  border-radius: 999px;',
     '  background: transparent;',
-    '  color: var(--muted, #5B6272);',
+    '  color: var(--text, #1D2231);',
     '  font-family: inherit;',
     '  font-size: 13px;',
     '  font-weight: 600;',
     '  line-height: 1.5;',
+    '  padding-block: 7px;',
+    '  padding-inline-start: 32px;',
+    '  padding-inline-end: 30px;',
     '  cursor: pointer;',
-    '  transition: background 0.15s ease, color 0.15s ease;',
     '}',
 
-    '.qp-lang-switch button:hover { color: var(--text, #1D2231); }',
-    '.qp-lang-switch button[aria-pressed="true"] {',
-    '  background: var(--brand, #A97D19);',
-    '  color: var(--on-brand, #FFFFFF);',
+    // Chrome and Firefox on Linux and Windows draw the open list on the page's own canvas,
+    // which in dark mode is otherwise black text on black.
+    '.qp-lang-select option {',
+    '  background: var(--surface, #FFFFFF);',
+    '  color: var(--text, #1D2231);',
     '}',
-    '.qp-lang-switch button:focus-visible {',
+
+    '.qp-lang-select:focus-visible {',
     '  outline: 2px solid var(--brand, #A97D19);',
     '  outline-offset: 2px;',
-    '}',
-
-    '@media (prefers-reduced-motion: reduce) {',
-    '  .qp-lang-switch button { transition: none; }',
     '}'
   ].join('\n');
 
+  // Built once and then kept in step, rather than replaced on every language change: replacing
+  // it would destroy the very <select> whose change event is being handled, and take the
+  // reader's focus with it.
+  var SWITCHER_OPTIONS = ORDER.map(function (code) {
+    // lang= on each option so the system picker renders every name in a font that suits it.
+    return '<option value="' + code + '" lang="' + code + '">' + LANGS[code].label + '</option>';
+  }).join('');
+
   function renderSwitchers(root) {
     var scope = root || document;
-    var bars = scope.querySelectorAll('.qp-lang-bar');
-    if (!bars.length) return;
 
-    var buttons = ORDER.map(function (code) {
-      return '<button type="button" data-qp-lang="' + code + '" lang="' + code + '" ' +
-        'aria-pressed="' + (code === current) + '">' + LANGS[code].label + '</button>';
-    }).join('');
-
-    each(bars, function (bar) {
-      bar.innerHTML = '<div class="qp-lang-switch" role="group" aria-label="' +
-        t('common.langGroup') + '">' + buttons + '</div>';
+    each(scope.querySelectorAll('.qp-lang-bar'), function (bar) {
+      var select = bar.querySelector('.qp-lang-select');
+      if (!select) {
+        bar.innerHTML = '<div class="qp-lang-switch">' +
+          '<select class="qp-lang-select">' + SWITCHER_OPTIONS + '</select></div>';
+        select = bar.querySelector('.qp-lang-select');
+      }
+      select.value = current;
+      select.setAttribute('aria-label', t('common.langGroup'));
     });
   }
 
-  // One delegated listener rather than one per button: the switcher re-renders itself on every
-  // language change, and listeners bound to the old buttons would go with them.
-  document.addEventListener('click', function (event) {
+  // Delegated, so a bar that appears later — or is re-rendered by its page — is still wired.
+  document.addEventListener('change', function (event) {
     var target = event.target;
-    if (!target || !target.closest) return;
-    var button = target.closest('[data-qp-lang]');
-    if (button) setLang(button.getAttribute('data-qp-lang'));
+    if (target && target.classList && target.classList.contains('qp-lang-select')) {
+      setLang(target.value);
+    }
   });
 
   function setLang(lang) {

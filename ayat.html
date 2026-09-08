@@ -81,12 +81,14 @@
           }
 
           // Each language names a surat its own way — Kurdish by the Kurdish name with the
-          // Arabic one beside it, English by the standard transliteration, Urdu by the Arabic
-          // name alone, which is what an Urdu reader already calls it. All three are handed
-          // over and the string for the language picks what it uses.
+          // Arabic one beside it, English by the standard transliteration, Turkish by its own
+          // naming tradition, and Arabic, Persian and Urdu by the Arabic name alone, which is
+          // what their readers already call it. Every name is handed over and the string for
+          // the language picks the ones it uses.
           var suratLabel = QPI18n.t('ayat.suratLabel', {
             ku: surat[1],
             en: window.QP_SURAT_NAMES_EN[suratNum] || surat[0],
+            tr: window.QP_SURAT_NAMES_TR[suratNum] || surat[0],
             ar: surat[0]
           });
           var ayatLabel = QPI18n.t('ayat.ayatLabel', { n: QPI18n.digits(ayatNum) });
