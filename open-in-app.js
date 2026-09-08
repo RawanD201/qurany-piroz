@@ -30,14 +30,6 @@
   var isAndroid = QPPlatform.isAndroid;
   var isIOS = QPPlatform.isIOS;
 
-  // "٢٥٥" rather than "255": every number the app itself shows a reader is in Arabic-Indic
-  // digits, and this page is the same text in a different place.
-  function toArabicDigits(value) {
-    return String(value).replace(/[0-9]/g, function (d) {
-      return '٠١٢٣٤٥٦٧٨٩'[Number(d)];
-    });
-  }
-
   // The path is the whole payload — /ayat/2/255, /quiz/K7F2 — so a link survives being
   // copied, pasted and re-shared without a query string anything might strip.
   function pathSegments() {
@@ -73,7 +65,6 @@
   window.QPDeepLink = {
     isAndroid: isAndroid,
     isIOS: isIOS,
-    toArabicDigits: toArabicDigits,
     pathSegments: pathSegments,
 
     // Wires the "open in the app" button to a quranipiroz:// destination.
@@ -100,8 +91,8 @@
     showBroken: function (message) {
       var card = document.getElementById('target-card');
       if (card) {
-        card.innerHTML = '<p class="target-label">بەستەرەکە کارا نییە</p>' +
-          '<p class="target-value error"></p>';
+        card.innerHTML = '<p class="target-label"></p><p class="target-value error"></p>';
+        card.querySelector('.target-label').textContent = QPI18n.t('link.brokenLabel');
         card.querySelector('.target-value').textContent = message;
       }
       var open = document.getElementById('open-btn');
@@ -112,8 +103,6 @@
 
     init: function () {
       showRelevantDownload();
-      var year = document.getElementById('year');
-      if (year) year.textContent = new Date().getFullYear();
     }
   };
 })();

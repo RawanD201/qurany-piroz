@@ -23,6 +23,7 @@ with no code change.
 .well-known/assetlinks.json              Android App Links
 ayat.html  quiz.html                     the pages a link falls back to
 deeplink.css  open-in-app.js  surats.js  shared by those two pages
+i18n.js                                  Kurdish/English/Urdu, shared by every page
 vercel.json                              /ayat/* and /quiz/* rewrites + JSON content types
 ```
 
@@ -38,6 +39,15 @@ and reject a verse number past the end of it:
 ```
 sqlite3 -json Quran.db "SELECT CAST(suratNum AS INTEGER) n, arSuratName ar, soraniSuratName ku, totalVerseNum t FROM Surats ORDER BY n;"
 ```
+
+The English surat names in the same file are kept by hand below that table — the database has
+no English column to regenerate them from. Urdu needs none: it names the surats with the
+Arabic names the table already carries.
+
+Both pages name what they show through `i18n.js`, which also decides the language: `?lang=`,
+then a choice the reader saved with the switcher, then their time zone (Pakistan → Urdu,
+UK/US → English, Iraq and the rest of Kurdistan → Kurdish), then the browser's language list,
+then Kurdish.
 
 ## One-time setup outside this repo
 

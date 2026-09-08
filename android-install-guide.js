@@ -47,9 +47,9 @@
   // introduces them. Filenames are fixed — see android_guide/README.md for which screen each
   // one is. A missing file removes its own figure once the page loads (see below), so the
   // written steps stand on their own until the images are added.
-  function shot(file, alt) {
+  function shot(file, alt, key) {
     return '<img class="qp-ig-shot" src="' + ASSET_BASE + 'android_guide/' + file +
-      '" alt="' + alt + '" loading="lazy">';
+      '" data-i18n-attr="alt:' + key + '" alt="' + alt + '" loading="lazy">';
   }
 
   // Both pages that carry a download button define the same theme tokens on :root, so the
@@ -83,7 +83,7 @@
     '  border-radius: 24px 24px 0 0;',
     '  padding: 12px 20px 22px;',
     '  box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.3);',
-    '  text-align: right;',
+    '  text-align: start;',
     '  line-height: 1.85;',
     '  transform: translateY(100%);',
     '  transition: transform 0.24s ease;',
@@ -292,60 +292,74 @@
       '<span class="qp-ig-grabber" aria-hidden="true"></span>' +
 
       '<div class="qp-ig-head">' +
-        '<h2 class="qp-ig-title" id="qp-ig-title" tabindex="-1">پێش دابەزاندن ئەمە بخوێنەوە</h2>' +
-        '<p class="qp-ig-lead">دوو هەنگاوی کورت هەن؛ بەبێ ئەوان دامەزراندنی ئەپەکە سەرکەوتوو نابێت.</p>' +
+        '<h2 class="qp-ig-title" id="qp-ig-title" tabindex="-1" data-i18n="guide.title">' +
+          'پێش دابەزاندن ئەمە بخوێنەوە</h2>' +
+        '<p class="qp-ig-lead" data-i18n="guide.lead">دوو هەنگاوی کورت هەن؛ بەبێ ئەوان ' +
+          'دامەزراندنی ئەپەکە سەرکەوتوو نابێت.</p>' +
       '</div>' +
 
       '<div class="qp-ig-step">' +
-        '<span class="qp-ig-num">١</span>' +
+        '<span class="qp-ig-num" data-i18n="guide.num1">١</span>' +
         '<div>' +
-          '<h3>سەرەتا وەشانی کۆنی ئەپەکە بسڕەوە</h3>' +
-          '<p>ئەگەر ئەپی «قورئانی پیرۆز» لەسەر شاشەی مۆبایلەکەتدا هەیە، پێش هەموو شتێک بیسڕەوە: ' +
-            'دەست بخە سەر ئایکۆنەکەی و دایبگرە، پاشان <span class="qp-ig-ui">Uninstall</span> ' +
-            '(سڕینەوە) هەڵبژێرە.</p>' +
-          '<p class="qp-ig-warn">هەردوو وەشانەکە هەمان ناوی پاکێجیان هەیە، بۆیە ئەگەر کۆنەکە نەسڕیتەوە ' +
-            'ململانێی پاکێج <span class="qp-ig-ui">(package conflict)</span> ڕوودەدات و ئەندرۆید ' +
+          '<h3 data-i18n="guide.step1Title">سەرەتا وەشانی کۆنی ئەپەکە بسڕەوە</h3>' +
+          '<p data-i18n-html="guide.step1Body">ئەگەر ئەپی «قورئانی پیرۆز» لەسەر شاشەی ' +
+            'مۆبایلەکەتدا هەیە، پێش هەموو شتێک بیسڕەوە: دەست بخە سەر ئایکۆنەکەی و دایبگرە، ' +
+            'پاشان <span class="qp-ig-ui">Uninstall</span> (سڕینەوە) هەڵبژێرە.</p>' +
+          '<p class="qp-ig-warn" data-i18n-html="guide.step1Warn">هەردوو وەشانەکە هەمان ناوی ' +
+            'پاکێجیان هەیە، بۆیە ئەگەر کۆنەکە نەسڕیتەوە ململانێی پاکێج ' +
+            '<span class="qp-ig-ui">(package conflict)</span> ڕوودەدات و ئەندرۆید ' +
             'دامەزراندنەکە ڕادەگرێت — زۆرجار تەنیا بە پەیامی ' +
             '<span class="qp-ig-ui">App not installed</span>.</p>' +
         '</div>' +
       '</div>' +
 
       '<div class="qp-ig-step">' +
-        '<span class="qp-ig-num">٢</span>' +
+        '<span class="qp-ig-num" data-i18n="guide.num2">٢</span>' +
         '<div>' +
-          '<h3>ڕێگە بە دامەزراندن لە سەرچاوەی نەناسراو بدە</h3>' +
-          '<p>دوای تەواوبوونی دابەزاندن، فایلەکە بکەرەوە. ئەگەر ئەندرۆید ڕێگری کرد، ' +
-            '<span class="qp-ig-ui">Settings</span> لێبدە و ڕێگە بەو وێبگەڕەی پێی دابەزاندووی بدە کە ' +
-            'ئەپ دامەزرێنێت، پاشان بگەڕێوە و <span class="qp-ig-ui">Install</span> (دامەزراندن) لێبدە.</p>' +
+          '<h3 data-i18n="guide.step2Title">ڕێگە بە دامەزراندن لە سەرچاوەی نەناسراو بدە</h3>' +
+          '<p data-i18n-html="guide.step2Body">دوای تەواوبوونی دابەزاندن، فایلەکە بکەرەوە. ' +
+            'ئەگەر ئەندرۆید ڕێگری کرد، <span class="qp-ig-ui">Settings</span> لێبدە و ڕێگە بەو ' +
+            'وێبگەڕەی پێی دابەزاندووی بدە کە ئەپ دامەزرێنێت، پاشان بگەڕێوە و ' +
+            '<span class="qp-ig-ui">Install</span> (دامەزراندن) لێبدە.</p>' +
         '</div>' +
       '</div>' +
 
       '<details class="qp-ig-details">' +
-        '<summary>ئەگەر «Play Protect» ڕێگری لە دامەزراندنەکە کرد</summary>' +
-        '<p>پەیامی <span class="qp-ig-ui">Unsafe app blocked</span>، ' +
+        '<summary data-i18n="guide.ppSummary">ئەگەر «Play Protect» ڕێگری لە دامەزراندنەکە کرد</summary>' +
+        '<p data-i18n-html="guide.ppIntro">پەیامی <span class="qp-ig-ui">Unsafe app blocked</span>، ' +
           '<span class="qp-ig-ui">Blocked by Play Protect</span> یان ' +
           '<span class="qp-ig-ui">App blocked to protect your device</span> واتای ئەوە نییە کە ' +
           'ئەپەکە زیانبەخشە — Play Protect هەموو ئەو ئەپانە بە «نەناسراو» دەژمێرێت کە لە ' +
           'Google Play دانەبەزێنراون.</p>' +
         shot('app-blocked-to-protect-your-device.jpg',
-          'دیالۆگی Google Play Protect کە دامەزراندنی ئەپەکە ڕاگرتووە') +
-        '<p>بەم هەنگاوانە ڕێگەی پێ دەدەیت:</p>' +
+          'دیالۆگی Google Play Protect کە دامەزراندنی ئەپەکە ڕاگرتووە', 'guide.altBlocked') +
+        '<p data-i18n="guide.ppLead">بەم هەنگاوانە ڕێگەی پێ دەدەیت:</p>' +
         '<ol>' +
-          '<li><span class="qp-ig-ui">Settings</span> (ڕێکخستنەکان) بکەرەوە و لە خانەی گەڕاندا ' +
-            'بنووسە <span class="qp-ig-ui">Play Protect</span>.' +
-            shot('01-settings-search.jpg', 'ئەنجامی گەڕان بۆ Play Protect لە ڕێکخستنەکاندا') + '</li>' +
-          '<li>لە ئەنجامەکاندا <span class="qp-ig-ui">Security and privacy</span> ← ' +
-            '<span class="qp-ig-ui">App security</span> هەڵبژێرە.' +
-            shot('02-app-security.jpg', 'لاپەڕەی App security و شوێنی Google Play Protect') + '</li>' +
-          '<li>کرتە لە <span class="qp-ig-ui">Google Play Protect</span> بکە.</li>' +
-          '<li>لە سەرەوەی لاپەڕەکەوە، ئایکۆنی ڕێکخستنەکان (⚙) لێبدە.' +
-            shot('03-play-protect-gear.jpg', 'لاپەڕەی Play Protect و ئایکۆنی ڕێکخستنەکان لە سەرەوە') + '</li>' +
-          '<li>هەردوو کلیلەکە بکوژێنەوە: <span class="qp-ig-ui">Scan apps with Play Protect</span> و ' +
-            '<span class="qp-ig-ui">Improve harmful app detection</span>.' +
-            shot('04-play-protect-settings.jpg', 'هەردوو کلیلی ڕێکخستنەکانی Play Protect') + '</li>' +
-          '<li>بگەڕێوە بۆ فایلە دابەزێنراوەکە و دامەزراندنەکە دووبارە تاقیبکەرەوە.</li>' +
-          '<li>دوای تەواوبوونی دامەزراندن، هەردوو کلیلەکە دووبارە هەڵبکەوە، بۆ ئەوەی پارێزگاریی ' +
-            'مۆبایلەکەت بمێنێتەوە.</li>' +
+          '<li><span data-i18n-html="guide.pp1"><span class="qp-ig-ui">Settings</span> ' +
+            '(ڕێکخستنەکان) بکەرەوە و لە خانەی گەڕاندا بنووسە ' +
+            '<span class="qp-ig-ui">Play Protect</span>.</span>' +
+            shot('01-settings-search.jpg',
+              'ئەنجامی گەڕان بۆ Play Protect لە ڕێکخستنەکاندا', 'guide.alt01') + '</li>' +
+          '<li><span data-i18n-html="guide.pp2">لە ئەنجامەکاندا ' +
+            '<span class="qp-ig-ui">Security and privacy</span> ← ' +
+            '<span class="qp-ig-ui">App security</span> هەڵبژێرە.</span>' +
+            shot('02-app-security.jpg',
+              'لاپەڕەی App security و شوێنی Google Play Protect', 'guide.alt02') + '</li>' +
+          '<li><span data-i18n-html="guide.pp3">کرتە لە ' +
+            '<span class="qp-ig-ui">Google Play Protect</span> بکە.</span></li>' +
+          '<li><span data-i18n-html="guide.pp4">لە سەرەوەی لاپەڕەکەوە، ئایکۆنی ڕێکخستنەکان (⚙) ' +
+            'لێبدە.</span>' +
+            shot('03-play-protect-gear.jpg',
+              'لاپەڕەی Play Protect و ئایکۆنی ڕێکخستنەکان لە سەرەوە', 'guide.alt03') + '</li>' +
+          '<li><span data-i18n-html="guide.pp5">هەردوو کلیلەکە بکوژێنەوە: ' +
+            '<span class="qp-ig-ui">Scan apps with Play Protect</span> و ' +
+            '<span class="qp-ig-ui">Improve harmful app detection</span>.</span>' +
+            shot('04-play-protect-settings.jpg',
+              'هەردوو کلیلی ڕێکخستنەکانی Play Protect', 'guide.alt04') + '</li>' +
+          '<li><span data-i18n-html="guide.pp6">بگەڕێوە بۆ فایلە دابەزێنراوەکە و دامەزراندنەکە ' +
+            'دووبارە تاقیبکەرەوە.</span></li>' +
+          '<li><span data-i18n-html="guide.pp7">دوای تەواوبوونی دامەزراندن، هەردوو کلیلەکە ' +
+            'دووبارە هەڵبکەوە، بۆ ئەوەی پارێزگاریی مۆبایلەکەت بمێنێتەوە.</span></li>' +
         '</ol>' +
       '</details>' +
 
@@ -354,14 +368,19 @@
       // after the sheet appears hasn't read anything, and they are the reader this whole
       // sheet exists for.
       '<div id="qp-ig-ack-stage">' +
-        '<button type="button" class="qp-ig-go" id="qp-ig-ack">تێگەیشتم — دەستپێکردنی دابەزاندن</button>' +
-        '<button type="button" class="qp-ig-cancel" id="qp-ig-cancel">پاشگەزبوونەوە</button>' +
+        '<button type="button" class="qp-ig-go" id="qp-ig-ack" data-i18n="guide.ack">' +
+          'تێگەیشتم — دەستپێکردنی دابەزاندن</button>' +
+        '<button type="button" class="qp-ig-cancel" id="qp-ig-cancel" data-i18n="guide.cancel">' +
+          'پاشگەزبوونەوە</button>' +
       '</div>' +
 
       '<div id="qp-ig-confirm-stage" hidden>' +
-        '<p class="qp-ig-ask" id="qp-ig-ask">ڕێنمایییەکانی پێش دابەزاندت خوێندەوە؟</p>' +
-        '<a class="qp-ig-go" id="qp-ig-go" href="#" aria-describedby="qp-ig-ask">بەڵێ، دەستی پێبکە</a>' +
-        '<button type="button" class="qp-ig-cancel" id="qp-ig-back">نەخێر، دەیخوێنمەوە</button>' +
+        '<p class="qp-ig-ask" id="qp-ig-ask" data-i18n="guide.ask">' +
+          'ڕێنمایییەکانی پێش دابەزاندت خوێندەوە؟</p>' +
+        '<a class="qp-ig-go" id="qp-ig-go" href="#" aria-describedby="qp-ig-ask" ' +
+          'data-i18n="guide.go">بەڵێ، دەستی پێبکە</a>' +
+        '<button type="button" class="qp-ig-cancel" id="qp-ig-back" data-i18n="guide.back">' +
+          'نەخێر، دەیخوێنمەوە</button>' +
       '</div>' +
     '</div>';
 

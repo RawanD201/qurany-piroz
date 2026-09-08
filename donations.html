@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>بەخشین — قورئانی پیرۆز</title>
-    <meta name="description" content="بەشی بەخشین بۆ ئەپی «قورئانی پیرۆز — پەڕتووکی خودا»: خەزێنە، داواکارییە چالاکەکان، بەخشەران و خەرجییەکان — بە ڕاستەقینە کاتی و نوێبوونەوەی خۆکار.">
+    <title data-i18n="donations.pageTitle">بەخشین — قورئانی پیرۆز</title>
+    <meta name="description" data-i18n-attr="content:donations.metaDescription" content="بەشی بەخشین بۆ ئەپی «قورئانی پیرۆز — پەڕتووکی خودا»: خەزێنە، داواکارییە چالاکەکان، بەخشەران و خەرجییەکان — بە ڕاستەقینە کاتی و نوێبوونەوەی خۆکار.">
     <meta name="robots" content="noindex">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -12,6 +12,9 @@
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="manifest" href="site.webmanifest">
     <link rel="canonical" href="https://qurany-piroz.com/donations">
+
+    <!-- Blocking, in <head>: it settles the language before the body is painted. -->
+    <script src="/i18n.js"></script>
 
     <style media="screen">
       :root {
@@ -469,16 +472,18 @@
   </head>
   <body>
     <header class="top">
-      <a href="/"><img src="logo.png" alt="لۆگۆی قورئانی پیرۆز"></a>
-      <a href="/">قورئانی پیرۆز</a>
-      <a class="back-link" href="/">گەڕانەوە ›</a>
+      <a href="/"><img src="logo.png" data-i18n-attr="alt:donations.logoAlt" alt="لۆگۆی قورئانی پیرۆز"></a>
+      <a href="/" data-i18n="common.appShort">قورئانی پیرۆز</a>
+      <a class="back-link" href="/" data-i18n="donations.back">گەڕانەوە ›</a>
     </header>
 
+    <div class="qp-lang-bar"></div>
+
     <main>
-      <h1 class="page-title">بەخشین</h1>
+      <h1 class="page-title" data-i18n="donations.heading">بەخشین</h1>
 
       <div id="content" aria-live="polite">
-        <p class="skeleton">بارکردن...</p>
+        <p class="skeleton" data-i18n="donations.loading">بارکردن...</p>
       </div>
       <!-- Split from #content above so toggling a collapsible or picking a month only touches
            these two cards' DOM — leaving the treasury card's logo <img> elements (and the rest
@@ -486,14 +491,12 @@
       <div id="content-dynamic"></div>
     </main>
 
-    <footer>
-      © <span id="year"></span> قورئانی پیرۆز — پەڕتووکی خودا.
+    <footer data-i18n-html="common.footer">
+      © قورئانی پیرۆز — پەڕتووکی خودا.
     </footer>
 
     <script type="module">
       import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-
-      document.getElementById('year').textContent = new Date().getFullYear();
 
       // Blocks the two forms of desktop zoom the viewport meta tag can't reach: trackpad pinch
       // (fires as wheel+ctrlKey in Chrome/Firefox/Edge) and the Ctrl/Cmd +/-/0 keyboard shortcuts.
@@ -519,21 +522,18 @@
 
       function formatAmount(n) {
         const num = Number(n) || 0;
-        return num.toLocaleString('en-US') + ' د.ع';
+        // Latin digits with thousands separators in every language, which is how the amounts
+        // are written on the FIB/Qi/Fastpay screens a donor is comparing them against.
+        return num.toLocaleString('en-US') + ' ' + QPI18n.t('donations.currency');
       }
 
       function formatDate(isoOrDateString) {
         return String(isoOrDateString).slice(0, 10);
       }
 
-      const KURDISH_MONTHS = [
-        'کانوونی دووەم', 'شوبات', 'ئازار', 'نیسان', 'ئایار', 'حوزەیران',
-        'تەمووز', 'ئاب', 'ئەیلوول', 'تشرینی یەکەم', 'تشرینی دووەم', 'کانوونی یەکەم',
-      ];
-
       function formatMonthLabel(yyyyMM) {
         const [y, m] = yyyyMM.split('-').map(Number);
-        return `${KURDISH_MONTHS[m - 1]} ${y}`;
+        return `${QPI18n.months()[m - 1]} ${y}`;
       }
 
       function escapeHtml(str) {
@@ -555,7 +555,7 @@
             icon.textContent = '✅';
             setTimeout(() => { icon.textContent = original; }, 1500);
           }
-          showToast('ژمارەکە لەبەرگیرایەوە.');
+          showToast(QPI18n.t('donations.copied'));
         });
       };
 
@@ -656,7 +656,7 @@
         return `
           <div class="card treasury-card">
             <div class="treasury-icon">🏛️</div>
-            <div class="muted small">خەزێنەی ئێستای بەرنامە</div>
+            <div class="muted small">${QPI18n.t('donations.treasuryLabel')}</div>
             <div class="treasury-balance">${formatAmount(treasury.balance)}</div>
             ${note}
             ${phone}
@@ -671,7 +671,7 @@
           ? Math.min(100, Math.max(0, (given / campaign.target_amount) * 100))
           : 0;
         const description = campaign.description_html && campaign.description_html.trim()
-          ? `<div class="card"><h2>ڕوونکردنەوە</h2><div class="description-html">${campaign.description_html}</div></div>`
+          ? `<div class="card"><h2>${QPI18n.t('donations.description')}</h2><div class="description-html">${campaign.description_html}</div></div>`
           : '';
 
         return `
@@ -680,14 +680,14 @@
             <div class="muted small">${formatDate(campaign.start_date)} — ${formatDate(campaign.end_date)}</div>
             <div class="progress-track"><div class="progress-fill" style="width:${progress}%"></div></div>
             <div class="campaign-figures">
-              <div class="remaining">ماوە: ${formatAmount(remaining)}</div>
-              <div class="muted small">ئامانج: ${formatAmount(campaign.target_amount)}</div>
+              <div class="remaining">${QPI18n.t('donations.remaining', { amount: formatAmount(remaining) })}</div>
+              <div class="muted small">${QPI18n.t('donations.target', { amount: formatAmount(campaign.target_amount) })}</div>
             </div>
           </div>
           ${description}
           <div class="card">
-            <h2>چۆن ببەخشیت؟</h2>
-            <p class="small">دەتوانیت بڕی پارەکە بنێریت بۆ ژمارەی دیاریکراو لە ڕێگەی FIB، Qi یان Fastpayـەوە. تکایە بڕی پارەکە و مەبەستی ناردنەکە بنووسە تاوەکو بتوانرێت وەک بەخشین تۆمار بکرێت.</p>
+            <h2>${QPI18n.t('donations.howTitle')}</h2>
+            <p class="small">${QPI18n.t('donations.howBody')}</p>
           </div>`;
       }
 
@@ -731,7 +731,7 @@
         const chevron = `<span class="chevron${unlinkedExpanded ? ' open' : ''}">⌄</span>`;
         const header = `
           <button type="button" class="collapsible-header" onclick="window.__toggleUnlinked()">
-            <h2>بەخشینی خۆبەخشانە</h2>
+            <h2>${QPI18n.t('donations.spontaneous')}</h2>
             ${chevron}
           </button>`;
 
@@ -742,7 +742,7 @@
         const filtered = donations.filter(d => String(d.donated_at).slice(0, 7) === selectedMonth);
         const rows = filtered.length
           ? filtered.map(d => donorRow(d)).join('')
-          : `<p class="empty-note">هیچ بەخشینێکی خۆبەخشانە نییە بۆ ئەم مانگە</p>`;
+          : `<p class="empty-note">${QPI18n.t('donations.spontaneousEmpty')}</p>`;
 
         return `
           <div class="card">
@@ -750,7 +750,7 @@
             <div class="month-picker-row">
               <button type="button" class="month-label" onclick="window.__openMonthPicker()">📅 ${formatMonthLabel(selectedMonth)}</button>
               <input type="month" id="unlinked-month-input" class="month-input-hidden" value="${selectedMonth}"
-                     aria-label="مانگ هەڵبژێرە" onchange="window.__onUnlinkedMonthChange(this.value)">
+                     aria-label="${QPI18n.t('donations.monthLabel')}" onchange="window.__onUnlinkedMonthChange(this.value)">
             </div>
             ${rows}
           </div>`;
@@ -829,7 +829,7 @@
         const chevron = `<span class="chevron${donatorsExpanded ? ' open' : ''}">⌄</span>`;
         const header = `
           <button type="button" class="collapsible-header" onclick="window.__toggleDonators()">
-            <h2>بەخشەران (بە کۆی بەخشینەکانیشیانەوە)</h2>
+            <h2>${QPI18n.t('donations.donorsTotals')}</h2>
             ${chevron}
           </button>`;
 
@@ -852,9 +852,12 @@
       // Opened by tapping a donor's row above — a small modal listing that one person's own
       // donations with their dates, and their running total at the bottom, rather than sending
       // them off to scroll and mentally filter the campaign/بەخشینی-خۆبەخشانە lists themselves.
+      let openDonorIndex = null;
+
       window.__showDonorDetail = function (index) {
         const donor = lastDonorsList[index];
         if (!donor) return;
+        openDonorIndex = index;
 
         const donations = lastAllDonations
           .filter(d => d.donor_name === donor.name && (d.donor_province || '') === (donor.province || ''))
@@ -862,7 +865,7 @@
 
         const rows = donations.length
           ? donations.map(d => donationDateAmountRow(d)).join('')
-          : `<p class="empty-note">هیچ بەخشینێک نەدۆزرایەوە</p>`;
+          : `<p class="empty-note">${QPI18n.t('donations.noDonations')}</p>`;
         const nameLabel = donor.province ? `${escapeHtml(donor.name)} — ${escapeHtml(donor.province)}` : escapeHtml(donor.name);
 
         let modal = document.getElementById('donor-modal');
@@ -879,11 +882,11 @@
           <div class="modal-box">
             <div class="modal-header">
               <h3>${nameLabel}</h3>
-              <button type="button" class="modal-close" onclick="window.__closeDonorModal()" aria-label="داخستن">✕</button>
+              <button type="button" class="modal-close" onclick="window.__closeDonorModal()" aria-label="${QPI18n.t('donations.close')}">✕</button>
             </div>
             <div class="modal-body">${rows}</div>
             <div class="modal-footer">
-              <span>کۆی گشتی</span>
+              <span>${QPI18n.t('donations.total')}</span>
               <span class="amount income">${formatAmount(donor.total)}</span>
             </div>
           </div>`;
@@ -897,6 +900,7 @@
       window.__closeDonorModal = function () {
         const modal = document.getElementById('donor-modal');
         if (modal) modal.classList.remove('show');
+        openDonorIndex = null;
         document.removeEventListener('keydown', __donorModalEscHandler);
       };
 
@@ -919,7 +923,7 @@
             </div>
             <div class="muted date">${formatDate(e.spent_at)}</div>
           </div>`).join('');
-        return `<div class="card"><h2>خەرجییەکانی خەزێنە</h2>${rows}</div>`;
+        return `<div class="card"><h2>${QPI18n.t('donations.expenses')}</h2>${rows}</div>`;
       }
 
       // ---- Full render ------------------------------------------------------------------------
@@ -960,7 +964,7 @@
           treasuryCard(lastTreasury),
           expensesCard(lastExpenses),
           campaignCard(lastCampaign, lastCampaignDonations),
-          donorHistoryCard('بەخشەران', lastCampaignDonations),
+          donorHistoryCard(QPI18n.t('donations.donors'), lastCampaignDonations),
         ].join('');
       }
 
@@ -977,6 +981,13 @@
       }
 
       fetchAndRenderAll();
+
+      QPI18n.onChange(() => {
+        renderFromCache();
+        // A modal that is open at that moment is not part of #content or #content-dynamic, so
+        // it would otherwise be left behind in the previous language.
+        if (openDonorIndex !== null) window.__showDonorDetail(openDonorIndex);
+      });
 
       // ---- Realtime: re-fetch and re-render whenever any of these tables change, so the page
       // never needs a manual refresh to reflect what Hevi Edit just published or a visitor's

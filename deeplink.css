@@ -50,7 +50,7 @@ main {
   width: 100%;
   max-width: 560px;
   margin: 0 auto;
-  padding: 56px 24px 40px;
+  padding: 32px 24px 40px;
   text-align: center;
 }
 
@@ -168,7 +168,7 @@ footer {
 footer a { color: inherit; }
 
 @media (max-width: 480px) {
-  main { padding-top: 36px; }
+  main { padding-top: 22px; }
   h1 { font-size: 21px; }
   .code { font-size: 34px; letter-spacing: 6px; }
 }
