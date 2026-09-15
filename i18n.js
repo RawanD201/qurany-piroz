@@ -341,7 +341,6 @@
     'donations.status.active': 'چالاکە',
     'donations.status.fulfilled': 'تەواوبووە',
     'donations.status.ended': 'کۆتایی هاتووە',
-    'donations.status.inactive': 'ناچالاکە',
     'donations.status.upcoming': 'داهاتوو',
     'donations.copied': 'ژمارەکە لەبەرگیرایەوە.',
     'donations.months': [
@@ -459,7 +458,6 @@
     'donations.status.active': 'Active',
     'donations.status.fulfilled': 'Completed',
     'donations.status.ended': 'Ended',
-    'donations.status.inactive': 'Inactive',
     'donations.status.upcoming': 'Upcoming',
     'donations.copied': 'The number has been copied.',
     'donations.months': [
@@ -578,7 +576,6 @@
     'donations.status.active': 'فعال',
     'donations.status.fulfilled': 'مکمل',
     'donations.status.ended': 'ختم ہو گئی',
-    'donations.status.inactive': 'غیر فعال',
     'donations.status.upcoming': 'آنے والی',
     'donations.copied': 'نمبر کاپی ہو گیا۔',
     'donations.months': [
@@ -696,7 +693,6 @@
     'donations.status.active': 'نشطة',
     'donations.status.fulfilled': 'مكتملة',
     'donations.status.ended': 'انتهت',
-    'donations.status.inactive': 'غير نشطة',
     'donations.status.upcoming': 'قادمة',
     'donations.copied': 'تم نسخ الرقم.',
     'donations.months': [
@@ -814,7 +810,6 @@
     'donations.status.active': 'فعال',
     'donations.status.fulfilled': 'تکمیل‌شده',
     'donations.status.ended': 'پایان‌یافته',
-    'donations.status.inactive': 'غیرفعال',
     'donations.status.upcoming': 'پیشِ رو',
     'donations.copied': 'شماره کپی شد.',
     'donations.months': [
@@ -932,7 +927,6 @@
     'donations.status.active': 'Aktif',
     'donations.status.fulfilled': 'Tamamlandı',
     'donations.status.ended': 'Sona erdi',
-    'donations.status.inactive': 'Pasif',
     'donations.status.upcoming': 'Yaklaşan',
     'donations.copied': 'Numara kopyalandı.',
     'donations.months': [
