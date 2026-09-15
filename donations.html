@@ -665,13 +665,25 @@
 
       function campaignCard(campaign, donations) {
         if (!campaign) return '';
-        const given = donations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
+        // Money the app put in from its own خەزێنە counts toward the request exactly like a
+        // donation does — it just has no donor behind it, so it lives on the campaign row rather
+        // than in donations (see supabase/migrations/0037_campaign_treasury_funding.sql). Reads as
+        // 0 on a campaign that was never funded that way, and on a database still missing the
+        // column, which is exactly how this page behaved before.
+        const fromTreasury = Number(campaign.treasury_funded) || 0;
+        const given = donations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0) + fromTreasury;
         const remaining = Math.max(0, (Number(campaign.target_amount) || 0) - given);
         const progress = campaign.target_amount > 0
           ? Math.min(100, Math.max(0, (given / campaign.target_amount) * 100))
           : 0;
         const description = campaign.description_html && campaign.description_html.trim()
           ? `<div class="card"><h2>${QPI18n.t('donations.description')}</h2><div class="description-html">${campaign.description_html}</div></div>`
+          : '';
+        // Named rather than folded silently into "remaining": a reader comparing the donor list
+        // against the progress bar would otherwise find money in the bar that no donor row
+        // accounts for.
+        const treasuryShare = fromTreasury > 0
+          ? `<div class="muted small" style="margin-top:6px">${QPI18n.t('donations.fromTreasury', { amount: formatAmount(fromTreasury) })}</div>`
           : '';
 
         return `
@@ -683,6 +695,7 @@
               <div class="remaining">${QPI18n.t('donations.remaining', { amount: formatAmount(remaining) })}</div>
               <div class="muted small">${QPI18n.t('donations.target', { amount: formatAmount(campaign.target_amount) })}</div>
             </div>
+            ${treasuryShare}
           </div>
           ${description}
           <div class="card">
