@@ -148,6 +148,7 @@
 
       .pay-methods {
         display: flex;
+        flex-wrap: wrap;
         justify-content: center;
         gap: 6px;
         margin-top: 14px;
@@ -162,6 +163,15 @@
         border-radius: 8px;
         background: #FFFFFF;
         border: 1px solid var(--border);
+      }
+
+      /* AsiaPay's official mark is a white wordmark — it lives on their red header and app icon,
+         so on the white chip the other three sit on it would simply vanish. The chip takes their
+         brand red instead (sampled from asiapay.iq's own app icon), which is exactly how the
+         company presents the logo itself. */
+      .pay-badge.asiapay {
+        background: #FF2800;
+        border-color: #FF2800;
       }
 
       .pay-badge img {
@@ -222,6 +232,65 @@
 
       .campaign-figures .remaining {
         font-weight: 700;
+      }
+
+      /* One داواکاری in the "داواکارییەکان" list. The summary (name, pill, dates, progress,
+         figures) is always visible; the header button folds its description, how-to-donate
+         and donor list underneath, the same collapsible pattern the two cards below use. */
+      .campaign-row {
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .campaign-row:first-of-type { padding-top: 6px; }
+      .campaign-row:last-child { border-bottom: none; padding-bottom: 4px; }
+
+      .campaign-row .collapsible-header { gap: 10px; }
+
+      .campaign-title {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        min-width: 0;
+      }
+
+      .campaign-title .name {
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      .campaign-details { margin-top: 12px; }
+
+      .campaign-details h3 {
+        font-size: 14px;
+        margin: 14px 0 6px;
+      }
+
+      /* Status pills — one per campaign, computed the same way Hevi Edit's list computes its
+         own (see campaignStatus below). Tinted from the page's own tokens so the five states
+         stay distinguishable in both themes: green = give now, brand gold = done, blue = not
+         yet, gray = time ran out, red = switched off. */
+      .status-pill {
+        display: inline-block;
+        flex: none;
+        padding: 1px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.7;
+        white-space: nowrap;
+      }
+
+      .status-active    { background: color-mix(in srgb, var(--income) 16%, transparent);  color: var(--income); }
+      .status-fulfilled { background: color-mix(in srgb, var(--brand) 20%, transparent);   color: var(--brand-dark); }
+      .status-upcoming  { background: color-mix(in srgb, #3B82F6 16%, transparent);        color: #2563EB; }
+      .status-ended     { background: color-mix(in srgb, var(--muted) 18%, transparent);   color: var(--muted); }
+      .status-inactive  { background: color-mix(in srgb, var(--expense) 14%, transparent); color: var(--expense); }
+
+      @media (prefers-color-scheme: dark) {
+        .status-fulfilled { color: var(--brand); }
+        .status-upcoming  { color: #7CB2FF; }
       }
 
       .description-html {
@@ -485,9 +554,10 @@
       <div id="content" aria-live="polite">
         <p class="skeleton" data-i18n="donations.loading">بارکردن...</p>
       </div>
-      <!-- Split from #content above so toggling a collapsible or picking a month only touches
-           these two cards' DOM — leaving the treasury card's logo <img> elements (and the rest
-           of #content) untouched instead of being torn down and rebuilt on every unrelated tap. -->
+      <!-- Split from #content above so unfolding a campaign, toggling a collapsible or picking a
+           month only touches these cards' DOM — leaving the treasury card's logo <img> elements
+           (and the rest of #content) untouched instead of being torn down and rebuilt on every
+           unrelated tap. -->
       <div id="content-dynamic"></div>
     </main>
 
@@ -582,21 +652,26 @@
 
       // ---- Fetchers -----------------------------------------------------------------------
 
-      async function fetchActiveCampaign() {
+      // Every campaign, not just the active one: a request that was filled from the treasury and
+      // then switched off used to vanish from this page entirely — along with the money that
+      // left the balance for it — which is exactly what a reader reconciling the treasury card
+      // against the list needs to see. Same newest-first order as Hevi Edit's own list.
+      async function fetchCampaigns() {
         const { data } = await supabase
           .from('donation_campaigns')
           .select()
-          .eq('is_active', true)
-          .order('created_at', { ascending: false })
-          .limit(1);
-        return data && data[0] ? data[0] : null;
+          .order('created_at', { ascending: false });
+        return data || [];
       }
 
-      async function fetchDonationsForCampaign(campaignId) {
+      // All campaign-linked donations in one query, grouped per campaign at render time —
+      // cheaper than one round trip per row, and it also makes بەخشەران below genuinely
+      // "every donor across every campaign" rather than the active one's alone.
+      async function fetchCampaignDonations() {
         const { data } = await supabase
           .from('donations')
           .select()
-          .eq('campaign_id', campaignId)
+          .not('campaign_id', 'is', null)
           .order('donated_at', { ascending: false });
         return data || [];
       }
@@ -627,7 +702,7 @@
 
       function treasuryCard(treasury) {
         if (!treasury) return '';
-        // Real FIB/Qi/Fastpay marks, sourced from each company's own official site — nominative
+        // Real FIB/Qi/Fastpay/AsiaPay marks, sourced from each company's own official site — nominative
         // use to identify accepted payment methods, not an endorsement claim. Each sits on a
         // small white chip so its true colors read correctly in dark mode too.
         //
@@ -644,6 +719,7 @@
               <span class="pay-badge"><img src="fib-logo.svg" alt="FIB"></span>
               <span class="pay-badge"><img src="qi-logo.svg" alt="Qi"></span>
               <span class="pay-badge"><img src="fastpay-logo.png" alt="Fastpay"></span>
+              <span class="pay-badge asiapay"><img src="asiapay-logo.png" alt="AsiaPay"></span>
             </div>
             <button type="button" class="phone-chip" onclick="window.__copyPhone(this, '${escapeHtml(treasury.contact_phone)}')">
               <span dir="ltr">${escapeHtml(treasury.contact_phone)}</span>
@@ -663,22 +739,81 @@
           </div>`;
       }
 
-      function campaignCard(campaign, donations) {
-        if (!campaign) return '';
-        // Money the app put in from its own خەزێنە counts toward the request exactly like a
-        // donation does — it just has no donor behind it, so it lives on the campaign row rather
-        // than in donations (see supabase/migrations/0037_campaign_treasury_funding.sql). Reads as
-        // 0 on a campaign that was never funded that way, and on a database still missing the
-        // column, which is exactly how this page behaved before.
+      // ---- Campaign status --------------------------------------------------------------------
+      //
+      // One word per campaign, decided in this order — and in exactly this order in Hevi Edit's
+      // DonationCampaignsTableViewController.status(for:), so admin and reader never see two
+      // different answers for the same row:
+      //   fulfilled — collected (donations + treasury) has reached the target; nothing else
+      //               matters once the request is covered.
+      //   ended     — its end date has passed without being covered.
+      //   inactive  — switched off in Hevi Edit (ناچالاککردن) while still within its dates.
+      //   upcoming  — start date still ahead.
+      //   active    — open right now: the only state the how-to-donate text shows for.
+      // Dates compare as yyyy-MM-dd strings against the reader's own local date, the same way
+      // the app compares against the device's — no Date parsing, no UTC drift around midnight.
+      function localToday() {
+        const d = new Date();
+        const p = (n) => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+      }
+
+      function campaignStatus(campaign, collected) {
+        const target = Number(campaign.target_amount) || 0;
+        if (target > 0 && collected >= target) return 'fulfilled';
+        const today = localToday();
+        if (formatDate(campaign.end_date) < today) return 'ended';
+        if (!campaign.is_active) return 'inactive';
+        if (formatDate(campaign.start_date) > today) return 'upcoming';
+        return 'active';
+      }
+
+      function statusPill(status) {
+        return `<span class="status-pill status-${status}">${QPI18n.t('donations.status.' + status)}</span>`;
+      }
+
+      // Money the app put in from its own خەزێنە counts toward the request exactly like a
+      // donation does — it just has no donor behind it, so it lives on the campaign row rather
+      // than in donations (see supabase/migrations/0037_campaign_treasury_funding.sql). Reads as
+      // 0 on a campaign that was never funded that way, and on a database still missing the
+      // column.
+      function collectedFor(campaign, donations) {
+        const given = donations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
+        return given + (Number(campaign.treasury_funded) || 0);
+      }
+
+      function groupByCampaign(donations) {
+        const map = new Map();
+        for (const d of donations) {
+          if (!map.has(d.campaign_id)) map.set(d.campaign_id, []);
+          map.get(d.campaign_id).push(d);
+        }
+        return map;
+      }
+
+      // Which rows are unfolded. Seeded once, on the first successful fetch, with the newest
+      // active campaign so the page still opens on the live request the way it did when that
+      // was the only campaign it showed; after that the reader's own taps are the only thing
+      // that changes it (a Realtime refetch must not snap their rows shut).
+      const expandedCampaigns = new Set();
+      let expandedSeeded = false;
+
+      function seedExpanded(campaigns, byCampaign) {
+        if (expandedSeeded) return;
+        expandedSeeded = true;
+        const live = campaigns.find(c => campaignStatus(c, collectedFor(c, byCampaign.get(c.id) || [])) === 'active');
+        if (live) expandedCampaigns.add(live.id);
+      }
+
+      function campaignRow(campaign, donations) {
         const fromTreasury = Number(campaign.treasury_funded) || 0;
-        const given = donations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0) + fromTreasury;
-        const remaining = Math.max(0, (Number(campaign.target_amount) || 0) - given);
-        const progress = campaign.target_amount > 0
-          ? Math.min(100, Math.max(0, (given / campaign.target_amount) * 100))
-          : 0;
-        const description = campaign.description_html && campaign.description_html.trim()
-          ? `<div class="card"><h2>${QPI18n.t('donations.description')}</h2><div class="description-html">${campaign.description_html}</div></div>`
-          : '';
+        const given = collectedFor(campaign, donations);
+        const target = Number(campaign.target_amount) || 0;
+        const remaining = Math.max(0, target - given);
+        const progress = target > 0 ? Math.min(100, Math.max(0, (given / target) * 100)) : 0;
+        const status = campaignStatus(campaign, given);
+        const open = expandedCampaigns.has(campaign.id);
+
         // Named rather than folded silently into "remaining": a reader comparing the donor list
         // against the progress bar would otherwise find money in the bar that no donor row
         // accounts for.
@@ -686,29 +821,62 @@
           ? `<div class="muted small" style="margin-top:6px">${QPI18n.t('donations.fromTreasury', { amount: formatAmount(fromTreasury) })}</div>`
           : '';
 
+        let details = '';
+        if (open) {
+          const description = campaign.description_html && campaign.description_html.trim()
+            ? `<h3>${QPI18n.t('donations.description')}</h3><div class="description-html">${campaign.description_html}</div>`
+            : '';
+          // Only an open request tells people how to send money — a completed or ended one
+          // would be inviting donations it can no longer take.
+          const how = status === 'active'
+            ? `<h3>${QPI18n.t('donations.howTitle')}</h3><p class="small" style="margin:0">${QPI18n.t('donations.howBody')}</p>`
+            : '';
+          const donors = donations.length
+            ? donations.map(d => donorRow(d)).join('')
+            : `<p class="empty-note">${QPI18n.t('donations.noDonations')}</p>`;
+          details = `
+            <div class="campaign-details">
+              ${description}
+              ${how}
+              <h3>${QPI18n.t('donations.donors')}</h3>
+              ${donors}
+            </div>`;
+        }
+
+        // The id rides through an inline onclick — safe only because it is a server-issued UUID,
+        // never user-typed text (the donor modal indexes by position for the same reason).
         return `
-          <div class="card">
-            <h2>${escapeHtml(campaign.beneficiary_name)}</h2>
+          <div class="campaign-row">
+            <button type="button" class="collapsible-header" onclick="window.__toggleCampaign('${campaign.id}')" aria-expanded="${open}">
+              <div class="campaign-title">
+                <span class="name">${escapeHtml(campaign.beneficiary_name)}</span>
+                ${statusPill(status)}
+              </div>
+              <span class="chevron${open ? ' open' : ''}">⌄</span>
+            </button>
             <div class="muted small">${formatDate(campaign.start_date)} — ${formatDate(campaign.end_date)}</div>
             <div class="progress-track"><div class="progress-fill" style="width:${progress}%"></div></div>
             <div class="campaign-figures">
               <div class="remaining">${QPI18n.t('donations.remaining', { amount: formatAmount(remaining) })}</div>
-              <div class="muted small">${QPI18n.t('donations.target', { amount: formatAmount(campaign.target_amount) })}</div>
+              <div class="muted small">${QPI18n.t('donations.target', { amount: formatAmount(target) })}</div>
             </div>
             ${treasuryShare}
-          </div>
-          ${description}
-          <div class="card">
-            <h2>${QPI18n.t('donations.howTitle')}</h2>
-            <p class="small">${QPI18n.t('donations.howBody')}</p>
+            ${details}
           </div>`;
       }
 
-      function donorHistoryCard(title, donations) {
-        if (!donations.length) return '';
-        const rows = donations.map(d => donorRow(d)).join('');
-        return `<div class="card"><h2>${title}</h2>${rows}</div>`;
+      function campaignsCard(campaigns, campaignDonations) {
+        if (!campaigns.length) return '';
+        const byCampaign = groupByCampaign(campaignDonations);
+        const rows = campaigns.map(c => campaignRow(c, byCampaign.get(c.id) || [])).join('');
+        return `<div class="card"><h2>${QPI18n.t('donations.campaigns')}</h2>${rows}</div>`;
       }
+
+      window.__toggleCampaign = function (id) {
+        if (expandedCampaigns.has(id)) expandedCampaigns.delete(id);
+        else expandedCampaigns.add(id);
+        renderDynamicFromCache();
+      };
 
       function donorRow(d) {
         const name = d.donor_province ? `${escapeHtml(d.donor_name)} — ${escapeHtml(d.donor_province)}` : escapeHtml(d.donor_name);
@@ -802,7 +970,7 @@
 
       // "بەخشەران" (Donators): every donor across every campaign and every spontaneous gift,
       // collapsed into one row per person with their running total and city — distinct from
-      // donorHistoryCard/unlinkedDonationsCard above, which list individual transactions rather
+      // campaignRow/unlinkedDonationsCard above, which list individual transactions rather
       // than per-person totals. Collapsed by default, same as بەخشینی خۆبەخشانە.
       let donatorsExpanded = false;
 
@@ -835,10 +1003,10 @@
         lastAllDonations = [...campaignDonations, ...unlinkedDonations];
         if (!donors.length) return '';
 
-        // "بەخشەران (بە کۆی بەخشینەکانیشیانەوە)", not bare "بەخشەران": the active campaign's own
-        // card already uses that word for its per-transaction list right above this one, so the
-        // parenthetical ("with their donation totals too") is what tells the two apart — this one
-        // is per-person totals, not individual transactions.
+        // "بەخشەران (بە کۆی بەخشینەکانیشیانەوە)", not bare "بەخشەران": every unfolded campaign
+        // row above already uses that word for its per-transaction list, so the parenthetical
+        // ("with their donation totals too") is what tells the two apart — this one is
+        // per-person totals, not individual transactions.
         const chevron = `<span class="chevron${donatorsExpanded ? ' open' : ''}">⌄</span>`;
         const header = `
           <button type="button" class="collapsible-header" onclick="window.__toggleDonators()">
@@ -944,45 +1112,47 @@
       // Last-fetched data, kept around so the collapsible/month-picker state above can re-render
       // instantly from cache (no network round trip) instead of going through fetchAndRenderAll
       // — which is reserved for an actual page load or a Realtime change notification.
-      let lastCampaign = null;
+      let lastCampaigns = [];
       let lastTreasury = null;
       let lastCampaignDonations = [];
       let lastUnlinked = [];
       let lastExpenses = [];
 
       async function fetchAndRenderAll() {
-        const [campaign, treasury, unlinked, expenses] = await Promise.all([
-          fetchActiveCampaign(),
+        const [campaigns, campaignDonations, treasury, unlinked, expenses] = await Promise.all([
+          fetchCampaigns(),
+          fetchCampaignDonations(),
           fetchTreasury(),
           fetchUnlinkedDonations(),
           fetchExpenses(),
         ]);
-        lastCampaign = campaign;
+        lastCampaigns = campaigns;
+        lastCampaignDonations = campaignDonations;
         lastTreasury = treasury;
         lastUnlinked = unlinked;
         lastExpenses = expenses;
-        lastCampaignDonations = campaign ? await fetchDonationsForCampaign(campaign.id) : [];
+        seedExpanded(campaigns, groupByCampaign(campaignDonations));
         renderFromCache();
       }
 
-      // Two containers, two render functions: بەخشینی خۆبەخشانە and هەموو بەخشەران are the only
-      // cards whose markup depends on UI-only state (unlinkedExpanded/selectedMonth,
-      // donatorsExpanded), so they alone live in #content-dynamic and re-render on every toggle
-      // or month change. The rest — including the treasury card's FIB/Qi/Fastpay logo <img>
-      // elements — sits in #content and is left alone unless the underlying data actually
-      // changed, so tapping a collapsible header no longer tears down and re-fetches those
-      // images (confirmed visible as a "reload" flash before this split).
+      // Two containers, two render functions: داواکارییەکان, بەخشینی خۆبەخشانە and هەموو
+      // بەخشەران are the only cards whose markup depends on UI-only state (expandedCampaigns,
+      // unlinkedExpanded/selectedMonth, donatorsExpanded), so they alone live in
+      // #content-dynamic and re-render on every toggle or month change. The rest — including
+      // the treasury card's FIB/Qi/Fastpay/AsiaPay logo <img> elements — sits in #content and is
+      // left alone unless the underlying data actually changed, so tapping a collapsible header
+      // no longer tears down and re-fetches those images (confirmed visible as a "reload" flash
+      // before this split).
       function renderStaticFromCache() {
         content.innerHTML = [
           treasuryCard(lastTreasury),
           expensesCard(lastExpenses),
-          campaignCard(lastCampaign, lastCampaignDonations),
-          donorHistoryCard(QPI18n.t('donations.donors'), lastCampaignDonations),
         ].join('');
       }
 
       function renderDynamicFromCache() {
         contentDynamic.innerHTML = [
+          campaignsCard(lastCampaigns, lastCampaignDonations),
           unlinkedDonationsCard(lastUnlinked),
           donatorsCard(lastCampaignDonations, lastUnlinked),
         ].join('');
