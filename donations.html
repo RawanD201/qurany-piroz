@@ -14,7 +14,10 @@
     <link rel="canonical" href="https://qurany-piroz.com/donations">
 
     <!-- Blocking, in <head>: it settles the language before the body is painted. -->
-    <script src="/i18n.js"></script>
+    <!-- ?v= is bumped whenever i18n.js changes. Cloudflare hands the file to browsers with a
+         4-hour cache while the HTML itself is never cached, so without it a freshly deployed page
+         can run against a stale copy and print raw keys ("donations.campaigns") until it expires. -->
+    <script src="/i18n.js?v=20260915b"></script>
 
     <style media="screen">
       :root {
@@ -772,14 +775,27 @@
         return `<span class="status-pill status-${status}">${QPI18n.t('donations.status.' + status)}</span>`;
       }
 
-      // Money the app put in from its own خەزێنە counts toward the request exactly like a
-      // donation does — it just has no donor behind it, so it lives on the campaign row rather
-      // than in donations (see supabase/migrations/0037_campaign_treasury_funding.sql). Reads as
-      // 0 on a campaign that was never funded that way, and on a database still missing the
-      // column.
-      function collectedFor(campaign, donations) {
+      // What خەزێنە itself has paid toward a request: the sum of the treasury_expenses rows
+      // linked to it (0026). Hevi Edit's "پڕکردنەوە لە خەزێنە" writes exactly such a row, and so
+      // does linking an expense to a campaign by hand — the two are the same thing, which is why
+      // that money shows up under خەرجییەکانی خەزێنە above as well as here.
+      //
+      // The fallback is transitional: 0037 first recorded a fill as a bare number on the campaign
+      // row (treasury_funded), which never appeared in the expense list at all. Hevi Edit turns
+      // any such number into its expense row and zeroes it the next time بەخشین is opened; until
+      // that has happened for a campaign, the number is still the only record of the money, so
+      // it's read when — and only when — no linked expense exists. Never added on top: ڕاژەوان
+      // carries both, and summing them would count its 39,000 twice.
+      function treasuryPaidFor(campaign, expenses) {
+        const itemised = expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+        return itemised > 0 ? itemised : (Number(campaign.treasury_funded) || 0);
+      }
+
+      // A fill counts toward the request exactly like a donation does — it just has no donor
+      // behind it, so it lives in expenses rather than in donations.
+      function collectedFor(campaign, donations, expenses) {
         const given = donations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
-        return given + (Number(campaign.treasury_funded) || 0);
+        return given + treasuryPaidFor(campaign, expenses);
       }
 
       function groupByCampaign(donations) {
@@ -798,16 +814,19 @@
       const expandedCampaigns = new Set();
       let expandedSeeded = false;
 
-      function seedExpanded(campaigns, byCampaign) {
+      function seedExpanded(campaigns, donationsByCampaign, expensesByCampaign) {
         if (expandedSeeded) return;
         expandedSeeded = true;
-        const live = campaigns.find(c => campaignStatus(c, collectedFor(c, byCampaign.get(c.id) || [])) === 'active');
+        const live = campaigns.find(c => {
+          const collected = collectedFor(c, donationsByCampaign.get(c.id) || [], expensesByCampaign.get(c.id) || []);
+          return campaignStatus(c, collected) === 'active';
+        });
         if (live) expandedCampaigns.add(live.id);
       }
 
-      function campaignRow(campaign, donations) {
-        const fromTreasury = Number(campaign.treasury_funded) || 0;
-        const given = collectedFor(campaign, donations);
+      function campaignRow(campaign, donations, expenses) {
+        const fromTreasury = treasuryPaidFor(campaign, expenses);
+        const given = collectedFor(campaign, donations, expenses);
         const target = Number(campaign.target_amount) || 0;
         const remaining = Math.max(0, target - given);
         const progress = target > 0 ? Math.min(100, Math.max(0, (given / target) * 100)) : 0;
@@ -865,10 +884,13 @@
           </div>`;
       }
 
-      function campaignsCard(campaigns, campaignDonations) {
+      function campaignsCard(campaigns, campaignDonations, expenses) {
         if (!campaigns.length) return '';
-        const byCampaign = groupByCampaign(campaignDonations);
-        const rows = campaigns.map(c => campaignRow(c, byCampaign.get(c.id) || [])).join('');
+        const donationsByCampaign = groupByCampaign(campaignDonations);
+        const expensesByCampaign = groupByCampaign(expenses.filter(e => e.campaign_id));
+        const rows = campaigns
+          .map(c => campaignRow(c, donationsByCampaign.get(c.id) || [], expensesByCampaign.get(c.id) || []))
+          .join('');
         return `<div class="card"><h2>${QPI18n.t('donations.campaigns')}</h2>${rows}</div>`;
       }
 
@@ -1131,7 +1153,7 @@
         lastTreasury = treasury;
         lastUnlinked = unlinked;
         lastExpenses = expenses;
-        seedExpanded(campaigns, groupByCampaign(campaignDonations));
+        seedExpanded(campaigns, groupByCampaign(campaignDonations), groupByCampaign(expenses.filter(e => e.campaign_id)));
         renderFromCache();
       }
 
@@ -1152,7 +1174,7 @@
 
       function renderDynamicFromCache() {
         contentDynamic.innerHTML = [
-          campaignsCard(lastCampaigns, lastCampaignDonations),
+          campaignsCard(lastCampaigns, lastCampaignDonations, lastExpenses),
           unlinkedDonationsCard(lastUnlinked),
           donatorsCard(lastCampaignDonations, lastUnlinked),
         ].join('');
