@@ -268,9 +268,9 @@
       }
 
       /* Status pills — one per campaign, computed the same way Hevi Edit's list computes its
-         own (see campaignStatus below). Tinted from the page's own tokens so the five states
+         own (see campaignStatus below). Tinted from the page's own tokens so the four states
          stay distinguishable in both themes: green = give now, brand gold = done, blue = not
-         yet, gray = time ran out, red = switched off. */
+         yet, gray = time ran out. */
       .status-pill {
         display: inline-block;
         flex: none;
@@ -286,7 +286,6 @@
       .status-fulfilled { background: color-mix(in srgb, var(--brand) 20%, transparent);   color: var(--brand-dark); }
       .status-upcoming  { background: color-mix(in srgb, #3B82F6 16%, transparent);        color: #2563EB; }
       .status-ended     { background: color-mix(in srgb, var(--muted) 18%, transparent);   color: var(--muted); }
-      .status-inactive  { background: color-mix(in srgb, var(--expense) 14%, transparent); color: var(--expense); }
 
       @media (prefers-color-scheme: dark) {
         .status-fulfilled { color: var(--brand); }
@@ -652,14 +651,17 @@
 
       // ---- Fetchers -----------------------------------------------------------------------
 
-      // Every campaign, not just the active one: a request that was filled from the treasury and
-      // then switched off used to vanish from this page entirely — along with the money that
-      // left the balance for it — which is exactly what a reader reconciling the treasury card
-      // against the list needs to see. Same newest-first order as Hevi Edit's own list.
+      // Every campaign Hevi Edit has left on the website, not just an open one: a request that
+      // was filled from the treasury used to vanish from this page the moment it was covered —
+      // along with the money that left the balance for it — which is exactly what a reader
+      // reconciling the treasury card against the list needs to see. is_active is that
+      // show/hide switch ("پێشاندان / لادان لە وێبسایت" on the row's sheet in Hevi Edit) and
+      // nothing more. Same newest-first order as Hevi Edit's own list.
       async function fetchCampaigns() {
         const { data } = await supabase
           .from('donation_campaigns')
           .select()
+          .eq('is_active', true)
           .order('created_at', { ascending: false });
         return data || [];
       }
@@ -741,13 +743,12 @@
 
       // ---- Campaign status --------------------------------------------------------------------
       //
-      // One word per campaign, decided in this order — and in exactly this order in Hevi Edit's
-      // DonationCampaignsTableViewController.status(for:), so admin and reader never see two
-      // different answers for the same row:
+      // One word per campaign, decided in this order — and in the same order in Hevi Edit's
+      // CampaignStatus.of(), so admin and reader never see two different answers for the same
+      // row (Hevi's ladder has one extra rung, "hidden", for campaigns this page never fetches):
       //   fulfilled — collected (donations + treasury) has reached the target; nothing else
       //               matters once the request is covered.
       //   ended     — its end date has passed without being covered.
-      //   inactive  — switched off in Hevi Edit (ناچالاککردن) while still within its dates.
       //   upcoming  — start date still ahead.
       //   active    — open right now: the only state the how-to-donate text shows for.
       // Dates compare as yyyy-MM-dd strings against the reader's own local date, the same way
@@ -763,7 +764,6 @@
         if (target > 0 && collected >= target) return 'fulfilled';
         const today = localToday();
         if (formatDate(campaign.end_date) < today) return 'ended';
-        if (!campaign.is_active) return 'inactive';
         if (formatDate(campaign.start_date) > today) return 'upcoming';
         return 'active';
       }
