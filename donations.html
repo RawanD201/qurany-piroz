@@ -17,7 +17,7 @@
     <!-- ?v= is bumped whenever i18n.js changes. Cloudflare hands the file to browsers with a
          4-hour cache while the HTML itself is never cached, so without it a freshly deployed page
          can run against a stale copy and print raw keys ("donations.campaigns") until it expires. -->
-    <script src="/i18n.js?v=20260915b"></script>
+    <script src="/i18n.js?v=20261002c"></script>
 
     <style media="screen">
       :root {
@@ -57,7 +57,7 @@
         padding: 0;
         background: var(--bg);
         color: var(--text);
-        font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Roboto, Helvetica, Arial, sans-serif;
+        font-family: Vazirmatn, "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Roboto, Helvetica, Arial, sans-serif;
         line-height: 1.7;
         -webkit-font-smoothing: antialiased;
       }
@@ -605,7 +605,7 @@
 
       function formatMonthLabel(yyyyMM) {
         const [y, m] = yyyyMM.split('-').map(Number);
-        return `${QPI18n.months()[m - 1]} ${y}`;
+        return QPI18n.t('donations.monthYear', { month: QPI18n.months()[m - 1], year: y });
       }
 
       function escapeHtml(str) {

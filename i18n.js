@@ -1,9 +1,11 @@
-// Which of the site's three languages a reader gets, and every string in each of them.
+// Which of the site's languages a reader gets, and the strings for them.
 //
 // The site was written in Kurdish (Sorani) and still is: every page carries its Kurdish text
 // in the HTML itself, so a reader with no JavaScript — or one whose language is Kurdish
-// anyway — sees a complete page with nothing swapped. English and Urdu are applied over that
-// markup, keyed by the data-i18n attributes below.
+// anyway — sees a complete page with nothing swapped. The other languages are applied over
+// that markup, keyed by the data-i18n attributes below. They are the Qurany Piroz app's
+// languages: six are in this file, and the rest are in /i18n/<code>.js, loaded only for a
+// reader who needs one (see "The languages kept in /i18n/").
 //
 // The language is decided in this order, first answer wins:
 //
@@ -32,9 +34,14 @@
   // this one rather than showing a bare key.
   var DEFAULT_LANG = 'ckb';
 
-  // Menu order: the site's own language, then the one that reaches furthest, then the
-  // neighbours, working outwards from the app's audience.
-  var ORDER = ['ckb', 'en', 'ar', 'fa', 'tr', 'ur'];
+  // Bumped with every change to this file or to the tables in /i18n/ (the pages load this file
+  // as /i18n.js?v=… with the same value, and it loads the tables with it).
+  var VERSION = '20261002c';
+
+  // Menu order: the app's own — Kurdish and its dialects first, then the other languages the
+  // app is available in.
+  var ORDER = ['ckb', 'kmr', 'sdh', 'ku', 'en', 'ar', 'tr', 'fa', 'ur', 'syr', 'syc', 'he',
+    'de', 'fr', 'es', 'sv', 'ru', 'hi', 'bn', 'ms', 'zh-Hans', 'ja'];
 
   var LANGS = {
     // Endonyms — a language is always offered in its own name, so a reader who can't read the
@@ -43,60 +50,86 @@
     // Two sets of Arabic-Indic numerals are in play: ٠١٢… (U+0660) for Kurdish and Arabic, and
     // ۰۱۲… (U+06F0) for Urdu and Persian. Same digits to look at, different code points, and a
     // language shown the wrong set looks foreign in a way a reader notices.
+    //
+    // The six languages above the line are in this file; the rest are in /i18n/<code>.js and
+    // loaded only for a reader who needs one (`external`). `tag` is the page's lang attribute
+    // where the app's own code is not a standard one (Badini is Kurmanji in Arabic script,
+    // Kurmancî is Kurmanji in Latin script).
     ckb: { label: 'کوردیی ناوەندی', dir: 'rtl', digits: '٠١٢٣٤٥٦٧٨٩' },
     en:  { label: 'English', dir: 'ltr', digits: null },
     ar:  { label: 'العربية', dir: 'rtl', digits: '٠١٢٣٤٥٦٧٨٩' },
     fa:  { label: 'فارسی', dir: 'rtl', digits: '۰۱۲۳۴۵۶۷۸۹' },
     tr:  { label: 'Türkçe', dir: 'ltr', digits: null },
-    ur:  { label: 'اردو', dir: 'rtl', digits: '۰۱۲۳۴۵۶۷۸۹' }
+    ur:  { label: 'اردو', dir: 'rtl', digits: '۰۱۲۳۴۵۶۷۸۹' },
+    // ----
+    kmr: { label: 'کوردیی بادینانی', dir: 'rtl', digits: '٠١٢٣٤٥٦٧٨٩', tag: 'kmr-Arab', external: true, fallback: 'ckb' },
+    sdh: { label: 'کوردیی هەورامانی', dir: 'rtl', digits: '٠١٢٣٤٥٦٧٨٩', external: true, fallback: 'ckb' },
+    ku:  { label: 'Kurdî (Kurmancî)', dir: 'ltr', digits: null, tag: 'kmr-Latn', external: true, fallback: 'en' },
+    syr: { label: 'ܣܘܪܝܬ', dir: 'rtl', digits: null, external: true, fallback: 'en' },
+    syc: { label: 'ܟܬܒܢܝܐ', dir: 'rtl', digits: null, external: true, fallback: 'en' },
+    he:  { label: 'עברית', dir: 'rtl', digits: null, external: true, fallback: 'en' },
+    de:  { label: 'Deutsch', dir: 'ltr', digits: null, external: true, fallback: 'en' },
+    fr:  { label: 'Français', dir: 'ltr', digits: null, external: true, fallback: 'en' },
+    es:  { label: 'Español', dir: 'ltr', digits: null, external: true, fallback: 'en' },
+    sv:  { label: 'Svenska', dir: 'ltr', digits: null, external: true, fallback: 'en' },
+    ru:  { label: 'Русский', dir: 'ltr', digits: null, external: true, fallback: 'en' },
+    hi:  { label: 'हिन्दी', dir: 'ltr', digits: null, external: true, fallback: 'en' },
+    bn:  { label: 'বাংলা', dir: 'ltr', digits: null, external: true, fallback: 'en' },
+    ms:  { label: 'Bahasa Melayu', dir: 'ltr', digits: null, external: true, fallback: 'en' },
+    'zh-Hans': { label: '简体中文', dir: 'ltr', digits: null, external: true, fallback: 'en' },
+    ja:  { label: '日本語', dir: 'ltr', digits: null, external: true, fallback: 'en' }
   };
 
-  // ---- Urdu's own font ------------------------------------------------------------------------
+  // ---- The font for Arabic script --------------------------------------------------------------
   //
-  // Left to the system stack, macOS and iOS hand Urdu to Noto Nastaliq Urdu — the traditional
-  // calligraphic script, where a word descends steeply from right to left and each line needs
-  // roughly twice the height this site gives a paragraph. At the site's 16px/1.7 the lines
-  // collide and it is genuinely hard to read, which is not a thing to leave a reader fighting
-  // with on a page about the Quran.
+  // Six of the languages are written in Arabic script: Central Kurdish, Badini, Hawrami, Arabic,
+  // Persian and Urdu. Left to the system, each device draws them in whatever it has — Geeza
+  // Pro, Segoe UI, Tahoma, Noto Naskh — so the same page looks different on every phone, and
+  // macOS and iOS hand Urdu to Noto Nastaliq Urdu, whose steep calligraphic lines need roughly
+  // twice the height this site gives a paragraph and collide at 16px/1.7.
   //
-  // A Naskh face sits on a flat baseline the way the Kurdish text already does, so it fits the
-  // layout as it stands and stays clear at body sizes. It is loaded only for the reader who is
-  // actually on Urdu — nobody else fetches it.
+  // So they all get Vazirmatn (Saber Rastikerdar, SIL Open Font License 1.1 — see
+  // /fonts/vazirmatn/OFL.txt and ASSETS_LICENSES.md): a screen typeface with every letter these
+  // languages use (ڕ ڵ ێ ۆ ە ڤ for Kurdish, پ چ ژ گ for Persian, ٹ ڈ ڑ ں ے for Urdu) and a
+  // flat baseline that fits the layout as it stands. It is served from this site, so no
+  // third party sees who reads which page.
   //
-  // Arabic and Persian need none of this. They are Arabic script too, but no system routes them
-  // to a calligraphic face: they get the same flat-baseline Naskh the Kurdish text is already
-  // rendered in, and read correctly in the stack the pages define.
-  var URDU_FONT_HREF =
-    'https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400..700&display=swap';
+  // Each page names Vazirmatn first in its font stack; loadArabicFont declares it, for a reader
+  // whose language is written in Arabic script, and starts the download at once rather than
+  // once the page has been laid out. Nobody else is sent it: every page is authored in
+  // Kurdish, so declaring it for all would download it for an English reader too, for Kurdish
+  // text they never see (the page lays it out, hidden, until it is translated). The
+  // unicode-range keeps Latin text in the system font.
+  //
+  // The file name carries the font's version, so it can be cached for good (vercel.json).
+  var ARABIC_FONT_URL = '/fonts/vazirmatn/Vazirmatn-v33.003-wght.woff2';
 
-  var URDU_FONT_CSS = [
-    // Buttons and inputs do not inherit font-family on their own, so they are named as well —
-    // the download buttons, the switcher, and the donations page's month picker.
-    'html[lang="ur"] body,',
-    'html[lang="ur"] button,',
-    'html[lang="ur"] input,',
-    'html[lang="ur"] select,',
-    'html[lang="ur"] textarea {',
-    '  font-family: "Noto Naskh Arabic", "Segoe UI", Tahoma, sans-serif;',
-    '}',
-    // Naskh carries more of its weight above and below the baseline than the Latin and Kurdish
-    // faces this line-height was set for, so Urdu paragraphs get a little more room.
-    'html[lang="ur"] body { line-height: 1.95; }'
+  var ARABIC_FONT_CSS = [
+    '@font-face {',
+    '  font-family: "Vazirmatn";',
+    '  src: url("' + ARABIC_FONT_URL + '") format("woff2");',
+    '  font-weight: 100 900;',
+    '  font-style: normal;',
+    '  font-display: swap;',
+    '  unicode-range: U+0600-06FF, U+0750-077F, U+0870-08FF, U+FB50-FDFF, U+FE70-FEFC, U+200C-200D;',
+    '}'
   ].join('\n');
 
-  function loadUrduFont() {
-    if (document.getElementById('qp-urdu-font')) return;
+  var ARABIC_SCRIPT = { ckb: true, kmr: true, sdh: true, ar: true, fa: true, ur: true };
 
-    var preconnect = document.createElement('link');
-    preconnect.rel = 'preconnect';
-    preconnect.href = 'https://fonts.gstatic.com';
-    preconnect.crossOrigin = 'anonymous';
-    document.head.appendChild(preconnect);
-
+  function loadArabicFont(lang) {
+    if (!ARABIC_SCRIPT[lang] || document.getElementById('qp-arabic-font')) return;
+    var face = document.createElement('style');
+    face.textContent = ARABIC_FONT_CSS;
+    document.head.appendChild(face);
     var link = document.createElement('link');
-    link.id = 'qp-urdu-font';
-    link.rel = 'stylesheet';
-    link.href = URDU_FONT_HREF;
+    link.id = 'qp-arabic-font';
+    link.rel = 'preload';
+    link.as = 'font';
+    link.type = 'font/woff2';
+    link.href = ARABIC_FONT_URL;
+    // Fonts are always fetched in CORS mode; without this the preload is not reused.
+    link.crossOrigin = 'anonymous';
     document.head.appendChild(link);
   }
 
@@ -193,13 +226,18 @@
 
   // A language tag's primary subtag ("en-GB" -> "en") mapped to one of the site's six. Matched
   // whole rather than by prefix: "ar" as a prefix also swallows "arn", which is Mapudungun.
+  // "ku" and "kmr" are Kurmanji, which browsers write in Latin script; "sdh" (Southern
+  // Kurdish) is closest to Sorani of the site's languages.
   var NAV_LANG = {
-    ckb: 'ckb', ku: 'ckb', kmr: 'ckb', sdh: 'ckb',
+    ckb: 'ckb', sdh: 'ckb', ku: 'ku', kmr: 'ku',
     en: 'en',
     ar: 'ar', arb: 'ar', arz: 'ar', ary: 'ar',
     fa: 'fa', fas: 'fa', per: 'fa', prs: 'fa',
     tr: 'tr', tur: 'tr',
-    ur: 'ur', urd: 'ur'
+    ur: 'ur', urd: 'ur',
+    syr: 'syr', he: 'he', iw: 'he',
+    de: 'de', fr: 'fr', es: 'es', sv: 'sv', ru: 'ru',
+    hi: 'hi', bn: 'bn', ms: 'ms', zsm: 'ms', ja: 'ja', zh: 'zh-Hans'
   };
 
   // The reader's languages, in their own order of preference, narrowed to the ones this site
@@ -212,7 +250,10 @@
 
     var found = [];
     for (var i = 0; i < tags.length; i++) {
-      var lang = NAV_LANG[String(tags[i]).toLowerCase().split('-')[0]];
+      var tag = String(tags[i]).toLowerCase();
+      // Traditional Chinese readers are not shown the Simplified Chinese text.
+      if (/^zh-(hant|tw|hk|mo)/.test(tag)) continue;
+      var lang = NAV_LANG[tag.split('-')[0]];
       if (lang && found.indexOf(lang) < 0) found.push(lang);
     }
     return found;
@@ -288,6 +329,8 @@
     'index.description': 'بەرنامەی مۆبایلیی «قورئانی پیرۆز — پەڕتووکی خودا» بۆ گرتنەبەری گەشتێکی پڕ لە تێگەیشتنە بەنێو ئایەتەکانی قورئان بە زمانی شیرینی کوردی (هەرسێ زار و شێوەزاری کوردیی ناوەندی و بادینانی و هەورامانی) بەسیازدە تەفسیری کوردی و فەرهەنگێکی ڕیشەییی وشەکانی قورئانەوە.',
     'index.androidNote': 'بۆ ئەندرۆید: دوای دابارکردن، ڕێگە بە دامەزراندنی ئەپ لە سەرچاوەی نەناسراو بدە.',
     'index.donations': '🤍 بەخشین',
+    'index.haram': 'بە حەرەمدا بگەڕێ',
+    'index.haramNote': 'سوجدەگای حەرام بە سێڕەهەندی، لە وێبگەڕەکەتدا',
 
     'link.openHint': 'ئەگەر بەرنامەکەت دامەزراندبێت، بەشێوەی ئاسایی بەستەرەکە خۆی بەرنامەکە دەکاتەوە. ئەگەر ئەوە ڕووی نەدا، دوگمەی سەرەوە دابگرە.',
     'link.brokenLabel': 'بەستەرەکە کارا نییە',
@@ -347,6 +390,7 @@
       'کانوونی دووەم', 'شوبات', 'ئازار', 'نیسان', 'ئایار', 'حوزەیران',
       'تەمووز', 'ئاب', 'ئەیلوول', 'تشرینی یەکەم', 'تشرینی دووەم', 'کانوونی یەکەم'
     ],
+    'donations.monthYear': '{month} {year}',
 
     'guide.title': 'پێش دابەزاندن ئەمە بخوێنەوە',
     'guide.lead': 'دوو هەنگاوی کورت هەن؛ بەبێ ئەوان دامەزراندنی ئەپەکە سەرکەوتوو نابێت.',
@@ -405,6 +449,8 @@
     'index.description': 'The “Qurany Piroz — The Book of God” mobile app takes you on a journey of understanding through the verses of the Quran in Kurdish — all three dialects: Sorani, Badini and Hawrami — with thirteen Kurdish tafsirs and a root dictionary of Quranic words.',
     'index.androidNote': 'On Android: after downloading, allow the app to be installed from an unknown source.',
     'index.donations': '🤍 Donate',
+    'index.haram': 'Explore the Haram',
+    'index.haramNote': 'Masjid al-Haram in 3D, in your web browser',
 
     'link.openHint': 'If you already have the app, the link normally opens it by itself. If that did not happen, tap the button above.',
     'link.brokenLabel': 'This link does not work',
@@ -464,6 +510,7 @@
       'January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December'
     ],
+    'donations.monthYear': '{month} {year}',
 
     'guide.title': 'Read this before downloading',
     'guide.lead': 'There are two short steps; without them the install will not succeed.',
@@ -523,6 +570,8 @@
     'index.description': 'موبائل ایپ «قرآنِ پیروز — اللہ کی کتاب» آپ کو کُردی زبان میں قرآن کی آیات کے ذریعے فہم و بصیرت کے سفر پر لے جاتی ہے — تینوں لہجوں میں: سورانی، بادینی اور ہورامی — تیرہ کُردی تفاسیر اور قرآنی الفاظ کی لغت کے ساتھ۔',
     'index.androidNote': 'اینڈرائیڈ پر: ڈاؤن لوڈ کے بعد نامعلوم ذریعے سے ایپ انسٹال کرنے کی اجازت دیں۔',
     'index.donations': '🤍 عطیہ',
+    'index.haram': 'حرم کی سیر کریں',
+    'index.haramNote': 'مسجد الحرام 3D میں، آپ کے ویب براؤزر میں',
 
     'link.openHint': 'اگر ایپ پہلے سے موجود ہے تو لنک عام طور پر خود ہی ایپ کھول دیتا ہے۔ اگر ایسا نہ ہو تو اوپر والا بٹن دبائیں۔',
     'link.brokenLabel': 'یہ لنک کام نہیں کرتا',
@@ -582,6 +631,7 @@
       'جنوری', 'فروری', 'مارچ', 'اپریل', 'مئی', 'جون',
       'جولائی', 'اگست', 'ستمبر', 'اکتوبر', 'نومبر', 'دسمبر'
     ],
+    'donations.monthYear': '{month} {year}',
 
     'guide.title': 'ڈاؤن لوڈ سے پہلے یہ پڑھیں',
     'guide.lead': 'دو مختصر مراحل ہیں؛ ان کے بغیر ایپ کی انسٹالیشن کامیاب نہیں ہوگی۔',
@@ -640,6 +690,8 @@
     'index.description': 'يأخذك تطبيق «قرآني بيروز — كتاب الله» للهواتف في رحلة فهم بين آيات القرآن باللغة الكردية — باللهجات الثلاث جميعها: السورانية والبادينية والهورامية — مع ثلاثة عشر تفسيرًا كرديًا ومعجم لجذور ألفاظ القرآن.',
     'index.androidNote': 'على أندرويد: بعد التنزيل، اسمح بتثبيت التطبيق من مصدر غير معروف.',
     'index.donations': '🤍 تبرّع',
+    'index.haram': 'استكشف الحرم',
+    'index.haramNote': 'المسجد الحرام ثلاثي الأبعاد، في متصفحك',
 
     'link.openHint': 'إذا كان التطبيق مثبتًا لديك، فالرابط يفتحه عادةً من تلقاء نفسه. وإن لم يحدث ذلك، فاضغط الزر أعلاه.',
     'link.brokenLabel': 'هذا الرابط لا يعمل',
@@ -699,6 +751,7 @@
       'كانون الثاني', 'شباط', 'آذار', 'نيسان', 'أيار', 'حزيران',
       'تموز', 'آب', 'أيلول', 'تشرين الأول', 'تشرين الثاني', 'كانون الأول'
     ],
+    'donations.monthYear': '{month} {year}',
 
     'guide.title': 'اقرأ هذا قبل التنزيل',
     'guide.lead': 'هناك خطوتان قصيرتان؛ وبدونهما لن ينجح تثبيت التطبيق.',
@@ -757,6 +810,8 @@
     'index.description': 'برنامهٔ موبایل «قرآنی پیروز — کتاب خدا» شما را به سفری برای فهم آیات قرآن به زبان کُردی می‌برد — در هر سه گویش: سورانی، بادینی و هورامی — همراه با سیزده تفسیر کُردی و فرهنگ ریشه‌های واژه‌های قرآنی.',
     'index.androidNote': 'در اندروید: پس از دانلود، اجازهٔ نصب برنامه از منبع ناشناس را بدهید.',
     'index.donations': '🤍 کمک مالی',
+    'index.haram': 'حرم را کاوش کنید',
+    'index.haramNote': 'مسجدالحرام به‌صورت سه‌بعدی، در مرورگر شما',
 
     'link.openHint': 'اگر برنامه را نصب کرده باشید، پیوند معمولاً خودش آن را باز می‌کند. اگر چنین نشد، دکمهٔ بالا را بزنید.',
     'link.brokenLabel': 'این پیوند کار نمی‌کند',
@@ -816,6 +871,7 @@
       'ژانویه', 'فوریه', 'مارس', 'آوریل', 'مه', 'ژوئن',
       'ژوئیه', 'اوت', 'سپتامبر', 'اکتبر', 'نوامبر', 'دسامبر'
     ],
+    'donations.monthYear': '{month} {year}',
 
     'guide.title': 'پیش از دانلود این را بخوانید',
     'guide.lead': 'دو گام کوتاه هست؛ بدون آن‌ها نصب برنامه موفق نمی‌شود.',
@@ -874,6 +930,8 @@
     'index.description': '“Qurany Piroz — Allah\'ın Kitabı” mobil uygulaması sizi Kürtçe Kur\'an âyetleri arasında bir anlama yolculuğuna çıkarır — üç lehçenin hepsinde: Sorani, Badini ve Hawrami — on üç Kürtçe tefsir ve Kur\'an kelimelerinin kök sözlüğü ile.',
     'index.androidNote': 'Android\'de: indirdikten sonra uygulamanın bilinmeyen kaynaktan yüklenmesine izin verin.',
     'index.donations': '🤍 Bağış',
+    'index.haram': 'Harem\'i keşfedin',
+    'index.haramNote': 'Mescid-i Haram 3D olarak, web tarayıcınızda',
 
     'link.openHint': 'Uygulama zaten kuruluysa bağlantı normalde onu kendisi açar. Bu olmadıysa yukarıdaki düğmeye dokunun.',
     'link.brokenLabel': 'Bu bağlantı çalışmıyor',
@@ -933,6 +991,7 @@
       'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
       'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
     ],
+    'donations.monthYear': '{month} {year}',
 
     'guide.title': 'İndirmeden önce bunu okuyun',
     'guide.lead': 'İki kısa adım var; bunlar olmadan kurulum başarılı olmaz.',
@@ -977,7 +1036,12 @@
   // matching parameter is left as written rather than blanked, so a missing one is visible in
   // testing instead of silently swallowed.
   function t(key, params) {
-    var value = STRINGS[current][key];
+    var table = STRINGS[current];
+    var value = table ? table[key] : undefined;
+    // An external language's table may still be on its way (or have failed): its fallback
+    // language first, then Kurdish.
+    var fallback = LANGS[current].fallback;
+    if (value === undefined && fallback && STRINGS[fallback]) value = STRINGS[fallback][key];
     if (value === undefined) value = STRINGS[DEFAULT_LANG][key];
     if (value === undefined) return key;
     if (typeof value !== 'string') return value;
@@ -1038,8 +1102,41 @@
 
   function applyDocumentLanguage() {
     var root = document.documentElement;
-    root.setAttribute('lang', current);
+    root.setAttribute('lang', LANGS[current].tag || current);
     root.setAttribute('dir', LANGS[current].dir);
+  }
+
+  // ---- The languages kept in /i18n/ -----------------------------------------------------------
+  //
+  // Loaded the first time they are needed; each file calls QPI18n.register(code, table). Until
+  // it arrives the page stays cloaked (see Start), so the reader never sees the wrong language
+  // flash past; if it never arrives, the cloak's timer shows the fallback language instead.
+
+  var loading = {};
+
+  function loadTable(lang, done) {
+    if (STRINGS[lang] || !LANGS[lang].external) {
+      done();
+      return;
+    }
+    (loading[lang] = loading[lang] || []).push(done);
+    if (loading[lang].length > 1) return;
+    var script = document.createElement('script');
+    script.src = '/i18n/' + lang + '.js?v=' + VERSION;
+    script.async = true;
+    var finish = function () {
+      var callbacks = loading[lang] || [];
+      delete loading[lang];
+      for (var i = 0; i < callbacks.length; i++) callbacks[i]();
+    };
+    script.onload = finish;
+    script.onerror = finish;
+    (document.head || document.documentElement).appendChild(script);
+  }
+
+  function register(lang, table) {
+    if (!LANGS[lang]) return;
+    STRINGS[lang] = table;
   }
 
   // ---- The switcher ---------------------------------------------------------------------------
@@ -1131,7 +1228,7 @@
   // reader's focus with it.
   var SWITCHER_OPTIONS = ORDER.map(function (code) {
     // lang= on each option so the system picker renders every name in a font that suits it.
-    return '<option value="' + code + '" lang="' + code + '">' + LANGS[code].label + '</option>';
+    return '<option value="' + code + '" lang="' + (LANGS[code].tag || code) + '" dir="' + LANGS[code].dir + '">' + LANGS[code].label + '</option>';
   }).join('');
 
   function renderSwitchers(root) {
@@ -1159,6 +1256,11 @@
 
   function setLang(lang) {
     if (!LANGS[lang]) return;
+    // A language kept in /i18n/ is fetched first; the page keeps its current language meanwhile.
+    if (LANGS[lang].external && !STRINGS[lang]) {
+      loadTable(lang, function () { setLang(lang); });
+      return;
+    }
     current = lang;
     QPI18n.lang = lang;
     QPI18n.dir = LANGS[lang].dir;
@@ -1170,7 +1272,7 @@
     }
 
     applyDocumentLanguage();
-    if (lang === 'ur') loadUrduFont();
+    loadArabicFont(lang);
     apply();
 
     // Everything that draws its own text from t() rather than from a data-i18n attribute — the
@@ -1183,11 +1285,11 @@
   var head = document.head || document.documentElement;
 
   var style = document.createElement('style');
-  style.textContent = SWITCHER_CSS + '\n' + URDU_FONT_CSS;
+  style.textContent = SWITCHER_CSS;
   head.appendChild(style);
 
   applyDocumentLanguage();
-  if (current === 'ur') loadUrduFont();
+  loadArabicFont(current);
 
   // Every page is authored in Kurdish, so a Kurdish reader is already looking at the finished
   // page and nothing needs hiding. Anyone else would otherwise see a frame or two of Kurdish
@@ -1198,11 +1300,30 @@
     cloak = document.createElement('style');
     cloak.textContent = 'body { visibility: hidden; }';
     head.appendChild(cloak);
-    window.setTimeout(uncloak, 2000);
+    window.setTimeout(function () {
+      pending = false;
+      uncloak();
+    }, 2500);
+  }
+
+  // A language from /i18n/ is on its way. The page stays cloaked until it arrives; then it is
+  // translated, and everything a page drew from t() in the meantime is redrawn.
+  var pending = Boolean(LANGS[current].external && !STRINGS[current]);
+  if (pending) {
+    loadTable(current, function () {
+      pending = false;
+      var redraw = function () {
+        apply();
+        document.dispatchEvent(new CustomEvent('qp:langchange', { detail: { lang: current } }));
+      };
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', redraw);
+      else redraw();
+    });
   }
 
   function uncloak() {
-    if (!cloak) return;
+    // Still waiting for the language's table: stay hidden (the timer has the last word).
+    if (!cloak || pending) return;
     if (cloak.parentNode) cloak.parentNode.removeChild(cloak);
     cloak = null;
   }
@@ -1215,6 +1336,7 @@
     digits: digits,
     apply: apply,
     set: setLang,
+    register: register,
 
     /// Month names for the donations page's month picker, in the current language.
     months: function () {

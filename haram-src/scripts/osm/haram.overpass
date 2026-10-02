@@ -1,0 +1,10 @@
+[out:json][timeout:90];
+(
+  nwr(21.4150,39.8180,21.4320,39.8340)["amenity"="place_of_worship"];
+  nwr(21.4150,39.8180,21.4320,39.8340)["building:part"];
+  nwr(21.4150,39.8180,21.4320,39.8340)["man_made"];
+  nwr(21.4150,39.8180,21.4320,39.8340)["entrance"];
+  nwr(21.4150,39.8180,21.4320,39.8340)["building"]["name"];
+  nwr(21.4150,39.8180,21.4320,39.8340)["name"~"Mas|Safa|Marwa|Kaaba|Ka'?ba|Mataf|Zamzam|Maqam|Hijr|Gate|Bab|باب|الكعبة|المسعى|الصفا|المروة|المطاف",i];
+);
+out geom;

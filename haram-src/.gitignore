@@ -1,0 +1,4 @@
+# Dependencies and local build caches for the explorer source.
+node_modules/
+dist/
+*.tsbuildinfo

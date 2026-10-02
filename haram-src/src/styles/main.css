@@ -1,0 +1,1510 @@
+/* Masjid al-Haram 3D Explorer.
+   Colours follow the main site's dark-mode tokens (index.html): navy surfaces, warm gold
+   accent. Calm and restrained on purpose — this is a place of learning, not a game HUD. */
+
+/* Arabic-script text — Central Kurdish, Badini, Hawrami, Arabic, Persian and Urdu — in
+   Vazirmatn (SIL Open Font License; see ASSETS_LICENSES.md), so it looks the same on every
+   device instead of whatever each system has. Self-hosted, as the page's security policy only
+   allows its own fonts. The unicode-range keeps Latin text in the system font, and means only
+   pages that actually show Arabic script download the file. One variable font, every weight. */
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('../assets/fonts/Vazirmatn-v33.003-wght.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-08FF, U+FB50-FDFF, U+FE70-FEFC, U+200C-200D;
+}
+
+:root {
+  --brand: #e2bd37;
+  --brand-strong: #f0cf55;
+  --on-brand: #1a1405;
+  --bg: #12141c;
+  --surface: rgba(22, 25, 36, 0.9);
+  --surface-solid: #1d2231;
+  --surface-raised: rgba(32, 37, 52, 0.94);
+  --text: #f4f4f5;
+  --muted: #b4b9c6;
+  --border: rgba(226, 189, 55, 0.22);
+  --shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  --radius: 16px;
+  --tap: 44px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --gap: 12px;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Vazirmatn, -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Noto Sans', Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a {
+  color: var(--brand-strong);
+}
+
+:focus-visible {
+  outline: 3px solid var(--brand-strong);
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---- buttons --------------------------------------------------------------------------- */
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+.pill-button,
+.hud-button,
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--tap);
+  min-width: var(--tap);
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.pill-button:hover,
+.hud-button:hover,
+.icon-button:hover {
+  border-color: rgba(226, 189, 55, 0.5);
+}
+
+.pill-button:active,
+.hud-button:active,
+.icon-button:active {
+  transform: scale(0.97);
+}
+
+.pill-button--primary {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: var(--on-brand);
+}
+
+.pill-button--primary:hover {
+  background: var(--brand-strong);
+}
+
+.icon-button {
+  padding: 0;
+  width: var(--tap);
+}
+
+.pill-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* ---- loading screen ------------------------------------------------------------------- */
+
+.app {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  /* clip (where supported) also blocks programmatic scrolling, e.g. by focus(). */
+  overflow: clip;
+}
+
+.loading {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(24px + var(--safe-top)) calc(20px + var(--safe-right)) calc(24px + var(--safe-bottom)) calc(20px + var(--safe-left));
+  overflow-y: auto;
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(226, 189, 55, 0.12), transparent 60%),
+    linear-gradient(180deg, #161a26 0%, #0e1016 100%);
+  transition: opacity 0.4s ease;
+}
+
+.loading.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading__card {
+  width: 100%;
+  max-width: 440px;
+  margin: auto;
+  text-align: center;
+}
+
+.loading__logo {
+  display: block;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 14px;
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+}
+
+.loading__brand {
+  margin: 0;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.loading__brand a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.loading__title {
+  margin: 6px 0 8px;
+  font-size: clamp(24px, 6vw, 32px);
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.loading__tagline {
+  margin: 0 auto 28px;
+  max-width: 360px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.loading__progress {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.loading__bar {
+  height: 100%;
+  background: linear-gradient(90deg, #c99a2e, var(--brand-strong));
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.25s ease-out;
+}
+
+.loading__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 10px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.loading__percent {
+  font-variant-numeric: tabular-nums;
+}
+
+.loading__warnings {
+  margin-top: 14px;
+  font-size: 13px;
+  color: #f2d78a;
+}
+
+.loading__warnings p {
+  margin: 4px 0;
+}
+
+.loading__ready {
+  margin-top: 24px;
+  padding: 18px 18px 20px;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  text-align: start;
+}
+
+.loading__hints-title {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.loading__hints {
+  margin: 0 0 18px;
+  padding-inline-start: 20px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.loading__hints li + li {
+  margin-top: 4px;
+}
+
+.loading__start {
+  width: 100%;
+  min-height: 50px;
+  font-size: 16px;
+}
+
+/* Shown only if the scripts never start (very old browser, blocked JavaScript): the class
+   js-booted is added as the first thing the entry script does. */
+.loading__stalled {
+  margin-top: 22px;
+  font-size: 14px;
+  color: var(--muted);
+  opacity: 0;
+  animation: reveal 0.4s ease 14s forwards;
+}
+
+html.js-booted .loading__stalled {
+  display: none;
+}
+
+.loading__noscript {
+  margin-top: 22px;
+  color: var(--text);
+}
+
+@keyframes reveal {
+  to {
+    opacity: 1;
+  }
+}
+
+.loading__error {
+  margin-top: 8px;
+  padding: 18px;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(240, 120, 100, 0.35);
+  text-align: start;
+}
+
+.loading__error h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.loading__error p {
+  margin: 0 0 16px;
+  color: var(--muted);
+}
+
+.loading__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* ---- the 3D view ---------------------------------------------------------------------- */
+
+.stage {
+  position: absolute;
+  inset: 0;
+  outline: none;
+}
+
+.stage__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  cursor: grab;
+}
+
+.stage__canvas:active {
+  cursor: grabbing;
+}
+
+.stage__canvas.is-pickable {
+  cursor: pointer;
+}
+
+.markers {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.marker {
+  /* Laid out left to right in every language: the anchor maths puts the ⓘ circle at the left
+     end. The label itself still runs in its own direction. */
+  direction: ltr;
+  unicode-bidi: isolate;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--tap);
+  padding: 0 14px 0 0;
+  border-radius: 999px;
+  border: 1px solid rgba(226, 189, 55, 0.45);
+  background: rgba(16, 18, 26, 0.78);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  will-change: transform;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.marker__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: var(--on-brand);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 20px;
+  font-style: italic;
+  font-weight: 700;
+}
+
+.marker.is-far {
+  padding-right: 0;
+}
+
+.marker.is-far .marker__label {
+  display: none;
+}
+
+.marker:hover,
+.marker.is-active {
+  border-color: var(--brand-strong);
+  background: rgba(22, 25, 36, 0.92);
+}
+
+.marker.is-active .marker__icon {
+  box-shadow: 0 0 0 0 rgba(240, 207, 85, 0.6);
+  animation: pulse 1.8s ease-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(240, 207, 85, 0.55);
+  }
+  100% {
+    box-shadow: 0 0 0 14px rgba(240, 207, 85, 0);
+  }
+}
+
+/* ---- HUD -------------------------------------------------------------------------------- */
+
+.ui {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ui > *,
+.hud__top,
+.hud__group > *,
+.hud__bottom-left > *,
+.hud__bottom-right > * {
+  pointer-events: auto;
+}
+
+.hud {
+  pointer-events: none !important;
+}
+
+.hud__top {
+  position: absolute;
+  top: calc(12px + var(--safe-top));
+  left: calc(12px + var(--safe-left));
+  right: calc(12px + var(--safe-right));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  pointer-events: none;
+}
+
+.hud__group {
+  display: flex;
+  gap: 8px;
+}
+
+.hud-button {
+  background: rgba(16, 18, 26, 0.72);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.hud-button--places {
+  padding: 0 18px 0 14px;
+}
+
+/* Back to qurany-piroz.com (ui/back-link.ts), at the start of the top bar and of the loading
+   screen. The arrow points the way the page reads from; on phones the top bar's shows only the
+   arrow (its name is still read out, and shown as a tooltip). */
+.hud-button--back,
+.loading__back {
+  padding-inline: 12px 16px;
+}
+
+[dir='rtl'] .back-link .icon {
+  transform: scaleX(-1);
+}
+
+.loading__back {
+  position: absolute;
+  top: calc(12px + var(--safe-top));
+  inset-inline-start: calc(12px + max(var(--safe-left), var(--safe-right)));
+}
+
+/* The bar keeps to one line; when it would not fit, the Hud folds labels to icons and moves
+   the compass under it (hud.ts, fitOnOneLine; the compass rules are with the small screens). */
+.hud__top .hud-button {
+  white-space: nowrap;
+}
+
+.hud__top.fold-back .hud-button--back,
+.hud__top.fold-guide .hud-button--guide,
+.hud__top.fold-places .hud-button--places {
+  padding: 0;
+  width: var(--tap);
+}
+
+.hud__top.fold-back .hud-button--back .button__text,
+.hud__top.fold-guide .hud-button--guide .button__text,
+.hud__top.fold-places .hud-button--places .button__text {
+  display: none;
+}
+
+/* Phones: a little less space between the buttons, so more of their labels fit. */
+@media (max-width: 480px) {
+  .hud__top {
+    gap: 8px;
+  }
+
+  .hud__group {
+    gap: 6px;
+  }
+}
+
+.hud-button--toggle[aria-pressed='true'],
+.hud-button[aria-pressed='true'] {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: var(--on-brand);
+}
+
+.hud-button--small {
+  font-size: 14px;
+}
+
+.compass {
+  position: relative;
+  width: var(--tap);
+  height: var(--tap);
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(16, 18, 26, 0.72);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+.compass__dial {
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+}
+
+.compass__letter {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 12px;
+  text-align: center;
+}
+
+/* Each letter sits on the dial's rim; the dial as a whole turns with the view. */
+.compass__letter--n {
+  transform: translateY(-14px);
+  color: var(--brand-strong);
+  font-size: 12px;
+}
+
+.compass__letter--e {
+  transform: rotate(90deg) translateY(-14px);
+}
+
+.compass__letter--s {
+  transform: rotate(180deg) translateY(-14px);
+}
+
+.compass__letter--w {
+  transform: rotate(270deg) translateY(-14px);
+}
+
+.compass::after {
+  /* the fixed "you are facing" tick at the top */
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  width: 2px;
+  height: 7px;
+  margin-left: -1px;
+  background: var(--text);
+  border-radius: 1px;
+}
+
+.hud__bottom-left {
+  position: absolute;
+  left: calc(16px + var(--safe-left));
+  bottom: calc(16px + var(--safe-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  pointer-events: none;
+}
+
+.hud__bottom-right {
+  position: absolute;
+  right: calc(16px + var(--safe-right));
+  bottom: calc(16px + var(--safe-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  pointer-events: none;
+}
+
+/* On phones the information sheet covers the bottom of the screen; zoom steps aside too. */
+@media (max-width: 719px) {
+  body.has-info-panel .hud__bottom-right {
+    display: none;
+  }
+}
+
+/* "Back down", shown only on the clock-tower balcony: under the top bar, on the left. */
+.hud-button--back-down {
+  position: absolute;
+  top: calc(68px + var(--safe-top));
+  left: calc(12px + var(--safe-left));
+  pointer-events: auto;
+  background: var(--brand);
+  border-color: var(--brand);
+  color: var(--on-brand);
+}
+
+.hud-button--back-down:hover {
+  background: var(--brand-strong);
+}
+
+body.is-on-balcony .toast {
+  top: calc(122px + var(--safe-top));
+}
+
+.hud__hint {
+  position: absolute;
+  left: 50%;
+  bottom: calc(20px + var(--safe-bottom));
+  transform: translateX(-50%);
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: rgba(16, 18, 26, 0.72);
+  color: var(--text);
+  font-size: 14px;
+  white-space: nowrap;
+  pointer-events: none !important;
+  transition: opacity 0.6s ease;
+}
+
+.hud__hint.is-hidden {
+  opacity: 0;
+}
+
+.hud-zoom {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.hud-zoom > * {
+  pointer-events: auto;
+}
+
+.hud-zoom__level {
+  width: auto;
+  padding: 0 12px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.crosshair {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.35);
+  pointer-events: none !important;
+}
+
+/* ---- joystick --------------------------------------------------------------------------- */
+
+.joystick {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  background: rgba(16, 18, 26, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  pointer-events: auto;
+}
+
+.joystick__knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 58px;
+  height: 58px;
+  margin: -29px 0 0 -29px;
+  border-radius: 50%;
+  background: rgba(244, 244, 245, 0.85);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+.joystick.is-active {
+  border-color: var(--brand);
+}
+
+.joystick.is-active .joystick__knob {
+  background: var(--brand-strong);
+}
+
+/* ---- information panel ------------------------------------------------------------------ */
+
+.info-panel {
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  /* Phones: a bottom sheet. */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 58%;
+  border-radius: 20px 20px 0 0;
+  padding-bottom: var(--safe-bottom);
+}
+
+.info-panel__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+}
+
+.info-panel__scroll {
+  /* Positioned, so absolutely positioned descendants (visually-hidden text) stay inside the
+     scroll area instead of overflowing the page. */
+  position: relative;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  padding: 18px 20px 22px;
+  outline: none;
+}
+
+.info-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0 6px;
+}
+
+@media (min-width: 720px) {
+  .info-panel {
+    left: auto;
+    top: calc(72px + var(--safe-top));
+    right: calc(14px + var(--safe-right));
+    bottom: calc(14px + var(--safe-bottom));
+    width: min(400px, 42vw);
+    max-height: none;
+    border-radius: 20px;
+    padding-bottom: 0;
+  }
+}
+
+/* While the sheet covers the bottom of a phone screen, the joystick steps aside. */
+@media (max-width: 719px) {
+  body.has-info-panel .hud__bottom-left,
+  body.has-info-panel .hud__hint {
+    display: none;
+  }
+}
+
+.place__header {
+  padding-right: 48px;
+}
+
+.place__category {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brand-strong);
+}
+
+.place__title {
+  margin: 4px 0 2px;
+  font-size: 24px;
+  line-height: 1.2;
+  outline: none;
+}
+
+.place__arabic {
+  margin: 0;
+  font-size: 20px;
+  color: var(--muted);
+  font-family: 'Geeza Pro', 'Noto Naskh Arabic', 'Segoe UI', Tahoma, serif;
+  text-align: start;
+}
+
+.place__summary {
+  font-weight: 600;
+}
+
+.place__body p {
+  margin: 0 0 12px;
+}
+
+.place__note {
+  margin: 16px 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-inline-start: 3px solid var(--brand);
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.place__note-title,
+.place__sources-title {
+  margin: 0 0 6px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.place__note p {
+  margin: 0;
+}
+
+.place__sources {
+  margin: 0;
+  padding-inline-start: 18px;
+  font-size: 14px;
+}
+
+.place__sources li {
+  margin: 4px 0;
+}
+
+/* ---- dialogs -------------------------------------------------------------------------- */
+
+.dialog-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(16px + var(--safe-top)) calc(16px + var(--safe-right)) calc(16px + var(--safe-bottom)) calc(16px + var(--safe-left));
+  background: rgba(6, 7, 10, 0.55);
+}
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 520px;
+  max-height: 100%;
+  border-radius: 20px;
+  background: var(--surface-solid);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  outline: none;
+}
+
+.dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 14px 6px 20px;
+}
+
+.dialog__title {
+  margin: 0;
+  font-size: 20px;
+}
+
+/* The visitor's text size (Settings) for the information panel and the guide. */
+.info-panel__content {
+  zoom: var(--text-scale, 1);
+}
+
+.dialog__body {
+  position: relative;
+  /* The visitor's text size (Settings). zoom scales text and spacing together and keeps the
+     panel's own width; browsers without it simply show the normal size. */
+  zoom: var(--text-scale, 1);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 4px 20px 22px;
+}
+
+.dialog__body h3 {
+  margin: 20px 0 8px;
+  font-size: 15px;
+}
+
+.dialog__intro {
+  margin: 0 0 4px;
+  color: var(--muted);
+}
+
+.dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.dialog__footer {
+  margin: 18px 0 0;
+  font-size: 14px;
+}
+
+.places-list__heading {
+  font-size: 12px !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brand-strong);
+}
+
+.places-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.places-list__item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  text-align: start;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.places-list__item:hover {
+  border-color: var(--border);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.places-list__name {
+  font-weight: 600;
+}
+
+.places-list__summary {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* ---- Hajj and Umrah guide -------------------------------------------------------------- */
+
+.guide-panel__collapse {
+  position: absolute;
+  top: 10px;
+  right: 62px;
+  z-index: 1;
+}
+
+.guide-panel .place__header {
+  padding-right: 104px;
+}
+
+/* Collapsed: only the title and the Previous / Next buttons stay. */
+.guide-panel.is-collapsed .info-panel__content > :not(.place__header):not(.guide__nav) {
+  display: none;
+}
+
+.guide-panel.is-collapsed .guide__nav {
+  margin-top: 10px;
+}
+
+.guide__facts {
+  margin: 10px 0 6px;
+  color: var(--muted);
+}
+
+.guide__facts strong {
+  color: var(--text);
+}
+
+.guide__badge {
+  margin: 8px 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border-inline-start: 3px solid var(--muted);
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.guide__points {
+  margin: 0 0 12px;
+  padding-inline-start: 20px;
+}
+
+.guide__points li + li {
+  margin-top: 8px;
+}
+
+.guide__recitation {
+  margin: 14px 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(226, 189, 55, 0.08);
+  border: 1px solid var(--border);
+}
+
+.guide__arabic {
+  margin: 0 0 8px;
+  font-family: 'Geeza Pro', 'Noto Naskh Arabic', 'Segoe UI', Tahoma, serif;
+  font-size: 21px;
+  line-height: 1.9;
+  text-align: right;
+}
+
+.guide__translit {
+  margin: 0 0 6px;
+  font-style: italic;
+}
+
+.guide__recitation figcaption {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.guide__steps {
+  margin: 8px 0 12px;
+  padding-inline-start: 22px;
+}
+
+.guide__step-link {
+  min-height: var(--tap);
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--brand-strong);
+  text-align: start;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.guide__disclaimer {
+  margin: 14px 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-inline-start: 3px solid var(--brand);
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.guide__nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+@media (max-width: 520px) {
+  .hud-button--guide,
+  .hud-button--back {
+    padding: 0;
+    width: var(--tap);
+  }
+
+  .hud-button--guide .button__text,
+  .hud-button--back .button__text {
+    display: none;
+  }
+}
+
+.credits-list {
+  margin: 0;
+  padding-inline-start: 20px;
+  font-size: 14px;
+}
+
+.credits-list li + li {
+  margin-top: 4px;
+}
+
+.hint-list {
+  margin: 0;
+  padding-inline-start: 20px;
+}
+
+.field {
+  margin: 18px 0 0;
+  border: 0;
+  padding: 0;
+}
+
+.field legend,
+.field label {
+  font-weight: 600;
+}
+
+.field__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.field__value {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.field__select {
+  display: block;
+  width: 100%;
+  min-height: var(--tap);
+  margin-top: 8px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+}
+
+.field__select:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.field__hint {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.field input[type='range'] {
+  width: 100%;
+  height: var(--tap);
+  accent-color: var(--brand);
+  touch-action: pan-x;
+}
+
+.field--radios legend {
+  margin-bottom: 4px;
+}
+
+.radio,
+.field--check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--tap);
+}
+
+.radio label,
+.field--check label {
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.radio input,
+.field--check input {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  accent-color: var(--brand);
+}
+
+/* ---- feedback ------------------------------------------------------------------------ */
+
+.toast {
+  position: absolute;
+  left: 50%;
+  top: calc(68px + var(--safe-top));
+  max-width: calc(100% - 32px);
+  transform: translate(-50%, -8px);
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  font-size: 14px;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none !important;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.fade {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: #0b0c10;
+  opacity: 0;
+  pointer-events: none !important;
+  transition: opacity 260ms ease;
+}
+
+.fade.is-active {
+  opacity: 1;
+}
+
+.overlay-message {
+  position: absolute;
+  z-index: 40;
+  left: 50%;
+  top: 50%;
+  width: min(420px, calc(100% - 32px));
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  border-radius: var(--radius);
+  background: var(--surface-solid);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.overlay-message p {
+  margin: 0 0 16px;
+}
+
+/* ---- text-only version ------------------------------------------------------------------ */
+
+body.is-text-mode {
+  overflow: auto;
+}
+
+body.is-text-mode .app {
+  position: static;
+  overflow: visible;
+}
+
+.text-mode {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: calc(28px + var(--safe-top)) calc(20px + var(--safe-right)) calc(48px + var(--safe-bottom)) calc(20px + var(--safe-left));
+  outline: none;
+}
+
+.text-mode h1 {
+  margin: 4px 0 8px;
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+.text-mode__brand {
+  margin: 0;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.text-mode__brand a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.text-mode__intro,
+.text-mode__about {
+  color: var(--muted);
+}
+
+.text-mode__notice {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-inline-start: 3px solid var(--brand);
+}
+
+.text-mode__toc {
+  columns: 2 220px;
+  padding-inline-start: 20px;
+}
+
+.text-mode__category {
+  margin: 36px 0 8px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brand-strong);
+}
+
+.text-mode__place {
+  margin: 0 0 18px;
+  padding: 18px 20px;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.text-mode__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-top: 28px;
+}
+
+/* ---- small screens ------------------------------------------------------------------------ */
+
+@media (max-width: 420px) {
+  .hud-button--places .button__text {
+    font-size: 14px;
+  }
+
+  .joystick {
+    width: 124px;
+    height: 124px;
+  }
+}
+
+/* Not enough width for everything in one row: the compass drops just below the bar — always
+   on the narrowest screens, and on others whenever the bar measures itself too full for it
+   (hud.ts, fitOnOneLine), which depends on the language. */
+@media (max-width: 420px) {
+  .compass {
+    position: absolute;
+    left: 50%;
+    top: 54px;
+    margin-left: calc(var(--tap) / -2);
+  }
+
+  .toast {
+    top: calc(118px + var(--safe-top));
+  }
+
+  /* Below the compass. */
+  .hud-button--back-down {
+    top: calc(108px + var(--safe-top));
+  }
+
+  body.is-on-balcony .toast {
+    top: calc(162px + var(--safe-top));
+  }
+}
+
+body.has-compass-below .compass {
+  position: absolute;
+  left: 50%;
+  top: 54px;
+  margin-left: calc(var(--tap) / -2);
+}
+
+body.has-compass-below .toast {
+  top: calc(118px + var(--safe-top));
+}
+
+body.has-compass-below .hud-button--back-down {
+  top: calc(108px + var(--safe-top));
+}
+
+body.has-compass-below.is-on-balcony .toast {
+  top: calc(162px + var(--safe-top));
+}
+
+/* Short landscape phones: smaller joystick, tighter spacing. */
+@media (max-height: 420px) {
+  .joystick {
+    width: 112px;
+    height: 112px;
+  }
+
+  .hud__bottom-left {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+
+  .info-panel {
+    max-height: 72%;
+  }
+}
+
+@media (max-height: 420px) and (min-width: 720px) {
+  .info-panel {
+    top: calc(64px + var(--safe-top));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .marker.is-active .marker__icon {
+    animation: none;
+    box-shadow: 0 0 0 3px rgba(240, 207, 85, 0.7);
+  }
+
+  .loading__stalled {
+    animation-delay: 14s !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .marker,
+  .hud-button,
+  .pill-button,
+  .icon-button {
+    border: 1px solid ButtonText;
+  }
+}
+
+/* Syriac in a Syriac font (Vazirmatn has none). Urdu needs nothing here: Vazirmatn's flat
+   baseline fits the panels, where the system's tall Nastaliq would need far more line height. */
+:lang(syr) body,
+:lang(syc) body {
+  font-family: 'Noto Sans Syriac', 'Noto Sans Syriac Eastern', 'Noto Sans Syriac Western', 'Estrangelo Edessa', 'Segoe UI Historic', sans-serif;
+}
+
+.marker__label {
+  unicode-bidi: plaintext;
+}

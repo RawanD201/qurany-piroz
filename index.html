@@ -25,7 +25,7 @@
          before the body is painted, so a reader outside Kurdistan never sees a frame of
          Kurdish first. -->
     <!-- ?v= is bumped whenever i18n.js changes — see donations.html for why. -->
-    <script src="/i18n.js?v=20260915b"></script>
+    <script src="/i18n.js?v=20261002c"></script>
 
     <meta property="og:title" data-i18n-attr="content:index.pageTitle" content="قورئانی پیرۆز — پەڕتووکی خودا">
     <meta property="og:description" data-i18n-attr="content:index.ogDescription" content="بەرنامەی مۆبایلیی بۆ گرتنەبەری گەشتێکی پڕ لە تێگەیشتنە بەنێو ئایەتەکانی قورئان بە زمانی شیرینی کوردی">
@@ -78,7 +78,7 @@
         padding: 0;
         background: var(--bg);
         color: var(--text);
-        font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Roboto, Helvetica, Arial, sans-serif;
+        font-family: Vazirmatn, "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Roboto, Helvetica, Arial, sans-serif;
         line-height: 1.7;
         -webkit-font-smoothing: antialiased;
       }
@@ -170,6 +170,61 @@
         max-width: 340px;
       }
 
+      /* The 3D explorer of Masjid al-Haram (/haram), which works in any browser — unlike the
+         app, it needs no phone. */
+      .haram-link {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        max-width: 420px;
+        margin: 28px auto 0;
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        box-shadow: 0 8px 22px rgba(29, 34, 49, 0.08);
+        color: var(--text);
+        text-decoration: none;
+        text-align: start;
+        transition: transform 0.15s ease, border-color 0.15s ease;
+      }
+
+      .haram-link:hover {
+        transform: translateY(-2px);
+        border-color: color-mix(in srgb, var(--brand) 60%, transparent);
+      }
+
+      .haram-link:focus-visible {
+        outline: 2px solid var(--brand);
+        outline-offset: 3px;
+      }
+
+      .haram-link__icon { width: 44px; height: 44px; flex: none; }
+
+      .haram-link__text {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .haram-link__title {
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 1.4;
+      }
+
+      .haram-link__note {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .haram-link__arrow { width: 18px; height: 18px; flex: none; color: var(--brand); }
+
+      /* Points the way the line reads. */
+      [dir="rtl"] .haram-link__arrow { transform: scaleX(-1); }
+
       .donations-link {
         display: inline-flex;
         align-items: center;
@@ -240,6 +295,30 @@
         ئەم بەرنامەیە تەنیا بۆ ئەندرۆید و ئایئۆئێس بەردەستە.
       </p>
 
+      <a class="haram-link" id="haram-link" href="/haram/">
+        <svg class="haram-link__icon" viewBox="0 0 44 44" aria-hidden="true">
+          <defs>
+            <linearGradient id="haram-tile" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#E9C95A"/>
+              <stop offset="1" stop-color="#B8891F"/>
+            </linearGradient>
+          </defs>
+          <rect width="44" height="44" rx="12" fill="url(#haram-tile)"/>
+          <path d="M8 16l14-5 14 5-14 5z" fill="#3A4052"/>
+          <path d="M8 16l14 5v14L8 30z" fill="#14161E"/>
+          <path d="M22 21l14-5v14l-14 5z" fill="#232838"/>
+          <path d="M8 19.2l14 5v2.2l-14-5z" fill="#F6E7A8"/>
+          <path d="M22 24.2l14-5v2.2l-14 5z" fill="#E9CF6E"/>
+        </svg>
+        <span class="haram-link__text">
+          <span class="haram-link__title" data-i18n="index.haram">بە حەرەمدا بگەڕێ</span>
+          <span class="haram-link__note" data-i18n="index.haramNote">سوجدەگای حەرام بە سێڕەهەندی، لە وێبگەڕەکەتدا</span>
+        </span>
+        <svg class="haram-link__arrow" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+
       <a class="donations-link" href="donations">
         <span data-i18n="index.donations">🤍 بەخشین</span>
       </a>
@@ -260,6 +339,16 @@
         androidNoteId: 'android-note',
         unsupportedNoteId: 'unsupported-note'
       });
+
+      // The explorer opens in the language this page is showing. That may have been worked out
+      // from the reader's time zone rather than picked, and then nothing is stored for the
+      // explorer to find, so it is handed over on the link.
+      var haramLink = document.getElementById('haram-link');
+      function linkHaram() {
+        haramLink.href = '/haram/?lang=' + encodeURIComponent(QPI18n.lang);
+      }
+      linkHaram();
+      document.addEventListener('qp:langchange', linkHaram);
 
       // Blocks the two forms of desktop zoom the viewport meta tag above can't reach: trackpad
       // pinch (fires as wheel+ctrlKey in Chrome/Firefox/Edge) and the Ctrl/Cmd +/-/0 keyboard

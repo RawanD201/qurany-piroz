@@ -20,6 +20,18 @@
         "4174"
       ],
       "port": 4174
+    },
+    {
+      "name": "haram-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "haram-src", "run", "dev"],
+      "port": 5178
+    },
+    {
+      "name": "haram-site",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["haram-src/scripts/serve-site.mjs"],
+      "port": 4180
     }
   ]
 }
