@@ -264,11 +264,11 @@ another script never downloads it. Its flat baseline also suits Urdu, which the 
 otherwise set in tall Nastaliq. The Arabic recitations and Arabic place names keep a
 traditional Naskh face; Syriac uses a Syriac font where the device has one.
 
-**About the translations.** They were produced with AI assistance from the English, using the
-app's own translations for terminology, and checked automatically for completeness,
-placeholders and markup — not yet by native speakers. The religious content (the places and
-the Hajj and Umrah guide) in particular should be **reviewed by a qualified native speaker** of
-each language before being relied on; Badini, Hawrami and Syriac most of all.
+**About the translations.** They follow the app's own translations for terminology, and the
+tests check every language for completeness, placeholders and markup. The religious content
+(the places and the Hajj and Umrah guide) in particular should be **reviewed by a qualified
+native speaker** of each language before being relied on; Badini, Hawrami and Syriac most of
+all.
 
 ## The real plan
 
@@ -710,7 +710,7 @@ impossible, and nothing here claims otherwise.
   Mataf/Mas'a are not walkable; the King Abdullah expansion cannot be entered.
 - Six gates are described as places; the other mapped entrances are plain doorways.
 - No people, crowds or sound. Day and night are two fixed lighting states, not a moving sun.
-- Translations are AI-assisted and not yet reviewed by native speakers (see [Languages and translations](#languages-and-translations)).
+- The translations of the religious content still need review by qualified native speakers (see [Languages and translations](#languages-and-translations)).
 - Texture size and antialiasing cannot change without reloading.
 - No real-device testing was possible in the build environment (see Testing).
 

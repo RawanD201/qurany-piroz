@@ -49,3 +49,6 @@ logs
 .env
 .env.*
 !.env.example
+
+# Local editor settings; never part of the site.
+.claude/
