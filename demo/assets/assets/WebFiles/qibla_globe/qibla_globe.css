@@ -1,0 +1,55 @@
+/* گۆی زەوی — see qibla_globe.html. The page is nothing but the canvas: every word around
+   the globe is drawn by the host app, in the reader's dialect — and so is the backdrop: the
+   page is transparent, and the host's own background (light or dark, as the phone is set)
+   shows around the globe. Nothing here may paint an opaque colour. */
+
+@font-face {
+  /* Same file whichever host serves the page: beside it in the iOS bundle, one folder
+     up in the Flutter assets. The browser takes the first that loads. */
+  font-family: "Rabar";
+  src: url("Rabar_009.ttf") format("truetype"),
+       url("../Fonts/Rabar_009.ttf") format("truetype");
+  font-display: swap;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+#globe-wrap {
+  position: fixed;
+  inset: 0;
+  touch-action: none;
+}
+
+#globe-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+#globe-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8a94a8;
+  font: 18px "Rabar", sans-serif;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+#globe-loading.hidden {
+  opacity: 0;
+}

@@ -36,7 +36,7 @@
 
   // Bumped with every change to this file or to the tables in /i18n/ (the pages load this file
   // as /i18n.js?v=… with the same value, and it loads the tables with it).
-  var VERSION = '20261002c';
+  var VERSION = '20261003a';
 
   // Menu order: the app's own — Kurdish and its dialects first, then the other languages the
   // app is available in.
@@ -331,6 +331,8 @@
     'index.donations': '🤍 بەخشین',
     'index.haram': 'بە حەرەمدا بگەڕێ',
     'index.haramNote': 'سوجدەگای حەرام بە سێڕەهەندی، لە وێبگەڕەکەتدا',
+    'index.demo': 'دیمۆی بەرنامەکە',
+    'index.demoNote': 'بەرنامەکە ڕاستەوخۆ لە وێبگەڕەکەتدا تاقی بکەرەوە',
 
     'link.openHint': 'ئەگەر بەرنامەکەت دامەزراندبێت، بەشێوەی ئاسایی بەستەرەکە خۆی بەرنامەکە دەکاتەوە. ئەگەر ئەوە ڕووی نەدا، دوگمەی سەرەوە دابگرە.',
     'link.brokenLabel': 'بەستەرەکە کارا نییە',
@@ -451,6 +453,8 @@
     'index.donations': '🤍 Donate',
     'index.haram': 'Explore the Haram',
     'index.haramNote': 'Masjid al-Haram in 3D, in your web browser',
+    'index.demo': 'App demo',
+    'index.demoNote': 'Try the app right in your web browser',
 
     'link.openHint': 'If you already have the app, the link normally opens it by itself. If that did not happen, tap the button above.',
     'link.brokenLabel': 'This link does not work',
@@ -572,6 +576,8 @@
     'index.donations': '🤍 عطیہ',
     'index.haram': 'حرم کی سیر کریں',
     'index.haramNote': 'مسجد الحرام 3D میں، آپ کے ویب براؤزر میں',
+    'index.demo': 'ایپ ڈیمو',
+    'index.demoNote': 'ایپ کو براہِ راست اپنے ویب براؤزر میں آزمائیں',
 
     'link.openHint': 'اگر ایپ پہلے سے موجود ہے تو لنک عام طور پر خود ہی ایپ کھول دیتا ہے۔ اگر ایسا نہ ہو تو اوپر والا بٹن دبائیں۔',
     'link.brokenLabel': 'یہ لنک کام نہیں کرتا',
@@ -692,6 +698,8 @@
     'index.donations': '🤍 تبرّع',
     'index.haram': 'استكشف الحرم',
     'index.haramNote': 'المسجد الحرام ثلاثي الأبعاد، في متصفحك',
+    'index.demo': 'تجربة التطبيق',
+    'index.demoNote': 'جرّب التطبيق مباشرةً في متصفحك',
 
     'link.openHint': 'إذا كان التطبيق مثبتًا لديك، فالرابط يفتحه عادةً من تلقاء نفسه. وإن لم يحدث ذلك، فاضغط الزر أعلاه.',
     'link.brokenLabel': 'هذا الرابط لا يعمل',
@@ -812,6 +820,8 @@
     'index.donations': '🤍 کمک مالی',
     'index.haram': 'حرم را کاوش کنید',
     'index.haramNote': 'مسجدالحرام به‌صورت سه‌بعدی، در مرورگر شما',
+    'index.demo': 'دموی برنامه',
+    'index.demoNote': 'برنامه را مستقیماً در مرورگر خود امتحان کنید',
 
     'link.openHint': 'اگر برنامه را نصب کرده باشید، پیوند معمولاً خودش آن را باز می‌کند. اگر چنین نشد، دکمهٔ بالا را بزنید.',
     'link.brokenLabel': 'این پیوند کار نمی‌کند',
@@ -932,6 +942,8 @@
     'index.donations': '🤍 Bağış',
     'index.haram': 'Harem\'i keşfedin',
     'index.haramNote': 'Mescid-i Haram 3D olarak, web tarayıcınızda',
+    'index.demo': 'Uygulama demosu',
+    'index.demoNote': 'Uygulamayı doğrudan web tarayıcınızda deneyin',
 
     'link.openHint': 'Uygulama zaten kuruluysa bağlantı normalde onu kendisi açar. Bu olmadıysa yukarıdaki düğmeye dokunun.',
     'link.brokenLabel': 'Bu bağlantı çalışmıyor',

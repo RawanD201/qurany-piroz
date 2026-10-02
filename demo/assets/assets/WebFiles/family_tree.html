@@ -1,0 +1,842 @@
+<!doctype html>
+<html lang="ku" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <title>Family Tree of Imran Viewer</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      height: 100vh;
+      background: #ffffff;
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+      font-family: 'Noto Sans Arabic', 'Poppins', Arial, sans-serif;
+    }
+    #search-container {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      left: 10px;
+      z-index: 1000;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 10px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      flex-wrap: wrap;
+    }
+    #info-card {
+      flex: 1;
+      min-width: 200px;
+      padding: 8px 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      direction: rtl;
+      text-align: right;
+      font-family: 'Noto Sans Arabic', Arial, sans-serif;
+    }
+    #font-settings-btn {
+      padding: 12px 12px;
+      background: #3b4665;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    #font-settings-btn:hover {
+      background: #3b4665;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(255, 127, 80, 0.3);
+    }
+    #font-popover {
+      position: absolute;
+      top: 80px;
+      left: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      display: none;
+      z-index: 1002;
+      min-width: 320px;
+    }
+    #font-popover.active {
+      display: block;
+      animation: slideDown 0.3s ease;
+    }
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .popover-header {
+      font-size: 16px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f0f0f0;
+      direction: rtl;
+    }
+    .font-control-group {
+      margin-bottom: 18px;
+    }
+    .font-control-group:last-child {
+      margin-bottom: 0;
+    }
+    .font-control-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 8px;
+      direction: rtl;
+      display: block;
+    }
+    .font-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: space-between;
+    }
+    .font-btn {
+      width: 36px;
+      height: 36px;
+      border: 2px solid #ddd;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 18px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .font-btn:hover {
+      border-color: #ff7f50;
+      background: #fff5f0;
+      transform: scale(1.05);
+    }
+    .font-btn:active {
+      transform: scale(0.95);
+    }
+    .font-size-display {
+      min-width: 50px;
+      text-align: center;
+      font-weight: 600;
+      color: #333;
+      font-size: 15px;
+      padding: 8px 12px;
+      background: #f8f8f8;
+      border-radius: 6px;
+    }
+    #network {
+      width: 100vw;
+      height: 100vh;
+      background: #fafafa;
+      touch-action: none;
+    }
+      #legend {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 12px 20px;
+        box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 4px;
+        border-top: 2px solid #ddd;
+        direction: rtl;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        padding: 0px 6px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        background: rgba(255, 255, 255, 0.6);
+      }
+
+      .legend-item:hover {
+        background: #f0f0f0;
+        transform: scale(1.05);
+      }
+
+
+    .legend-color {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid #666;
+    }
+  </style>
+</head>
+<body>
+  <div id="search-container">
+    <div id="info-card">بڕوانە بەشی 'نەخشەی قورئان' لە بەشی 'قورئان'.</div>
+    <button id="font-settings-btn">
+      <span>⚙️</span>
+    </button>
+  </div>
+
+  <div id="font-popover">
+    <div class="popover-header">ڕێکخستنی فۆنت</div>
+
+    <div class="font-control-group">
+      <label class="font-control-label">قەبارەی ناوی گرێکان:</label>
+      <div class="font-controls">
+        <button class="font-btn" id="node-font-decrease">−</button>
+        <span class="font-size-display" id="node-font-size">15</span>
+        <button class="font-btn" id="node-font-increase">+</button>
+      </div>
+    </div>
+
+    <div class="font-control-group">
+      <label class="font-control-label">قەبارەی ناوی پەیوەندیەکان:</label>
+      <div class="font-controls">
+        <button class="font-btn" id="edge-font-decrease">−</button>
+        <span class="font-size-display" id="edge-font-size">11</span>
+        <button class="font-btn" id="edge-font-increase">+</button>
+      </div>
+    </div>
+
+    <button id="toggle-legend-btn" style="padding: 10px 15px; margin-left: 10px; border-radius: 8px; border: none; background: #2b8cff; color: white; cursor: pointer;">
+      پێشاندان/شاردنەوەی ڕوونما
+    </button>
+  </div>
+
+  <div id="network"></div>
+
+  <div id="legend">
+    <div class="legend-item">
+      <div class="legend-color" style="background: #96c1fc;"></div>
+      <span>پێغەمبەر</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: #ea7cf3;"></div>
+      <span>سوورەت</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: #f77b7f;"></div>
+      <span>شوێن</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: #ffff00;"></div>
+      <span>کەس</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: #7be040;"></div>
+      <span>کتێبی ئاسمانی</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: #fea804;"></div>
+      <span>چەمک</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: #ac84e4;"></div>
+      <span>فریشتە</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: #8a8afd;"></div>
+      <span>پەرستراو</span>
+    </div>
+  </div>
+
+  <button id="downloadPdfBtn" style="display:none;"></button>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js"></script>
+  <script>
+    const dataJson = {
+        "nodes": [
+          {
+            "id": 7,
+            "label": "ئیبراهیم",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 6,
+            "label": "یەعقوب (ئیسرائیل)",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 62,
+            "label": "عیمران (یەهوەقیم)",
+            "type": "کەس"
+          },
+          {
+            "id": 23,
+            "label": "مەریەم",
+            "type": "کەس"
+          },
+          {
+            "id": 63,
+            "label": "حەننە",
+            "type": "کەس"
+          },
+          {
+            "id": 64,
+            "label": "ئەلیزابێت",
+            "type": "کەس"
+          },
+          {
+            "id": 66,
+            "label": "یەحیا",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 65,
+            "label": "زەکەریا",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 21,
+            "label": "عیسا",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 22,
+            "label": "ئینجیل",
+            "type": "کتێبی ئاسمانی"
+          },
+          {
+            "id": 100,
+            "label": "ئادەم",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 12,
+            "label": "نوح",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 8,
+            "label": "ئیسحاق",
+            "type": "پێغەمبەر"
+          }
+        ],
+        "relations": [
+          {
+            "source": 23,
+            "target": 66,
+            "relation": "پورزا",
+            "direction": "both"
+          },
+          {
+            "source": 23,
+            "target": 62,
+            "relation": "کچ"
+          },
+          {
+            "source": 63,
+            "target": 62,
+            "relation": "هاوسەر",
+            "direction": "both"
+          },
+          {
+            "source": 62,
+            "target": 6,
+            "relation": "نەوە"
+          },
+          {
+            "source": 64,
+            "target": 63,
+            "relation": "خوشک",
+            "direction": "both"
+          },
+          {
+            "source": 65,
+            "target": 64,
+            "relation": "هاوسەر",
+            "direction": "both"
+          },
+          {
+            "source": 66,
+            "target": 64,
+            "relation": "کوڕ"
+          },
+          {
+            "source": 66,
+            "target": 65,
+            "relation": "کوڕ"
+          },
+          {
+            "source": 22,
+            "target": 21,
+            "relation": "دراوە بە"
+          },
+          {
+            "source": 21,
+            "target": 23,
+            "relation": "کوڕ"
+          },
+          {
+            "source": 23,
+            "target": 63,
+            "relation": "کچ"
+          },
+          {
+            "source": 12,
+            "target": 100,
+            "relation": "نەوە"
+          },
+          {
+            "source": 7,
+            "target": 12,
+            "relation": "نەوە"
+          },
+          {
+            "source": 8,
+            "target": 7,
+            "relation": "کوڕ"
+          },
+          {
+            "source": 6,
+            "target": 8,
+            "relation": "کوڕ"
+          }
+        ]
+      };
+
+    const typeColor = {
+      'پێغەمبەر': '#96c1fc',
+      'سوورەت': '#ea7cf3',
+      'شوێن': '#f77b7f',
+      'کەس': '#ffff00',
+      'کتێبی ئاسمانی': '#7be040',
+      'چەمک': '#fea804',
+      'فریشتە': '#ac84e4',
+      'پەرستراو': '#8a8afd'
+    };
+
+      const nodes = dataJson.nodes.map(n => ({
+        id: n.id,
+        label: n.label,
+        title: n.label + ' (' + n.type + ')',
+        group: n.type,
+        color: {
+          background: typeColor[n.type] || '#cccccc',
+          border: '#666'
+        },
+        shape: 'ellipse',
+        borderWidth: 1,
+        font: { size: 15, face: 'Noto Sans Arabic', color: '#333' }
+      }));
+
+    const edges = dataJson.relations.map((r, idx) => {
+      let arrowString = 'to';
+
+      if (r.direction === 'both') {
+        arrowString = 'from,to';
+      } else if (r.direction === 'none') {
+        arrowString = '';
+      }
+
+      return {
+        id: idx + '-' + r.source + '-' + r.target,
+        from: r.source,
+        to: r.target,
+        label: r.relation || '',
+        arrows: arrowString,
+        font: { size: 11, align: 'middle', color: '#555' },
+        smooth: { type: 'dynamic' }
+      };
+    });
+
+    const container = document.getElementById('network');
+    const data = {
+      nodes: new vis.DataSet(nodes),
+      edges: new vis.DataSet(edges)
+    };
+
+    const options = {
+      interaction: {
+        hover: true,
+        multiselect: false,
+        dragNodes: true,
+        dragView: true,
+        zoomView: true,
+        tooltipDelay: 100
+      },
+      physics: {
+        enabled: true,
+        stabilization: {
+          iterations: 300,
+          updateInterval: 25
+        },
+        barnesHut: {
+          gravitationalConstant: -4000,
+          springLength: 200,
+          springConstant: 0.02,
+          damping: 0.3,
+          avoidOverlap: 0.8
+        }
+      },
+      edges: {
+        color: { color: '#666', opacity: 0.7 },
+        width: 1.5,
+        font: { size: 11, strokeWidth: 3, strokeColor: '#ffffff' },
+        smooth: {
+          type: 'dynamic',
+          roundness: 0.5
+        }
+      },
+      nodes: {
+        shape: 'ellipse',
+        borderWidth: 2,
+        size: 25,
+        chosen: {
+          node: function(values, id, selected, hovering) {
+            values.borderWidth = 4;
+            values.size = 30;
+          }
+        }
+      }
+    };
+
+    const network = new vis.Network(container, data, options);
+
+    let currentNodeFontSize = 25;
+    let currentEdgeFontSize = 20;
+    const minFontSize = 8;
+    const maxNodeFontSize = 35;
+    const maxEdgeFontSize = 30;
+
+    const originalColors = {};
+    nodes.forEach(n => {
+      originalColors[n.id] = { background: typeColor[n.group], border: '#666' };
+    });
+
+    const fontSettingsBtn = document.getElementById('font-settings-btn');
+    const fontPopover = document.getElementById('font-popover');
+
+    const nodeFontIncrease = document.getElementById('node-font-increase');
+    const nodeFontDecrease = document.getElementById('node-font-decrease');
+    const nodeFontDisplay = document.getElementById('node-font-size');
+
+    const edgeFontIncrease = document.getElementById('edge-font-increase');
+    const edgeFontDecrease = document.getElementById('edge-font-decrease');
+    const edgeFontDisplay = document.getElementById('edge-font-size');
+
+    // Toggle font popover
+    fontSettingsBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      fontPopover.classList.toggle('active');
+    });
+
+    // Node font size controls
+    nodeFontIncrease.addEventListener('click', function() {
+      if (currentNodeFontSize < maxNodeFontSize) {
+        currentNodeFontSize += 2;
+        updateNodeFontSize();
+      }
+    });
+
+    nodeFontDecrease.addEventListener('click', function() {
+      if (currentNodeFontSize > minFontSize) {
+        currentNodeFontSize -= 2;
+        updateNodeFontSize();
+      }
+    });
+
+    // Edge font size controls
+    edgeFontIncrease.addEventListener('click', function() {
+      if (currentEdgeFontSize < maxEdgeFontSize) {
+        currentEdgeFontSize += 1;
+        updateEdgeFontSize();
+      }
+    });
+
+    edgeFontDecrease.addEventListener('click', function() {
+      if (currentEdgeFontSize > minFontSize) {
+        currentEdgeFontSize -= 1;
+        updateEdgeFontSize();
+      }
+    });
+
+      function updateNodeFontSize() {
+        nodeFontDisplay.textContent = currentNodeFontSize;
+
+        const allNodes = data.nodes.get();
+        allNodes.forEach(n => {
+          data.nodes.update({
+            id: n.id,
+            font: { size: currentNodeFontSize, face: 'Noto Sans Arabic', color: '#333' }
+          });
+        });
+
+        network.redraw(); // 👈 add this line
+      }
+
+      function updateEdgeFontSize() {
+        edgeFontDisplay.textContent = currentEdgeFontSize;
+
+        const allEdges = data.edges.get();
+        allEdges.forEach(e => {
+          data.edges.update({
+            id: e.id,
+            font: { size: currentEdgeFontSize, face: 'Noto Sans Arabic', align: 'middle', color: '#555', strokeWidth: 3, strokeColor: '#ffffff' }
+          });
+        });
+
+        network.redraw(); // 👈 add this line
+      }
+
+
+
+    function focusNode(nodeId) {
+      const node = data.nodes.get(nodeId);
+      const connected = network.getConnectedNodes(nodeId);
+
+      // Reset all nodes
+      data.nodes.forEach(n => {
+        data.nodes.update({
+          id: n.id,
+          color: { background: '#eee', border: '#ddd' }
+        });
+      });
+
+      // Highlight selected node
+      data.nodes.update({
+        id: nodeId,
+        color: { background: '#fff200', border: '#ff7700' }
+      });
+
+      // Highlight connected nodes
+      connected.forEach(id => {
+        const connectedNode = data.nodes.get(id);
+        data.nodes.update({
+          id: id,
+          color: {
+            background: typeColor[connectedNode.group] || '#ddd',
+            border: '#666'
+          }
+        });
+      });
+
+      // Focus on node with animation
+      network.focus(nodeId, {
+        scale: 1.5,
+        animation: {
+          duration: 1000,
+          easingFunction: 'easeInOutQuad'
+        }
+      });
+    }
+
+    function resetColors() {
+      data.nodes.forEach(n => {
+        data.nodes.update({
+          id: n.id,
+          color: originalColors[n.id]
+        });
+      });
+    }
+
+    // Combined click handler
+    network.on('click', function(params) {
+      if (params.nodes.length) {
+        const nodeId = params.nodes[0];
+        focusNode(nodeId);
+
+        // Send to Flutter (falls back to the iOS WKWebView bridge if present).
+        const node = data.nodes.get(nodeId);
+        const nodeData = {
+          id: node.id,
+          label: node.label,
+          type: node.group
+        };
+        if (window.nodeSelected && window.nodeSelected.postMessage) {
+          window.nodeSelected.postMessage(JSON.stringify(nodeData));
+        } else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.nodeSelected) {
+          window.webkit.messageHandlers.nodeSelected.postMessage(JSON.stringify(nodeData));
+        }
+      } else {
+        resetColors();
+      }
+    });
+
+    // Fit network after stabilization
+    network.once('stabilizationIterationsDone', () => {
+      network.fit({
+        animation: {
+          duration: 1000,
+          easingFunction: 'easeInOutQuad'
+        }
+      });
+    });
+
+    // Close font popover when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!fontSettingsBtn.contains(e.target) && !fontPopover.contains(e.target)) {
+        fontPopover.classList.remove('active');
+      }
+    });
+
+      fontPopover.addEventListener('click', function(e) {
+        e.stopPropagation(); // prevents document click from firing
+      });
+
+
+    // Prevent context menu
+    container.addEventListener('contextmenu', e => e.preventDefault());
+
+
+    document.getElementById('downloadPdfBtn').addEventListener('click', async () => {
+      try {
+        const { jsPDF } = window.jspdf;
+
+        const currentView = network.getViewPosition();
+        const currentScale = network.getScale();
+        network.fit({ animation: false });
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        const scaleFactor = 4;
+        const networkEl = document.getElementById('network');
+        const originalWidth = networkEl.offsetWidth;
+        const originalHeight = networkEl.offsetHeight;
+        const newWidth = originalWidth * scaleFactor;
+        const newHeight = originalHeight * scaleFactor;
+        networkEl.style.width = newWidth + 'px';
+        networkEl.style.height = newHeight + 'px';
+        network.redraw();
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        const canvas = await html2canvas(networkEl, {
+          backgroundColor: '#ffffff',
+          scale: 1,
+          useCORS: true
+        });
+
+        networkEl.style.width = originalWidth + 'px';
+        networkEl.style.height = originalHeight + 'px';
+        network.redraw();
+        network.moveTo({ position: currentView, scale: currentScale, animation: false });
+
+        const imgData = canvas.toDataURL('image/png', 1.0);
+        const pdf = new jsPDF({
+          orientation: 'landscape',
+          unit: 'pt',
+          format: [canvas.width, canvas.height]
+        });
+
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        pdf.setFontSize(14);
+        pdf.text("Family Tree of Imran (Aland Kawa Ali)", 30, 40);
+        pdf.setFontSize(10);
+        pdf.text('Generated on: ' + new Date().toLocaleString(), 30, 60);
+        pdf.save('family_tree_imran.pdf');
+      } catch (err) {
+        console.error(err);
+      }
+    });
+
+    // Apply font family and size to nodes and relations when page loads
+    window.addEventListener('load', () => {
+      legend.style.display = 'none'; // or 'flex' if you want it hidden initially
+      updateNodeFontSize();  // Apply the current font to node labels
+      updateEdgeFontSize();  // Apply the current font to relation labels
+    });
+
+
+
+      window.exportGraphAsPDF = async function() {
+        try {
+          const { jsPDF } = window.jspdf;
+
+          const currentView = network.getViewPosition();
+          const currentScale = network.getScale();
+          network.fit({ animation: false });
+          await new Promise(resolve => setTimeout(resolve, 800));
+
+          const scaleFactor = 3;
+          const networkEl = document.getElementById('network');
+          const originalWidth = networkEl.offsetWidth;
+          const originalHeight = networkEl.offsetHeight;
+          const newWidth = originalWidth * scaleFactor;
+          const newHeight = originalHeight * scaleFactor;
+
+          networkEl.style.width = newWidth + 'px';
+          networkEl.style.height = newHeight + 'px';
+          network.redraw();
+          await new Promise(resolve => setTimeout(resolve, 300));
+
+          const canvas = await html2canvas(networkEl, {
+            backgroundColor: '#ffffff',
+            scale: 1,
+            useCORS: true
+          });
+
+          networkEl.style.width = originalWidth + 'px';
+          networkEl.style.height = originalHeight + 'px';
+          network.redraw();
+          network.moveTo({ position: currentView, scale: currentScale, animation: false });
+
+          const imgData = canvas.toDataURL('image/png', 1.0);
+          const pdf = new jsPDF({
+            orientation: 'landscape',
+            unit: 'pt',
+            format: [canvas.width, canvas.height]
+          });
+
+          pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+          pdf.setFontSize(14);
+          pdf.text("Family Tree of Imran (Aland Kawa Ali)", 30, 40);
+          pdf.setFontSize(10);
+          pdf.text('Generated on: ' + new Date().toLocaleString(), 30, 60);
+
+          const pdfBase64 = pdf.output('datauristring');
+          return JSON.stringify({ success: true, data: pdfBase64 });
+        } catch (error) {
+          return JSON.stringify({ success: false, error: error.message });
+        }
+      };
+
+      const toggleLegendBtn = document.getElementById('toggle-legend-btn');
+      const legend = document.getElementById('legend');
+
+      toggleLegendBtn.addEventListener('click', () => {
+        if (legend.style.display === 'none' || legend.style.display === '') {
+          legend.style.display = 'flex'; // Show the legend
+        } else {
+          legend.style.display = 'none'; // Hide the legend
+        }
+      });
+  </script>
+</body>
+</html>

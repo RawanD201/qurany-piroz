@@ -17,6 +17,8 @@ QPI18n.register('es', {
   "index.donations": "🤍 Donar",
   "index.haram": "Explora el Haram",
   "index.haramNote": "Masjid al-Haram en 3D, en tu navegador",
+  "index.demo": "Demo de la app",
+  "index.demoNote": "Prueba la app directamente en tu navegador",
   "link.openHint": "Si ya tienes la aplicación, normalmente el enlace la abre por sí solo. Si no ha sido así, toca el botón de arriba.",
   "link.brokenLabel": "Este enlace no funciona",
   "ayat.pageTitle": "Una aleya — Qurany Piroz",

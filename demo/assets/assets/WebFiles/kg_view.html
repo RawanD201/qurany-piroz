@@ -1,0 +1,4024 @@
+<!doctype html>
+<html lang="ku" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <title>Qur'an Knowledge Graph Viewer</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="kg_view.css">
+  <script src="kg_view.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      height: 100vh;
+      background: #ffffff;
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+      font-family: 'Rabar', 'Rabar_009', sans-serif;
+    }
+    #search-container {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      left: 10px;
+      z-index: 1000;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 10px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      flex-wrap: wrap;
+    }
+    #search-input {
+      flex: 1;
+      min-width: 200px;
+      padding: 3px 5px;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      outline: none;
+      direction: rtl;
+      font-family: 'Rabar', 'Rabar_009', sans-serif;
+      transition: border-color 0.3s;
+    }
+    #search-input:focus {
+      border-color: #ff7f50;
+    }
+    #font-settings-btn {
+      padding: 12px 12px;
+      background: #3b4665;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    #font-settings-btn:hover {
+      background: #3b4665;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(255, 127, 80, 0.3);
+    }
+    #font-popover {
+      position: absolute;
+      top: 80px;
+      left: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      display: none;
+      z-index: 1002;
+      min-width: 320px;
+    }
+    #font-popover.active {
+      display: block;
+      animation: slideDown 0.3s ease;
+    }
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .popover-header {
+      font-size: 16px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f0f0f0;
+      direction: rtl;
+    }
+    .font-control-group {
+      margin-bottom: 18px;
+    }
+    .font-control-group:last-child {
+      margin-bottom: 0;
+    }
+    .font-control-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 8px;
+      direction: rtl;
+      display: block;
+    }
+    .font-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: space-between;
+    }
+    .font-btn {
+      width: 36px;
+      height: 36px;
+      border: 2px solid #ddd;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 18px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .font-btn:hover {
+      border-color: #ff7f50;
+      background: #fff5f0;
+      transform: scale(1.05);
+    }
+    .font-btn:active {
+      transform: scale(0.95);
+    }
+    .font-size-display {
+      min-width: 50px;
+      text-align: center;
+      font-weight: 600;
+      color: #333;
+      font-size: 15px;
+      padding: 8px 12px;
+      background: #f8f8f8;
+      border-radius: 6px;
+    }
+    #search-results {
+      position: absolute;
+      top: 70px;
+      right: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      max-height: 300px;
+      overflow-y: auto;
+      display: none;
+      min-width: 250px;
+      z-index: 1001;
+    }
+    .search-result-item {
+      padding: 12px 15px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+      direction: rtl;
+      transition: background 0.2s;
+    }
+    .search-result-item:hover {
+      background: #f5f5f5;
+    }
+    .search-result-item:last-child {
+      border-bottom: none;
+    }
+    .result-label {
+      font-weight: bold;
+      color: #333;
+    }
+    .result-type {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+    #network {
+      width: 100vw;
+      height: 100vh;
+      background: #fafafa;
+      touch-action: none;
+    }
+      #legend {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 12px 20px;
+        box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 4px;
+        border-top: 2px solid #ddd;
+        direction: rtl;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        padding: 0px 6px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        background: rgba(255, 255, 255, 0.6);
+      }
+
+      .legend-item:hover {
+        background: #f0f0f0;
+        transform: scale(1.05);
+      }
+
+
+    .legend-color {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid #666;
+    }
+    /* The page follows the app's language; these were written right-to-left for Kurdish. */
+    html[dir="ltr"] #search-input,
+    html[dir="ltr"] .popover-header,
+    html[dir="ltr"] .font-control-label,
+    html[dir="ltr"] .search-result-item,
+    html[dir="ltr"] #legend {
+      direction: ltr;
+    }
+  </style>
+</head>
+<body>
+  <div id="search-container">
+    <input type="text" id="search-input" placeholder="گەڕان... (نموونە: موحەممەد)" />
+    <button id="font-settings-btn">
+      <span>⚙️</span>
+    </button>
+  </div>
+  
+  <div id="font-popover">
+    <div class="popover-header">ڕێکخستنی فۆنت</div>
+    
+    <div class="font-control-group">
+      <label class="font-control-label">قەبارەی ناوی گرێکان:</label>
+      <div class="font-controls">
+        <button class="font-btn" id="node-font-decrease">−</button>
+        <span class="font-size-display" id="node-font-size">35</span>
+        <button class="font-btn" id="node-font-increase">+</button>
+      </div>
+    </div>
+    
+    <div class="font-control-group">
+      <label class="font-control-label">قەبارەی ناوی پەیوەندیەکان:</label>
+      <div class="font-controls">
+        <button class="font-btn" id="edge-font-decrease">−</button>
+        <span class="font-size-display" id="edge-font-size">30</span>
+        <button class="font-btn" id="edge-font-increase">+</button>
+      </div>
+    </div>
+
+    <button id="toggle-legend-btn" style="padding: 10px 15px; margin-left: 10px; border-radius: 8px; border: none; background: #2b8cff; color: white; cursor: pointer;">
+      پێشاندان/شاردنەوەی ڕوونما
+    </button>
+  </div>
+  <div id="search-results"></div>
+  
+  <div id="network"></div>
+  
+  <div id="legend">
+    <div class="legend-item">
+      <div class="legend-color" style="background: #96c1fc;"></div>
+      <span>پێغەمبەر</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: #ea7cf3;"></div>
+      <span>سوورەت</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: #f77b7f;"></div>
+      <span>شوێن</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: #ffff00;"></div>
+      <span>کەس</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: #7be040;"></div>
+      <span>کتێبی ئاسمانی</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: #fea804;"></div>
+      <span>چەمک</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: #ac84e4;"></div>
+      <span>فریشتە</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: #8a8afd;"></div>
+      <span>پەرستراو</span>
+    </div>
+  </div>
+  
+  <button id="downloadPdfBtn" style="display:none;"></button>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js"></script>
+  <!-- KG_I18N BEGIN -->
+  <script>
+    // Generated by Localization Tools/quran-map/patch_kg_view.py from kg_i18n.json — edit there.
+    // The map in the app's language (window.appLanguage, set by the app before this runs).
+    // Arabic-script Kurdish keeps the data's own text; the nodes keep their Kurdish names and
+    // types underneath, which is what the app looks a node up and colours it by.
+    const KG_LANG = (function () {
+      const aliases = { en: 'english', ar: 'arabic', ku: 'kurmanji', tr: 'turkish', fa: 'persian',
+                        ckb: 'sorani', kmr: 'badini', sdh: 'hawrami', de: 'german', es: 'spanish',
+                        zh: 'chinese', 'zh-Hans': 'chinese', hi: 'hindi', ur: 'urdu', ja: 'japanese',
+                        ru: 'russian', fr: 'french', sv: 'swedish', he: 'hebrew',
+                        syr: 'modernSyriac', syc: 'classicalSyriac', ms: 'malay', bn: 'bengali' };
+      const raw = String(window.appLanguage || 'sorani');
+      return aliases[raw] || raw;
+    })();
+    const KG_KURDISH_SCRIPT = ['sorani', 'badini', 'hawrami'].includes(KG_LANG);
+    // The languages in a right-to-left script — Arabic's, Hebrew's, Syriac's — read right to
+    // left; any other, left to right.
+    const KG_RTL = ['sorani', 'badini', 'hawrami', 'arabic', 'persian', 'urdu', 'hebrew',
+                    'modernSyriac', 'classicalSyriac'].includes(KG_LANG);
+    const KG_I18N = {
+      "ui": {
+        "searchPlaceholder": {
+          "english": "Search... (e.g. Muhammad)",
+          "arabic": "بحث... (مثال: محمد)",
+          "kurmanji": "Lêgerîn... (mînak: Muhemmed)",
+          "turkish": "Ara... (örnek: Muhammed)",
+          "persian": "جست‌وجو... (نمونه: محمد)",
+          "german": "Suchen … (z. B. Muhammad)",
+          "urdu": "تلاش کریں... (مثلاً محمد)",
+          "japanese": "検索…（例：ムハンマド）",
+          "french": "Rechercher... (p. ex. Muhammad)",
+          "spanish": "Buscar... (p. ej., Muhammad)",
+          "chinese": "搜索……（例如：穆罕默德）",
+          "hindi": "खोजें... (उदाहरण: मुहम्मद)",
+          "russian": "Поиск... (например, Мухаммад)",
+          "swedish": "Sök... (t.ex. Muhammad)",
+          "hebrew": "חיפוש... (למשל מוחמד)",
+          "modernSyriac": "ܒܨܝܐ... (ܡܬܠܐ: ܡܘܚܡܕ)",
+          "classicalSyriac": "ܒܨܝ... (ܐܝܟ: ܡܘܚܡܕ)",
+          "malay": "Cari... (cth. Muhammad)",
+          "bengali": "খুঁজুন... (যেমন মুহাম্মদ)"
+        },
+        "fontSettings": {
+          "english": "Font settings",
+          "arabic": "إعدادات الخط",
+          "kurmanji": "Mîhengên fontê",
+          "turkish": "Yazı tipi ayarları",
+          "persian": "تنظیمات قلم",
+          "german": "Schrifteinstellungen",
+          "urdu": "فونٹ کی ترتیبات",
+          "japanese": "フォント設定",
+          "french": "Réglages de la police",
+          "spanish": "Ajustes de fuente",
+          "chinese": "字体设置",
+          "hindi": "फ़ॉन्ट सेटिंग्स",
+          "russian": "Настройки шрифта",
+          "swedish": "Typsnittsinställningar",
+          "hebrew": "הגדרות גופן",
+          "modernSyriac": "ܛܘܝܒ̈ܐ ܕܛܘܦܣܐ",
+          "classicalSyriac": "ܛܘܟ̈ܣܐ ܕܛܘܦܣܐ",
+          "malay": "Tetapan fon",
+          "bengali": "ফন্ট সেটিংস"
+        },
+        "nodeFontSize": {
+          "english": "Size of the names:",
+          "arabic": "حجم الأسماء:",
+          "kurmanji": "Mezinahiya navan:",
+          "turkish": "Adların boyutu:",
+          "persian": "اندازهٔ نام‌ها:",
+          "german": "Größe der Namen:",
+          "urdu": "ناموں کا سائز:",
+          "japanese": "名前の文字サイズ：",
+          "french": "Taille des noms :",
+          "spanish": "Tamaño de los nombres:",
+          "chinese": "名称字号：",
+          "hindi": "नामों का आकार:",
+          "russian": "Размер имён:",
+          "swedish": "Namnens storlek:",
+          "hebrew": "גודל השמות:",
+          "modernSyriac": "ܡܫܘܚܬܐ ܕܫܡ̈ܗܐ:",
+          "classicalSyriac": "ܪܒܘܬܐ ܕܫܡ̈ܗܐ:",
+          "malay": "Saiz nama:",
+          "bengali": "নামের আকার:"
+        },
+        "edgeFontSize": {
+          "english": "Size of the links:",
+          "arabic": "حجم الروابط:",
+          "kurmanji": "Mezinahiya girêdanan:",
+          "turkish": "Bağlantıların boyutu:",
+          "persian": "اندازهٔ پیوندها:",
+          "german": "Größe der Verbindungen:",
+          "urdu": "روابط کا سائز:",
+          "japanese": "つながりの文字サイズ：",
+          "french": "Taille des liens :",
+          "spanish": "Tamaño de las relaciones:",
+          "chinese": "连线字号：",
+          "hindi": "संबंधों का आकार:",
+          "russian": "Размер связей:",
+          "swedish": "Länkarnas storlek:",
+          "hebrew": "גודל הקשרים:",
+          "modernSyriac": "ܡܫܘܚܬܐ ܕܐܣܘܪ̈ܐ:",
+          "classicalSyriac": "ܪܒܘܬܐ ܕܐܣܘܪ̈ܐ:",
+          "malay": "Saiz pautan:",
+          "bengali": "সম্পর্কের আকার:"
+        },
+        "toggleLegend": {
+          "english": "Show/hide the legend",
+          "arabic": "إظهار/إخفاء دليل الألوان",
+          "kurmanji": "Rêbera rengan nîşan bide/veşêre",
+          "turkish": "Renk açıklamasını göster/gizle",
+          "persian": "نمایش/پنهان‌کردن راهنمای رنگ‌ها",
+          "german": "Legende ein-/ausblenden",
+          "urdu": "علامات کی وضاحت دکھائیں/چھپائیں",
+          "japanese": "凡例の表示／非表示",
+          "french": "Afficher/masquer la légende",
+          "spanish": "Mostrar/ocultar la leyenda",
+          "chinese": "显示/隐藏图例",
+          "hindi": "संकेत-सूची दिखाएँ/छिपाएँ",
+          "russian": "Показать/скрыть легенду",
+          "swedish": "Visa/dölj teckenförklaringen",
+          "hebrew": "הצגה/הסתרה של המקרא",
+          "modernSyriac": "ܡܚܙܘܝܐ/ܛܫܝܐ ܕܡܦܫܩܢܘܬܐ ܕܪ̈ܘܫܡܐ",
+          "classicalSyriac": "ܚܘܝ/ܛܫܝ ܡܦܫܩܢܘܬܐ ܕܣܝܡ̈ܢܐ",
+          "malay": "Papar/sembunyikan petunjuk",
+          "bengali": "লেজেন্ড দেখান/লুকান"
+        }
+      },
+      "types": {
+        "پێغەمبەر": {
+          "english": "Prophet",
+          "arabic": "نبي",
+          "kurmanji": "Pêxember",
+          "turkish": "Peygamber",
+          "persian": "پیامبر",
+          "german": "Prophet",
+          "urdu": "پیغمبر",
+          "japanese": "預言者",
+          "french": "Prophète",
+          "spanish": "Profeta",
+          "chinese": "先知",
+          "hindi": "पैग़म्बर",
+          "russian": "Пророк",
+          "swedish": "Profet",
+          "hebrew": "נביא",
+          "modernSyriac": "ܢܒܝܐ",
+          "classicalSyriac": "ܢܒܝܐ",
+          "malay": "Nabi",
+          "bengali": "নবী"
+        },
+        "سوورەت": {
+          "english": "Surah",
+          "arabic": "سورة",
+          "kurmanji": "Sûre",
+          "turkish": "Sure",
+          "persian": "سوره",
+          "german": "Sure",
+          "urdu": "سورت",
+          "japanese": "スーラ",
+          "french": "Sourate",
+          "spanish": "Sura",
+          "chinese": "章",
+          "hindi": "सूरह",
+          "russian": "Сура",
+          "swedish": "Sura",
+          "hebrew": "סורה",
+          "modernSyriac": "ܣܘܪܐ",
+          "classicalSyriac": "ܣܘܪܐ",
+          "malay": "Surah",
+          "bengali": "সূরা"
+        },
+        "شوێن": {
+          "english": "Place",
+          "arabic": "مكان",
+          "kurmanji": "Cih",
+          "turkish": "Yer",
+          "persian": "مکان",
+          "german": "Ort",
+          "urdu": "مقام",
+          "japanese": "場所",
+          "french": "Lieu",
+          "spanish": "Lugar",
+          "chinese": "地点",
+          "hindi": "स्थान",
+          "russian": "Место",
+          "swedish": "Plats",
+          "hebrew": "מקום",
+          "modernSyriac": "ܕܘܟܬܐ",
+          "classicalSyriac": "ܐܬܪܐ",
+          "malay": "Tempat",
+          "bengali": "স্থান"
+        },
+        "کەس": {
+          "english": "Person",
+          "arabic": "شخص",
+          "kurmanji": "Kes",
+          "turkish": "Kişi",
+          "persian": "شخص",
+          "german": "Person",
+          "urdu": "شخص",
+          "japanese": "人物",
+          "french": "Personne",
+          "spanish": "Persona",
+          "chinese": "人物",
+          "hindi": "व्यक्ति",
+          "russian": "Человек",
+          "swedish": "Person",
+          "hebrew": "אדם",
+          "modernSyriac": "ܦܪܨܘܦܐ",
+          "classicalSyriac": "ܐܢܫܐ",
+          "malay": "Orang",
+          "bengali": "ব্যক্তি"
+        },
+        "کتێبی ئاسمانی": {
+          "english": "Revealed book",
+          "arabic": "كتاب سماوي",
+          "kurmanji": "Pirtûka asmanî",
+          "turkish": "İlahi kitap",
+          "persian": "کتاب آسمانی",
+          "german": "Offenbarte Schrift",
+          "urdu": "آسمانی کتاب",
+          "japanese": "啓典",
+          "french": "Livre révélé",
+          "spanish": "Libro revelado",
+          "chinese": "天启经典",
+          "hindi": "आसमानी किताब",
+          "russian": "Небесное Писание",
+          "swedish": "Uppenbarad skrift",
+          "hebrew": "ספר שמימי",
+          "modernSyriac": "ܟܬܒܐ ܫܡܝܢܝܐ",
+          "classicalSyriac": "ܟܬܒܐ ܫܡܝܢܐ",
+          "malay": "Kitab samawi",
+          "bengali": "আসমানি কিতাব"
+        },
+        "چەمک": {
+          "english": "Concept",
+          "arabic": "مفهوم",
+          "kurmanji": "Têgeh",
+          "turkish": "Kavram",
+          "persian": "مفهوم",
+          "german": "Konzept",
+          "urdu": "تصور",
+          "japanese": "概念",
+          "french": "Concept",
+          "spanish": "Concepto",
+          "chinese": "概念",
+          "hindi": "अवधारणा",
+          "russian": "Понятие",
+          "swedish": "Begrepp",
+          "hebrew": "מושג",
+          "modernSyriac": "ܪܥܝܢܐ",
+          "classicalSyriac": "ܪܢܝܐ",
+          "malay": "Konsep",
+          "bengali": "ধারণা"
+        },
+        "فریشتە": {
+          "english": "Angel",
+          "arabic": "ملَك",
+          "kurmanji": "Firîşte",
+          "turkish": "Melek",
+          "persian": "فرشته",
+          "german": "Engel",
+          "urdu": "فرشتہ",
+          "japanese": "天使",
+          "french": "Ange",
+          "spanish": "Ángel",
+          "chinese": "天使",
+          "hindi": "फ़रिश्ता",
+          "russian": "Ангел",
+          "swedish": "Ängel",
+          "hebrew": "מלאך",
+          "modernSyriac": "ܡܠܐܟܐ",
+          "classicalSyriac": "ܡܠܐܟܐ",
+          "malay": "Malaikat",
+          "bengali": "ফেরেশতা"
+        },
+        "پەرستراو": {
+          "english": "Idol",
+          "arabic": "معبود",
+          "kurmanji": "Pût",
+          "turkish": "Put",
+          "persian": "معبود",
+          "german": "Götze",
+          "urdu": "بت",
+          "japanese": "偶像",
+          "french": "Idole",
+          "spanish": "Ídolo",
+          "chinese": "偶像",
+          "hindi": "बुत",
+          "russian": "Идол",
+          "swedish": "Avgud",
+          "hebrew": "אליל",
+          "modernSyriac": "ܦܬܟܪܐ",
+          "classicalSyriac": "ܦܬܟܪܐ",
+          "malay": "Berhala",
+          "bengali": "উপাস্য মূর্তি"
+        }
+      },
+      "nodes": {
+        "1": {
+          "english": "Aaron",
+          "arabic": "هارون",
+          "kurmanji": "Harûn",
+          "turkish": "Harun",
+          "persian": "هارون",
+          "german": "Aaron",
+          "urdu": "ہارون",
+          "japanese": "ハールーン",
+          "french": "Aaron",
+          "spanish": "Aarón",
+          "chinese": "哈伦",
+          "hindi": "हारून",
+          "russian": "Харун",
+          "swedish": "Aron",
+          "hebrew": "אהרון",
+          "modernSyriac": "ܐܗܪܘܢ",
+          "classicalSyriac": "ܐܗܪܘܢ",
+          "malay": "Harun",
+          "bengali": "হারুন"
+        },
+        "2": {
+          "english": "Moses",
+          "arabic": "موسى",
+          "kurmanji": "Mûsa",
+          "turkish": "Musa",
+          "persian": "موسی",
+          "german": "Mose",
+          "urdu": "موسیٰ",
+          "japanese": "ムーサー",
+          "french": "Moïse",
+          "spanish": "Moisés",
+          "chinese": "穆萨",
+          "hindi": "मूसा",
+          "russian": "Муса",
+          "swedish": "Mose",
+          "hebrew": "משה",
+          "modernSyriac": "ܡܘܫܐ",
+          "classicalSyriac": "ܡܘܫܐ",
+          "malay": "Musa",
+          "bengali": "মূসা"
+        },
+        "3": {
+          "english": "Pharaoh",
+          "arabic": "فرعون",
+          "kurmanji": "Firewn",
+          "turkish": "Firavun",
+          "persian": "فرعون",
+          "german": "Pharao",
+          "urdu": "فرعون",
+          "japanese": "フィルアウン",
+          "french": "Pharaon",
+          "spanish": "Faraón",
+          "chinese": "法老",
+          "hindi": "फ़िरऔन",
+          "russian": "Фираун",
+          "swedish": "Farao",
+          "hebrew": "פרעה",
+          "modernSyriac": "ܦܪܥܘܢ",
+          "classicalSyriac": "ܦܪܥܘܢ",
+          "malay": "Firaun",
+          "bengali": "ফেরাউন"
+        },
+        "4": {
+          "english": "Korah (Qarun)",
+          "arabic": "قارون",
+          "kurmanji": "Qarûn",
+          "turkish": "Karun",
+          "persian": "قارون",
+          "german": "Korach (Qarun)",
+          "urdu": "قارون",
+          "japanese": "カールーン（コラ）",
+          "french": "Coré (Qaroun)",
+          "spanish": "Coré (Qarún)",
+          "chinese": "戈伦",
+          "hindi": "क़ारून",
+          "russian": "Карун",
+          "swedish": "Kora (Qarun)",
+          "hebrew": "קורח (קארון)",
+          "modernSyriac": "ܩܘܪܚ (ܩܐܪܘܢ)",
+          "classicalSyriac": "ܩܘܪܚ (ܩܐܪܘܢ)",
+          "malay": "Qarun",
+          "bengali": "কারুন"
+        },
+        "5": {
+          "english": "Egypt",
+          "arabic": "مصر",
+          "kurmanji": "Misir",
+          "turkish": "Mısır",
+          "persian": "مصر",
+          "german": "Ägypten",
+          "urdu": "مصر",
+          "japanese": "エジプト",
+          "french": "Égypte",
+          "spanish": "Egipto",
+          "chinese": "埃及",
+          "hindi": "मिस्र",
+          "russian": "Египет",
+          "swedish": "Egypten",
+          "hebrew": "מצרים",
+          "modernSyriac": "ܡܨܪܝܢ",
+          "classicalSyriac": "ܡܨܪܝܢ",
+          "malay": "Mesir",
+          "bengali": "মিসর"
+        },
+        "6": {
+          "english": "Jacob (Israel)",
+          "arabic": "يعقوب (إسرائيل)",
+          "kurmanji": "Yaqûb (Îsraîl)",
+          "turkish": "Yakup (İsrail)",
+          "persian": "یعقوب (اسرائیل)",
+          "german": "Jakob (Israel)",
+          "urdu": "یعقوب (اسرائیل)",
+          "japanese": "ヤアクーブ（イスラーイール）",
+          "french": "Jacob (Israël)",
+          "spanish": "Jacob (Israel)",
+          "chinese": "叶尔孤白（以色列）",
+          "hindi": "याक़ूब (इसराईल)",
+          "russian": "Якуб (Исраил)",
+          "swedish": "Jakob (Israel)",
+          "hebrew": "יעקב (ישראל)",
+          "modernSyriac": "ܝܥܩܘܒ (ܐܝܣܪܝܠ)",
+          "classicalSyriac": "ܝܥܩܘܒ (ܐܝܣܪܝܠ)",
+          "malay": "Yaakub (Israel)",
+          "bengali": "ইয়াকুব (ইসরাইল)"
+        },
+        "7": {
+          "english": "Abraham",
+          "arabic": "إبراهيم",
+          "kurmanji": "Îbrahîm",
+          "turkish": "İbrahim",
+          "persian": "ابراهیم",
+          "german": "Abraham",
+          "urdu": "ابراہیم",
+          "japanese": "イブラーヒーム",
+          "french": "Abraham",
+          "spanish": "Abraham",
+          "chinese": "易卜拉欣",
+          "hindi": "इब्राहीम",
+          "russian": "Ибрахим",
+          "swedish": "Abraham",
+          "hebrew": "אברהם",
+          "modernSyriac": "ܐܒܪܗܡ",
+          "classicalSyriac": "ܐܒܪܗܡ",
+          "malay": "Ibrahim",
+          "bengali": "ইবরাহীম"
+        },
+        "8": {
+          "english": "Isaac",
+          "arabic": "إسحاق",
+          "kurmanji": "Îshaq",
+          "turkish": "İshak",
+          "persian": "اسحاق",
+          "german": "Isaak",
+          "urdu": "اسحاق",
+          "japanese": "イスハーク",
+          "french": "Isaac",
+          "spanish": "Isaac",
+          "chinese": "易司哈格",
+          "hindi": "इसहाक़",
+          "russian": "Исхак",
+          "swedish": "Isak",
+          "hebrew": "יצחק",
+          "modernSyriac": "ܐܝܣܚܩ",
+          "classicalSyriac": "ܐܝܣܚܩ",
+          "malay": "Ishak",
+          "bengali": "ইসহাক"
+        },
+        "9": {
+          "english": "Ishmael",
+          "arabic": "إسماعيل",
+          "kurmanji": "Îsmaîl",
+          "turkish": "İsmail",
+          "persian": "اسماعیل",
+          "german": "Ismael",
+          "urdu": "اسماعیل",
+          "japanese": "イスマーイール",
+          "french": "Ismaël",
+          "spanish": "Ismael",
+          "chinese": "易司马仪",
+          "hindi": "इस्माईल",
+          "russian": "Исмаил",
+          "swedish": "Ismael",
+          "hebrew": "ישמעאל",
+          "modernSyriac": "ܐܝܫܡܥܝܠ",
+          "classicalSyriac": "ܐܝܫܡܥܝܠ",
+          "malay": "Ismail",
+          "bengali": "ইসমাঈল"
+        },
+        "10": {
+          "english": "Muhammad",
+          "arabic": "محمد",
+          "kurmanji": "Muhemmed",
+          "turkish": "Muhammed",
+          "persian": "محمد",
+          "german": "Muhammad",
+          "urdu": "محمد",
+          "japanese": "ムハンマド",
+          "french": "Muhammad",
+          "spanish": "Muhammad",
+          "chinese": "穆罕默德",
+          "hindi": "मुहम्मद",
+          "russian": "Мухаммад",
+          "swedish": "Muhammad",
+          "hebrew": "מוחמד",
+          "modernSyriac": "ܡܘܚܡܕ",
+          "classicalSyriac": "ܡܘܚܡܕ",
+          "malay": "Muhammad",
+          "bengali": "মুহাম্মদ"
+        },
+        "11": {
+          "english": "Mecca",
+          "arabic": "مكة",
+          "kurmanji": "Mekke",
+          "turkish": "Mekke",
+          "persian": "مکه",
+          "german": "Mekka",
+          "urdu": "مکہ",
+          "japanese": "マッカ",
+          "french": "La Mecque",
+          "spanish": "La Meca",
+          "chinese": "麦加",
+          "hindi": "मक्का",
+          "russian": "Мекка",
+          "swedish": "Mecka",
+          "hebrew": "מכה",
+          "modernSyriac": "ܡܟܐ",
+          "classicalSyriac": "ܡܟܐ",
+          "malay": "Mekah",
+          "bengali": "মক্কা"
+        },
+        "12": {
+          "english": "Noah",
+          "arabic": "نوح",
+          "kurmanji": "Nûh",
+          "turkish": "Nuh",
+          "persian": "نوح",
+          "german": "Noah",
+          "urdu": "نوح",
+          "japanese": "ヌーフ",
+          "french": "Noé",
+          "spanish": "Noé",
+          "chinese": "努哈",
+          "hindi": "नूह",
+          "russian": "Нух",
+          "swedish": "Noa",
+          "hebrew": "נח",
+          "modernSyriac": "ܢܘܚ",
+          "classicalSyriac": "ܢܘܚ",
+          "malay": "Nuh",
+          "bengali": "নূহ"
+        },
+        "13": {
+          "english": "Torah",
+          "arabic": "التوراة",
+          "kurmanji": "Tewrat",
+          "turkish": "Tevrat",
+          "persian": "تورات",
+          "german": "Tora",
+          "urdu": "تورات",
+          "japanese": "タウラート（律法）",
+          "french": "Torah",
+          "spanish": "Torá",
+          "chinese": "讨拉特",
+          "hindi": "तौरात",
+          "russian": "Таурат",
+          "swedish": "Toran",
+          "hebrew": "התורה",
+          "modernSyriac": "ܐܘܪܝܬܐ",
+          "classicalSyriac": "ܐܘܪܝܬܐ",
+          "malay": "Taurat",
+          "bengali": "তাওরাত"
+        },
+        "14": {
+          "english": "Quran",
+          "arabic": "القرآن",
+          "kurmanji": "Quran",
+          "turkish": "Kur'an",
+          "persian": "قرآن",
+          "german": "Koran",
+          "urdu": "قرآن",
+          "japanese": "クルアーン",
+          "french": "Coran",
+          "spanish": "Corán",
+          "chinese": "古兰经",
+          "hindi": "क़ुरआन",
+          "russian": "Коран",
+          "swedish": "Koranen",
+          "hebrew": "הקוראן",
+          "modernSyriac": "ܩܘܪܐܢ",
+          "classicalSyriac": "ܩܘܪܐܢ",
+          "malay": "Al-Quran",
+          "bengali": "কুরআন"
+        },
+        "15": {
+          "english": "David",
+          "arabic": "داود",
+          "kurmanji": "Dawûd",
+          "turkish": "Davud",
+          "persian": "داوود",
+          "german": "David",
+          "urdu": "داؤد",
+          "japanese": "ダーウード",
+          "french": "David",
+          "spanish": "David",
+          "chinese": "达五德",
+          "hindi": "दाऊद",
+          "russian": "Дауд",
+          "swedish": "David",
+          "hebrew": "דוד",
+          "modernSyriac": "ܕܘܝܕ",
+          "classicalSyriac": "ܕܘܝܕ",
+          "malay": "Daud",
+          "bengali": "দাউদ"
+        },
+        "16": {
+          "english": "Solomon",
+          "arabic": "سليمان",
+          "kurmanji": "Silêman",
+          "turkish": "Süleyman",
+          "persian": "سلیمان",
+          "german": "Salomo",
+          "urdu": "سلیمان",
+          "japanese": "スライマーン",
+          "french": "Salomon",
+          "spanish": "Salomón",
+          "chinese": "素莱曼",
+          "hindi": "सुलैमान",
+          "russian": "Сулейман",
+          "swedish": "Salomo",
+          "hebrew": "שלמה",
+          "modernSyriac": "ܫܠܝܡܘܢ",
+          "classicalSyriac": "ܫܠܝܡܘܢ",
+          "malay": "Sulaiman",
+          "bengali": "সুলাইমান"
+        },
+        "17": {
+          "english": "Palestine",
+          "arabic": "فلسطين",
+          "kurmanji": "Filistîn",
+          "turkish": "Filistin",
+          "persian": "فلسطین",
+          "german": "Palästina",
+          "urdu": "فلسطین",
+          "japanese": "パレスチナ",
+          "french": "Palestine",
+          "spanish": "Palestina",
+          "chinese": "巴勒斯坦",
+          "hindi": "फ़िलिस्तीन",
+          "russian": "Палестина",
+          "swedish": "Palestina",
+          "hebrew": "פלסטין",
+          "modernSyriac": "ܦܠܣܛܝܢ",
+          "classicalSyriac": "ܦܠܣܛܝܢܐ",
+          "malay": "Palestin",
+          "bengali": "ফিলিস্তিন"
+        },
+        "18": {
+          "english": "Al-Qasas (28)",
+          "arabic": "القصص (٢٨)",
+          "kurmanji": "El-Qeses (28)",
+          "turkish": "Kasas (28)",
+          "persian": "القصص (۲۸)",
+          "german": "Al-Qasas (28)",
+          "urdu": "القصص (۲۸)",
+          "japanese": "アル＝カサス（28）",
+          "french": "Al-Qasas (28)",
+          "spanish": "Al-Qasas (28)",
+          "chinese": "故事章（28）",
+          "hindi": "अल-क़सस (28)",
+          "russian": "Аль-Касас (28)",
+          "swedish": "al-Qasas (28)",
+          "hebrew": "אל-קצץ (28)",
+          "modernSyriac": "ܐܠܩܨܨ (28)",
+          "classicalSyriac": "ܐܠܩܨܨ (28)",
+          "malay": "Al-Qasas (28)",
+          "bengali": "আল-কাসাস (২৮)"
+        },
+        "19": {
+          "english": "Muhammad (47)",
+          "arabic": "محمد (٤٧)",
+          "kurmanji": "Muhemmed (47)",
+          "turkish": "Muhammed (47)",
+          "persian": "محمد (۴۷)",
+          "german": "Muhammad (47)",
+          "urdu": "محمد (۴۷)",
+          "japanese": "ムハンマド（47）",
+          "french": "Muhammad (47)",
+          "spanish": "Muhammad (47)",
+          "chinese": "穆罕默德章（47）",
+          "hindi": "मुहम्मद (47)",
+          "russian": "Мухаммад (47)",
+          "swedish": "Muhammad (47)",
+          "hebrew": "מוחמד (47)",
+          "modernSyriac": "ܡܘܚܡܕ (47)",
+          "classicalSyriac": "ܡܘܚܡܕ (47)",
+          "malay": "Muhammad (47)",
+          "bengali": "মুহাম্মদ (৪৭)"
+        },
+        "20": {
+          "english": "Al-Baqarah (2)",
+          "arabic": "البقرة (٢)",
+          "kurmanji": "El-Beqere (2)",
+          "turkish": "Bakara (2)",
+          "persian": "البقرة (۲)",
+          "german": "Al-Baqara (2)",
+          "urdu": "البقرہ (۲)",
+          "japanese": "アル＝バカラ（2）",
+          "french": "Al-Baqara (2)",
+          "spanish": "Al-Baqara (2)",
+          "chinese": "黄牛章（2）",
+          "hindi": "अल-बक़रह (2)",
+          "russian": "Аль-Бакара (2)",
+          "swedish": "al-Baqara (2)",
+          "hebrew": "אל-בקרה (2)",
+          "modernSyriac": "ܐܠܒܩܪܐ (2)",
+          "classicalSyriac": "ܐܠܒܩܪܐ (2)",
+          "malay": "Al-Baqarah (2)",
+          "bengali": "আল-বাকারা (২)"
+        },
+        "21": {
+          "english": "Jesus",
+          "arabic": "عيسى",
+          "kurmanji": "Îsa",
+          "turkish": "İsa",
+          "persian": "عیسی",
+          "german": "Jesus",
+          "urdu": "عیسیٰ",
+          "japanese": "イーサー",
+          "french": "Jésus",
+          "spanish": "Jesús",
+          "chinese": "尔撒",
+          "hindi": "ईसा",
+          "russian": "Иса",
+          "swedish": "Jesus",
+          "hebrew": "ישוע",
+          "modernSyriac": "ܝܫܘܥ",
+          "classicalSyriac": "ܝܫܘܥ",
+          "malay": "Isa",
+          "bengali": "ঈসা"
+        },
+        "22": {
+          "english": "Gospel",
+          "arabic": "الإنجيل",
+          "kurmanji": "Încîl",
+          "turkish": "İncil",
+          "persian": "انجیل",
+          "german": "Evangelium",
+          "urdu": "انجیل",
+          "japanese": "インジール（福音書）",
+          "french": "Évangile",
+          "spanish": "Evangelio",
+          "chinese": "引支勒",
+          "hindi": "इंजील",
+          "russian": "Инджиль",
+          "swedish": "Evangeliet",
+          "hebrew": "הבשורה",
+          "modernSyriac": "ܐܘܢܓܠܝܘܢ",
+          "classicalSyriac": "ܐܘܢܓܠܝܘܢ",
+          "malay": "Injil",
+          "bengali": "ইঞ্জিল"
+        },
+        "23": {
+          "english": "Mary",
+          "arabic": "مريم",
+          "kurmanji": "Meryem",
+          "turkish": "Meryem",
+          "persian": "مریم",
+          "german": "Maria",
+          "urdu": "مریم",
+          "japanese": "マルヤム",
+          "french": "Marie",
+          "spanish": "María",
+          "chinese": "麦尔彦",
+          "hindi": "मरयम",
+          "russian": "Марьям",
+          "swedish": "Maria",
+          "hebrew": "מרים",
+          "modernSyriac": "ܡܪܝܡ",
+          "classicalSyriac": "ܡܪܝܡ",
+          "malay": "Maryam",
+          "bengali": "মারইয়াম"
+        },
+        "24": {
+          "english": "Gabriel",
+          "arabic": "جبريل",
+          "kurmanji": "Cebraîl",
+          "turkish": "Cebrail",
+          "persian": "جبرئیل",
+          "german": "Gabriel",
+          "urdu": "جبرائیل",
+          "japanese": "ジブリール",
+          "french": "Gabriel",
+          "spanish": "Gabriel",
+          "chinese": "吉卜利勒",
+          "hindi": "जिब्रील",
+          "russian": "Джибриль",
+          "swedish": "Gabriel",
+          "hebrew": "גבריאל",
+          "modernSyriac": "ܓܒܪܐܝܠ",
+          "classicalSyriac": "ܓܒܪܐܝܠ",
+          "malay": "Jibril",
+          "bengali": "জিবরাঈল"
+        },
+        "25": {
+          "english": "Salih",
+          "arabic": "صالح",
+          "kurmanji": "Salih",
+          "turkish": "Salih",
+          "persian": "صالح",
+          "german": "Salih",
+          "urdu": "صالح",
+          "japanese": "サーリフ",
+          "french": "Salih",
+          "spanish": "Salih",
+          "chinese": "撒立哈",
+          "hindi": "सालेह",
+          "russian": "Салих",
+          "swedish": "Salih",
+          "hebrew": "צאלח",
+          "modernSyriac": "ܨܐܠܚ",
+          "classicalSyriac": "ܨܐܠܚ",
+          "malay": "Saleh",
+          "bengali": "সালেহ"
+        },
+        "26": {
+          "english": "Thamud",
+          "arabic": "ثمود",
+          "kurmanji": "Semûd",
+          "turkish": "Semud",
+          "persian": "ثمود",
+          "german": "Thamud",
+          "urdu": "ثمود",
+          "japanese": "サムード",
+          "french": "Thamoud",
+          "spanish": "Zamud",
+          "chinese": "赛莫德",
+          "hindi": "समूद",
+          "russian": "Самуд",
+          "swedish": "Thamud",
+          "hebrew": "ת'מוד",
+          "modernSyriac": "ܬܡܘܕ",
+          "classicalSyriac": "ܬܡܘܕ",
+          "malay": "Thamud",
+          "bengali": "সামুদ"
+        },
+        "27": {
+          "english": "Medina",
+          "arabic": "المدينة",
+          "kurmanji": "Medîne",
+          "turkish": "Medine",
+          "persian": "مدینه",
+          "german": "Medina",
+          "urdu": "مدینہ",
+          "japanese": "マディーナ",
+          "french": "Médine",
+          "spanish": "Medina",
+          "chinese": "麦地那",
+          "hindi": "मदीना",
+          "russian": "Медина",
+          "swedish": "Medina",
+          "hebrew": "מדינה",
+          "modernSyriac": "ܡܕܝܢܐ",
+          "classicalSyriac": "ܡܕܝܢܐ",
+          "malay": "Madinah",
+          "bengali": "মদিনা"
+        },
+        "28": {
+          "english": "Haman",
+          "arabic": "هامان",
+          "kurmanji": "Haman",
+          "turkish": "Haman",
+          "persian": "هامان",
+          "german": "Haman",
+          "urdu": "ہامان",
+          "japanese": "ハーマーン",
+          "french": "Haman",
+          "spanish": "Hamán",
+          "chinese": "哈曼",
+          "hindi": "हामान",
+          "russian": "Хаман",
+          "swedish": "Haman",
+          "hebrew": "המן",
+          "modernSyriac": "ܗܡܢ",
+          "classicalSyriac": "ܗܡܢ",
+          "malay": "Haman",
+          "bengali": "হামান"
+        },
+        "29": {
+          "english": "Joseph",
+          "arabic": "يوسف",
+          "kurmanji": "Yûsif",
+          "turkish": "Yusuf",
+          "persian": "یوسف",
+          "german": "Josef",
+          "urdu": "یوسف",
+          "japanese": "ユースフ",
+          "french": "Joseph",
+          "spanish": "José",
+          "chinese": "优素福",
+          "hindi": "यूसुफ़",
+          "russian": "Юсуф",
+          "swedish": "Josef",
+          "hebrew": "יוסף",
+          "modernSyriac": "ܝܘܣܦ",
+          "classicalSyriac": "ܝܘܣܦ",
+          "malay": "Yusuf",
+          "bengali": "ইউসুফ"
+        },
+        "30": {
+          "english": "The good news of Ahmad's coming",
+          "arabic": "البشارة بمجيء أحمد",
+          "kurmanji": "Mizgîniya hatina Ehmed",
+          "turkish": "Ahmed'in geleceği müjdesi",
+          "persian": "بشارت آمدن احمد",
+          "german": "Die frohe Botschaft vom Kommen Ahmads",
+          "urdu": "احمد کی آمد کی بشارت",
+          "japanese": "アフマドの到来の吉報",
+          "french": "Annonce de la venue d'Ahmad",
+          "spanish": "La buena nueva de la llegada de Ahmad",
+          "chinese": "艾哈默德到来的喜讯",
+          "hindi": "अहमद के आने की ख़ुशख़बरी",
+          "russian": "Благая весть о приходе Ахмада",
+          "swedish": "Budskapet om Ahmads ankomst",
+          "hebrew": "בשורת בואו של אחמד",
+          "modernSyriac": "ܣܒܪܬܐ ܕܡܐܬܝܬܐ ܕܐܚܡܕ",
+          "classicalSyriac": "ܣܒܪܬܐ ܕܡܐܬܝܬܗ ܕܐܚܡܕ",
+          "malay": "Khabar gembira tentang kedatangan Ahmad",
+          "bengali": "আহমদের আগমনের সুসংবাদ"
+        },
+        "31": {
+          "english": "As-Saff (61)",
+          "arabic": "الصف (٦١)",
+          "kurmanji": "Es-Sef (61)",
+          "turkish": "Saf (61)",
+          "persian": "الصف (۶۱)",
+          "german": "As-Saff (61)",
+          "urdu": "الصف (۶۱)",
+          "japanese": "アッ＝サッフ（61）",
+          "french": "As-Saff (61)",
+          "spanish": "As-Saff (61)",
+          "chinese": "列阵章（61）",
+          "hindi": "अस-सफ़्फ़ (61)",
+          "russian": "Ас-Сафф (61)",
+          "swedish": "as-Saff (61)",
+          "hebrew": "א-צף (61)",
+          "modernSyriac": "ܐܠܨܦ (61)",
+          "classicalSyriac": "ܐܠܨܦ (61)",
+          "malay": "As-Saff (61)",
+          "bengali": "আস-সাফ (৬১)"
+        },
+        "32": {
+          "english": "Scrolls of Abraham",
+          "arabic": "صحف إبراهيم",
+          "kurmanji": "Suhufên Îbrahîm",
+          "turkish": "İbrahim'in sahifeleri",
+          "persian": "صحف ابراهیم",
+          "german": "Schriftblätter Abrahams",
+          "urdu": "صحفِ ابراہیم",
+          "japanese": "イブラーヒームの書",
+          "french": "Feuillets d'Abraham",
+          "spanish": "Hojas de Abraham",
+          "chinese": "易卜拉欣的经卷",
+          "hindi": "इब्राहीम के सहीफ़े",
+          "russian": "Свитки Ибрахима",
+          "swedish": "Abrahams skrifter",
+          "hebrew": "מגילות אברהם",
+          "modernSyriac": "ܡܓܠ̈ܝܬܐ ܕܐܒܪܗܡ",
+          "classicalSyriac": "ܡܓܠ̈ܬܐ ܕܐܒܪܗܡ",
+          "malay": "Suhuf Ibrahim",
+          "bengali": "ইবরাহীমের সহিফা"
+        },
+        "33": {
+          "english": "Scrolls of Moses",
+          "arabic": "صحف موسى",
+          "kurmanji": "Suhufên Mûsa",
+          "turkish": "Musa'nın sahifeleri",
+          "persian": "صحف موسی",
+          "german": "Schriftblätter Moses",
+          "urdu": "صحفِ موسیٰ",
+          "japanese": "ムーサーの書",
+          "french": "Feuillets de Moïse",
+          "spanish": "Hojas de Moisés",
+          "chinese": "穆萨的经卷",
+          "hindi": "मूसा के सहीफ़े",
+          "russian": "Свитки Мусы",
+          "swedish": "Moses skrifter",
+          "hebrew": "מגילות משה",
+          "modernSyriac": "ܡܓܠ̈ܝܬܐ ܕܡܘܫܐ",
+          "classicalSyriac": "ܡܓܠ̈ܬܐ ܕܡܘܫܐ",
+          "malay": "Suhuf Musa",
+          "bengali": "মূসার সহিফা"
+        },
+        "34": {
+          "english": "Al-A'la (87)",
+          "arabic": "الأعلى (٨٧)",
+          "kurmanji": "El-E'la (87)",
+          "turkish": "A'lâ (87)",
+          "persian": "الأعلى (۸۷)",
+          "kurdish": "الأعلى (٨٧)",
+          "german": "Al-A'la (87)",
+          "urdu": "الاعلیٰ (۸۷)",
+          "japanese": "アル＝アアラー（87）",
+          "french": "Al-A'la (87)",
+          "spanish": "Al-A'la (87)",
+          "chinese": "至尊章（87）",
+          "hindi": "अल-आला (87)",
+          "russian": "Аль-Аля (87)",
+          "swedish": "al-A'la (87)",
+          "hebrew": "אל-אעלא (87)",
+          "modernSyriac": "ܐܠܐܥܠܐ (87)",
+          "classicalSyriac": "ܐܠܐܥܠܐ (87)",
+          "malay": "Al-A'la (87)",
+          "bengali": "আল-আ'লা (৮৭)"
+        },
+        "35": {
+          "english": "Hagar",
+          "arabic": "هاجر",
+          "kurmanji": "Hacer",
+          "turkish": "Hacer",
+          "persian": "هاجر",
+          "german": "Hagar",
+          "urdu": "ہاجرہ",
+          "japanese": "ハージャル",
+          "french": "Agar",
+          "spanish": "Agar",
+          "chinese": "哈哲尔",
+          "hindi": "हाजरा",
+          "russian": "Хаджар",
+          "swedish": "Hagar",
+          "hebrew": "הגר",
+          "modernSyriac": "ܗܓܪ",
+          "classicalSyriac": "ܗܓܪ",
+          "malay": "Hajar",
+          "bengali": "হাজেরা"
+        },
+        "36": {
+          "english": "Sarah",
+          "arabic": "سارة",
+          "kurmanji": "Sara",
+          "turkish": "Sare",
+          "persian": "ساره",
+          "german": "Sara",
+          "urdu": "سارہ",
+          "japanese": "サーラ",
+          "french": "Sara",
+          "spanish": "Sara",
+          "chinese": "萨拉",
+          "hindi": "सारा",
+          "russian": "Сара",
+          "swedish": "Sara",
+          "hebrew": "שרה",
+          "modernSyriac": "ܣܪܐ",
+          "classicalSyriac": "ܣܪܐ",
+          "malay": "Sarah",
+          "bengali": "সারা"
+        },
+        "37": {
+          "english": "Michael",
+          "arabic": "ميكائيل",
+          "kurmanji": "Mîkaîl",
+          "turkish": "Mikail",
+          "persian": "میکائیل",
+          "german": "Michael",
+          "urdu": "میکائیل",
+          "japanese": "ミーカーイール",
+          "french": "Michaël",
+          "spanish": "Miguel",
+          "chinese": "米卡伊来",
+          "hindi": "मीकाईल",
+          "russian": "Микаил",
+          "swedish": "Mikael",
+          "hebrew": "מיכאל",
+          "modernSyriac": "ܡܝܟܐܝܠ",
+          "classicalSyriac": "ܡܝܟܐܝܠ",
+          "malay": "Mikail",
+          "bengali": "মিকাঈল"
+        },
+        "38": {
+          "english": "Harut",
+          "arabic": "هاروت",
+          "kurmanji": "Harût",
+          "turkish": "Harut",
+          "persian": "هاروت",
+          "german": "Harut",
+          "urdu": "ہاروت",
+          "japanese": "ハールート",
+          "french": "Harout",
+          "spanish": "Harut",
+          "chinese": "哈鲁特",
+          "hindi": "हारूत",
+          "russian": "Харут",
+          "swedish": "Harut",
+          "hebrew": "הארות",
+          "modernSyriac": "ܗܐܪܘܬ",
+          "classicalSyriac": "ܗܐܪܘܬ",
+          "malay": "Harut",
+          "bengali": "হারুত"
+        },
+        "39": {
+          "english": "Marut",
+          "arabic": "ماروت",
+          "kurmanji": "Marût",
+          "turkish": "Marut",
+          "persian": "ماروت",
+          "german": "Marut",
+          "urdu": "ماروت",
+          "japanese": "マールート",
+          "french": "Marout",
+          "spanish": "Marut",
+          "chinese": "马鲁特",
+          "hindi": "मारूत",
+          "russian": "Марут",
+          "swedish": "Marut",
+          "hebrew": "מארות",
+          "modernSyriac": "ܡܐܪܘܬ",
+          "classicalSyriac": "ܡܐܪܘܬ",
+          "malay": "Marut",
+          "bengali": "মারুত"
+        },
+        "40": {
+          "english": "Sheba",
+          "arabic": "سبأ",
+          "kurmanji": "Seba",
+          "turkish": "Sebe",
+          "persian": "سبا",
+          "german": "Saba",
+          "urdu": "سبا",
+          "japanese": "サバア",
+          "french": "Saba",
+          "spanish": "Saba",
+          "chinese": "赛伯邑",
+          "hindi": "सबा",
+          "russian": "Саба",
+          "swedish": "Saba",
+          "hebrew": "שבא",
+          "modernSyriac": "ܫܒܐ",
+          "classicalSyriac": "ܫܒܐ",
+          "malay": "Saba'",
+          "bengali": "সাবা"
+        },
+        "41": {
+          "english": "Queen of Sheba",
+          "arabic": "ملكة سبأ",
+          "kurmanji": "Şahbanûya Sebayê",
+          "turkish": "Sebe Melikesi",
+          "persian": "ملکهٔ سبا",
+          "german": "Königin von Saba",
+          "urdu": "ملکۂ سبا",
+          "japanese": "サバアの女王",
+          "french": "Reine de Saba",
+          "spanish": "Reina de Saba",
+          "chinese": "赛伯邑女王",
+          "hindi": "सबा की रानी",
+          "russian": "Царица Сабы",
+          "swedish": "Drottningen av Saba",
+          "hebrew": "מלכת שבא",
+          "modernSyriac": "ܡܠܟܬܐ ܕܫܒܐ",
+          "classicalSyriac": "ܡܠܟܬ ܫܒܐ",
+          "malay": "Ratu Saba'",
+          "bengali": "সাবার রানি"
+        },
+        "42": {
+          "english": "Psalms (Zabur)",
+          "arabic": "الزبور",
+          "kurmanji": "Zebûr",
+          "turkish": "Zebur",
+          "persian": "زبور",
+          "german": "Psalmen (Zabur)",
+          "urdu": "زبور",
+          "japanese": "ザブール（詩篇）",
+          "french": "Psaumes (Zabour)",
+          "spanish": "Salmos (Zabur)",
+          "chinese": "宰逋卜（诗篇）",
+          "hindi": "ज़बूर",
+          "russian": "Забур (Псалтирь)",
+          "swedish": "Psaltaren (Zabur)",
+          "hebrew": "תהילים (זבור)",
+          "modernSyriac": "ܡܙܡܘܪ̈ܐ (ܙܒܘܪ)",
+          "classicalSyriac": "ܡܙܡܘܪ̈ܐ (ܙܒܘܪ)",
+          "malay": "Zabur",
+          "bengali": "যাবুর"
+        },
+        "43": {
+          "english": "Mount Judi",
+          "arabic": "الجودي",
+          "kurmanji": "Cûdî",
+          "turkish": "Cudi",
+          "persian": "جودی",
+          "german": "Berg Dschudi",
+          "urdu": "کوہِ جودی",
+          "japanese": "ジューディー山",
+          "french": "Mont Djoudi",
+          "spanish": "Monte Yudi",
+          "chinese": "朱迭山",
+          "hindi": "जूदी पहाड़",
+          "russian": "Гора Джуди",
+          "swedish": "Berget Judi",
+          "hebrew": "הר ג'ודי",
+          "modernSyriac": "ܛܘܪܐ ܕܓ̰ܘܕܝ",
+          "classicalSyriac": "ܛܘܪܐ ܕܓܘܕܝ",
+          "malay": "Gunung Judi",
+          "bengali": "জুদি পর্বত"
+        },
+        "44": {
+          "english": "Elijah (Ilyas)",
+          "arabic": "إلياس",
+          "kurmanji": "Îlyas",
+          "turkish": "İlyas",
+          "persian": "الیاس",
+          "german": "Elia (Ilyas)",
+          "urdu": "الیاس",
+          "japanese": "イルヤース（エリヤ）",
+          "french": "Élie (Ilyas)",
+          "spanish": "Elías (Ilyas)",
+          "chinese": "易勒雅斯",
+          "hindi": "इलियास",
+          "russian": "Ильяс",
+          "swedish": "Elia (Ilyas)",
+          "hebrew": "אליהו (אליאס)",
+          "modernSyriac": "ܐܠܝܐ (ܐܠܝܐܣ)",
+          "classicalSyriac": "ܐܠܝܐ (ܐܠܝܐܣ)",
+          "malay": "Ilyas",
+          "bengali": "ইলিয়াস"
+        },
+        "45": {
+          "english": "Baal",
+          "arabic": "بعل",
+          "kurmanji": "Be'l",
+          "turkish": "Baal",
+          "persian": "بعل",
+          "german": "Baal",
+          "urdu": "بعل",
+          "japanese": "バアル",
+          "french": "Baal",
+          "spanish": "Baal",
+          "chinese": "巴尔",
+          "hindi": "बअल",
+          "russian": "Ваал",
+          "swedish": "Baal",
+          "hebrew": "בעל",
+          "modernSyriac": "ܒܥܠ",
+          "classicalSyriac": "ܒܥܠ",
+          "malay": "Baal",
+          "bengali": "বাআল"
+        },
+        "46": {
+          "english": "Wadd",
+          "arabic": "ودّ",
+          "kurmanji": "Wed",
+          "turkish": "Vedd",
+          "persian": "ودّ",
+          "german": "Wadd",
+          "urdu": "وَدّ",
+          "japanese": "ワッド",
+          "french": "Wadd",
+          "spanish": "Wadd",
+          "chinese": "旺德",
+          "hindi": "वद्द",
+          "russian": "Вадд",
+          "swedish": "Wadd",
+          "hebrew": "וד",
+          "modernSyriac": "ܘܕ",
+          "classicalSyriac": "ܘܕ",
+          "malay": "Wadd",
+          "bengali": "ওয়াদ্দ"
+        },
+        "47": {
+          "english": "Suwa'",
+          "arabic": "سواع",
+          "kurmanji": "Suwa'",
+          "turkish": "Süva",
+          "persian": "سواع",
+          "german": "Suwa'",
+          "urdu": "سُواع",
+          "japanese": "スワーウ",
+          "french": "Souwa'",
+          "spanish": "Suwa",
+          "chinese": "素瓦尔",
+          "hindi": "सुवाअ",
+          "russian": "Сува",
+          "swedish": "Suwa'",
+          "hebrew": "סוואע",
+          "modernSyriac": "ܣܘܐܥ",
+          "classicalSyriac": "ܣܘܐܥ",
+          "malay": "Suwa'",
+          "bengali": "সুওয়া"
+        },
+        "48": {
+          "english": "Yaghuth",
+          "arabic": "يغوث",
+          "kurmanji": "Yexûs",
+          "turkish": "Yeğus",
+          "persian": "یغوث",
+          "german": "Jaghuth",
+          "urdu": "یغوث",
+          "japanese": "ヤグース",
+          "french": "Yaghouth",
+          "spanish": "Yagut",
+          "chinese": "叶巫斯",
+          "hindi": "यग़ूस",
+          "russian": "Ягус",
+          "swedish": "Yaghuth",
+          "hebrew": "יע'ות'",
+          "modernSyriac": "ܝܓܘܬ",
+          "classicalSyriac": "ܝܓܘܬ",
+          "malay": "Yaghuth",
+          "bengali": "ইয়াগুস"
+        },
+        "49": {
+          "english": "Ya'uq",
+          "arabic": "يعوق",
+          "kurmanji": "Ye'ûq",
+          "turkish": "Yeuk",
+          "persian": "یعوق",
+          "german": "Ja'uq",
+          "urdu": "یعوق",
+          "japanese": "ヤウーク",
+          "french": "Ya'ouq",
+          "spanish": "Yauq",
+          "chinese": "叶欧格",
+          "hindi": "यऊक़",
+          "russian": "Яук",
+          "swedish": "Ya'uq",
+          "hebrew": "יעוק",
+          "modernSyriac": "ܝܥܘܩ",
+          "classicalSyriac": "ܝܥܘܩ",
+          "malay": "Ya'uq",
+          "bengali": "ইয়াউক"
+        },
+        "50": {
+          "english": "Nasr",
+          "arabic": "نسر",
+          "kurmanji": "Nesr",
+          "turkish": "Nesr",
+          "persian": "نسر",
+          "german": "Nasr",
+          "urdu": "نسر",
+          "japanese": "ナスル",
+          "french": "Nasr",
+          "spanish": "Nasr",
+          "chinese": "奈斯尔",
+          "hindi": "नस्र",
+          "russian": "Наср",
+          "swedish": "Nasr",
+          "hebrew": "נסר",
+          "modernSyriac": "ܢܣܪ",
+          "classicalSyriac": "ܢܣܪ",
+          "malay": "Nasr",
+          "bengali": "নাসর"
+        },
+        "51": {
+          "english": "Al-Lat",
+          "arabic": "اللات",
+          "kurmanji": "Lat",
+          "turkish": "Lât",
+          "persian": "لات",
+          "german": "Al-Lat",
+          "urdu": "لات",
+          "japanese": "アッ＝ラート",
+          "french": "Al-Lat",
+          "spanish": "Al-Lat",
+          "chinese": "拉特",
+          "hindi": "अल-लात",
+          "russian": "Аль-Лат",
+          "swedish": "al-Lat",
+          "hebrew": "אל-לאת",
+          "modernSyriac": "ܐܠܠܐܬ",
+          "classicalSyriac": "ܐܠܠܐܬ",
+          "malay": "Al-Lata",
+          "bengali": "লাত"
+        },
+        "52": {
+          "english": "Al-Uzza",
+          "arabic": "العزى",
+          "kurmanji": "Uzza",
+          "turkish": "Uzza",
+          "persian": "عزّی",
+          "german": "Al-Uzza",
+          "urdu": "عزیٰ",
+          "japanese": "アル＝ウッザー",
+          "french": "Al-'Ouzza",
+          "spanish": "Al-Uzza",
+          "chinese": "欧萨",
+          "hindi": "अल-उज़्ज़ा",
+          "russian": "Аль-Узза",
+          "swedish": "al-Uzza",
+          "hebrew": "אל-עוזא",
+          "modernSyriac": "ܐܠܥܘܙܐ",
+          "classicalSyriac": "ܐܠܥܘܙܐ",
+          "malay": "Al-Uzza",
+          "bengali": "উযযা"
+        },
+        "53": {
+          "english": "Manat",
+          "arabic": "مناة",
+          "kurmanji": "Menat",
+          "turkish": "Menat",
+          "persian": "منات",
+          "german": "Manat",
+          "urdu": "منات",
+          "japanese": "マナート",
+          "french": "Manat",
+          "spanish": "Manat",
+          "chinese": "默那",
+          "hindi": "मनात",
+          "russian": "Манат",
+          "swedish": "Manat",
+          "hebrew": "מנאת",
+          "modernSyriac": "ܡܢܐܬ",
+          "classicalSyriac": "ܡܢܐܬ",
+          "malay": "Manat",
+          "bengali": "মানাত"
+        },
+        "54": {
+          "english": "Lot",
+          "arabic": "لوط",
+          "kurmanji": "Lût",
+          "turkish": "Lut",
+          "persian": "لوط",
+          "german": "Lot",
+          "urdu": "لوط",
+          "japanese": "ルート",
+          "french": "Loth",
+          "spanish": "Lot",
+          "chinese": "鲁特",
+          "hindi": "लूत",
+          "russian": "Лут",
+          "swedish": "Lot",
+          "hebrew": "לוט",
+          "modernSyriac": "ܠܘܛ",
+          "classicalSyriac": "ܠܘܛ",
+          "malay": "Lut",
+          "bengali": "লূত"
+        },
+        "55": {
+          "english": "Sodom",
+          "arabic": "سدوم",
+          "kurmanji": "Sodom",
+          "turkish": "Sodom",
+          "persian": "سدوم",
+          "german": "Sodom",
+          "urdu": "سدوم",
+          "japanese": "ソドム",
+          "french": "Sodome",
+          "spanish": "Sodoma",
+          "chinese": "所多玛",
+          "hindi": "सदूम",
+          "russian": "Содом",
+          "swedish": "Sodom",
+          "hebrew": "סדום",
+          "modernSyriac": "ܣܕܘܡ",
+          "classicalSyriac": "ܣܕܘܡ",
+          "malay": "Sodom",
+          "bengali": "সাদুম"
+        },
+        "56": {
+          "english": "Gomorrah",
+          "arabic": "عمورة",
+          "kurmanji": "Gomora",
+          "turkish": "Gomore",
+          "persian": "عموره",
+          "german": "Gomorra",
+          "urdu": "عمورہ",
+          "japanese": "ゴモラ",
+          "french": "Gomorrhe",
+          "spanish": "Gomorra",
+          "chinese": "蛾摩拉",
+          "hindi": "अमूरा",
+          "russian": "Гоморра",
+          "swedish": "Gomorra",
+          "hebrew": "עמורה",
+          "modernSyriac": "ܥܡܘܪܐ",
+          "classicalSyriac": "ܥܡܘܪܐ",
+          "malay": "Gomorah",
+          "bengali": "আমুরা"
+        },
+        "57": {
+          "english": "The Ma'rib Dam",
+          "arabic": "سد مأرب",
+          "kurmanji": "Bendava Me'rib",
+          "turkish": "Marib Barajı",
+          "persian": "سد مأرب",
+          "german": "Staudamm von Ma'rib",
+          "urdu": "سدِ مأرب",
+          "japanese": "マアリブ・ダム",
+          "french": "Barrage de Ma'rib",
+          "spanish": "La presa de Marib",
+          "chinese": "马里卜大坝",
+          "hindi": "मारिब बाँध",
+          "russian": "Марибская плотина",
+          "swedish": "Dammen i Ma'rib",
+          "hebrew": "סכר מארב",
+          "modernSyriac": "ܣܟܪܐ ܕܡܐܪܒ",
+          "classicalSyriac": "ܣܟܪܐ ܕܡܐܪܒ",
+          "malay": "Empangan Ma'rib",
+          "bengali": "মারিবের বাঁধ"
+        },
+        "58": {
+          "english": "Saba (34)",
+          "arabic": "سبأ (٣٤)",
+          "kurmanji": "Seba (34)",
+          "turkish": "Sebe (34)",
+          "persian": "سبأ (۳۴)",
+          "german": "Saba (34)",
+          "urdu": "سبا (۳۴)",
+          "japanese": "サバア（34）",
+          "french": "Saba (34)",
+          "spanish": "Saba (34)",
+          "chinese": "赛伯邑章（34）",
+          "hindi": "सबा (34)",
+          "russian": "Саба (34)",
+          "swedish": "Saba (34)",
+          "hebrew": "סבא (34)",
+          "modernSyriac": "ܣܒܐ (34)",
+          "classicalSyriac": "ܣܒܐ (34)",
+          "malay": "Saba' (34)",
+          "bengali": "সাবা (৩৪)"
+        },
+        "59": {
+          "english": "An-Naml (27)",
+          "arabic": "النمل (٢٧)",
+          "kurmanji": "En-Neml (27)",
+          "turkish": "Neml (27)",
+          "persian": "النمل (۲۷)",
+          "german": "An-Naml (27)",
+          "urdu": "النمل (۲۷)",
+          "japanese": "アン＝ナムル（27）",
+          "french": "An-Naml (27)",
+          "spanish": "An-Naml (27)",
+          "chinese": "蚂蚁章（27）",
+          "hindi": "अन-नम्ल (27)",
+          "russian": "Ан-Намль (27)",
+          "swedish": "an-Naml (27)",
+          "hebrew": "א-נמל (27)",
+          "modernSyriac": "ܐܠܢܡܠ (27)",
+          "classicalSyriac": "ܐܠܢܡܠ (27)",
+          "malay": "An-Naml (27)",
+          "bengali": "আন-নামল (২৭)"
+        },
+        "60": {
+          "english": "Shu'ayb",
+          "arabic": "شعيب",
+          "kurmanji": "Şu'eyb",
+          "turkish": "Şuayb",
+          "persian": "شعیب",
+          "german": "Schuaib",
+          "urdu": "شعیب",
+          "japanese": "シュアイブ",
+          "french": "Chou'aïb",
+          "spanish": "Shuayb",
+          "chinese": "舒阿卜",
+          "hindi": "शुऐब",
+          "russian": "Шуайб",
+          "swedish": "Shu'ayb",
+          "hebrew": "שועייב",
+          "modernSyriac": "ܫܥܝܒ",
+          "classicalSyriac": "ܫܥܝܒ",
+          "malay": "Syuaib",
+          "bengali": "শুআইব"
+        },
+        "61": {
+          "english": "Midian",
+          "arabic": "مدين",
+          "kurmanji": "Medyen",
+          "turkish": "Medyen",
+          "persian": "مدین",
+          "german": "Midian",
+          "urdu": "مدین",
+          "japanese": "マドヤン",
+          "french": "Madian",
+          "spanish": "Madián",
+          "chinese": "麦德彦",
+          "hindi": "मदयन",
+          "russian": "Мадьян",
+          "swedish": "Midjan",
+          "hebrew": "מדין",
+          "modernSyriac": "ܡܕܝܢ",
+          "classicalSyriac": "ܡܕܝܢ",
+          "malay": "Madyan",
+          "bengali": "মাদইয়ান"
+        },
+        "62": {
+          "english": "Imran (Joachim)",
+          "arabic": "عمران (يواقيم)",
+          "kurmanji": "Îmran (Yehoyaqîm)",
+          "turkish": "İmran (Yehoyakim)",
+          "persian": "عمران (یواقیم)",
+          "german": "Imran (Joachim)",
+          "urdu": "عمران (یواقیم)",
+          "japanese": "イムラーン（ヨアキム）",
+          "french": "Imran (Joachim)",
+          "spanish": "Imrán (Joaquín)",
+          "chinese": "仪姆兰（若亚敬）",
+          "hindi": "इमरान (योआकीम)",
+          "russian": "Имран (Иоаким)",
+          "swedish": "Imran (Joakim)",
+          "hebrew": "עמראן (יהויקים)",
+          "modernSyriac": "ܥܡܪܢ (ܝܘܝܩܝܡ)",
+          "classicalSyriac": "ܥܡܪܢ (ܝܘܝܩܝܡ)",
+          "malay": "Imran (Joachim)",
+          "bengali": "ইমরান (যোয়াকিম)"
+        },
+        "63": {
+          "english": "Hannah",
+          "arabic": "حنّة",
+          "kurmanji": "Henne",
+          "turkish": "Hanne",
+          "persian": "حنّه",
+          "german": "Hanna",
+          "urdu": "حنّہ",
+          "japanese": "ハンナ",
+          "french": "Anne",
+          "spanish": "Ana",
+          "chinese": "罕娜",
+          "hindi": "हन्ना",
+          "russian": "Ханна",
+          "swedish": "Hanna",
+          "hebrew": "חנה",
+          "modernSyriac": "ܚܢܐ",
+          "classicalSyriac": "ܚܢܐ",
+          "malay": "Hannah",
+          "bengali": "হান্না"
+        },
+        "64": {
+          "english": "Elizabeth",
+          "arabic": "أليصابات",
+          "kurmanji": "Elîzabet",
+          "turkish": "Elizabet",
+          "persian": "الیزابت",
+          "german": "Elisabeth",
+          "urdu": "ایشاع",
+          "japanese": "エリサベト",
+          "french": "Élisabeth",
+          "spanish": "Isabel",
+          "chinese": "以利沙伯",
+          "hindi": "अलीसाबात",
+          "russian": "Елизавета",
+          "swedish": "Elisabet",
+          "hebrew": "אלישבע",
+          "modernSyriac": "ܐܠܝܫܒܥ",
+          "classicalSyriac": "ܐܠܝܫܒܥ",
+          "malay": "Elisabet",
+          "bengali": "এলিজাবেথ"
+        },
+        "65": {
+          "english": "Zechariah",
+          "arabic": "زكريا",
+          "kurmanji": "Zekerîya",
+          "turkish": "Zekeriya",
+          "persian": "زکریا",
+          "german": "Zacharias",
+          "urdu": "زکریا",
+          "japanese": "ザカリーヤー",
+          "french": "Zacharie",
+          "spanish": "Zacarías",
+          "chinese": "宰凯里雅",
+          "hindi": "ज़करिया",
+          "russian": "Закария",
+          "swedish": "Sakarias",
+          "hebrew": "זכריה",
+          "modernSyriac": "ܙܟܪܝܐ",
+          "classicalSyriac": "ܙܟܪܝܐ",
+          "malay": "Zakaria",
+          "bengali": "যাকারিয়া"
+        },
+        "66": {
+          "english": "John (Yahya)",
+          "arabic": "يحيى",
+          "kurmanji": "Yehya",
+          "turkish": "Yahya",
+          "persian": "یحیی",
+          "german": "Johannes (Yahya)",
+          "urdu": "یحییٰ",
+          "japanese": "ヤフヤー（ヨハネ）",
+          "french": "Jean (Yahya)",
+          "spanish": "Juan (Yahya)",
+          "chinese": "叶哈雅",
+          "hindi": "यह्या",
+          "russian": "Яхья",
+          "swedish": "Johannes (Yahya)",
+          "hebrew": "יוחנן (יחיא)",
+          "modernSyriac": "ܝܘܚܢܢ (ܝܚܝܐ)",
+          "classicalSyriac": "ܝܘܚܢܢ (ܝܚܝܐ)",
+          "malay": "Yahya",
+          "bengali": "ইয়াহইয়া"
+        }
+      },
+      "relations": {
+        "پورزا": {
+          "english": "maternal cousins",
+          "arabic": "أبناء خالة",
+          "kurmanji": "zarokên xwişkan",
+          "turkish": "teyze çocukları",
+          "persian": "خاله‌زاده",
+          "german": "Cousins mütterlicherseits",
+          "urdu": "خالہ زاد",
+          "japanese": "母方のいとこ",
+          "french": "cousins maternels",
+          "spanish": "primos maternos",
+          "chinese": "姨表亲",
+          "hindi": "मौसेरे भाई-बहन",
+          "russian": "двоюродные по матери",
+          "swedish": "kusiner på mors sida",
+          "hebrew": "בני דודים מצד האם",
+          "modernSyriac": "ܒܢ̈ܝ ܚܠܬܐ",
+          "classicalSyriac": "ܒܢܝ̈ ܚܠܬܐ",
+          "malay": "sepupu sebelah ibu",
+          "bengali": "খালাতো ভাইবোন"
+        },
+        "ئامۆزا": {
+          "english": "paternal cousins",
+          "arabic": "أبناء عمّ",
+          "kurmanji": "pismam",
+          "turkish": "amca çocukları",
+          "persian": "عموزاده",
+          "german": "Cousins väterlicherseits",
+          "urdu": "چچا زاد",
+          "japanese": "父方のいとこ",
+          "french": "cousins paternels",
+          "spanish": "primos paternos",
+          "chinese": "堂亲",
+          "hindi": "चचेरे भाई",
+          "russian": "двоюродные по отцу",
+          "swedish": "kusiner på fars sida",
+          "hebrew": "בני דודים מצד האב",
+          "modernSyriac": "ܒܢ̈ܝ ܕܕܐ",
+          "classicalSyriac": "ܒܢܝ̈ ܕܕܐ",
+          "malay": "sepupu sebelah bapa",
+          "bengali": "চাচাতো ভাইবোন"
+        },
+        "کچ": {
+          "english": "daughter of",
+          "arabic": "ابنة",
+          "kurmanji": "keça",
+          "turkish": "kızı",
+          "persian": "دختر",
+          "german": "Tochter von",
+          "urdu": "بیٹی",
+          "japanese": "〜の娘",
+          "french": "fille de",
+          "spanish": "hija de",
+          "chinese": "是…的女儿",
+          "hindi": "बेटी",
+          "russian": "дочь",
+          "swedish": "dotter till",
+          "hebrew": "בת",
+          "modernSyriac": "ܒܪܬ",
+          "classicalSyriac": "ܒܪܬ",
+          "malay": "anak perempuan kepada",
+          "bengali": "কন্যা"
+        },
+        "کوڕ": {
+          "english": "son of",
+          "arabic": "ابن",
+          "kurmanji": "kurê",
+          "turkish": "oğlu",
+          "persian": "پسر",
+          "german": "Sohn von",
+          "urdu": "بیٹا",
+          "japanese": "〜の息子",
+          "french": "fils de",
+          "spanish": "hijo de",
+          "chinese": "是…的儿子",
+          "hindi": "बेटा",
+          "russian": "сын",
+          "swedish": "son till",
+          "hebrew": "בן",
+          "modernSyriac": "ܒܪ",
+          "classicalSyriac": "ܒܪ",
+          "malay": "anak lelaki kepada",
+          "bengali": "পুত্র"
+        },
+        "دایک": {
+          "english": "mother of",
+          "arabic": "أمّ",
+          "kurmanji": "diya",
+          "turkish": "annesi",
+          "persian": "مادر",
+          "german": "Mutter von",
+          "urdu": "ماں",
+          "japanese": "〜の母",
+          "french": "mère de",
+          "spanish": "madre de",
+          "chinese": "是…的母亲",
+          "hindi": "माँ",
+          "russian": "мать",
+          "swedish": "mor till",
+          "hebrew": "אם",
+          "modernSyriac": "ܝܡܐ",
+          "classicalSyriac": "ܐܡ",
+          "malay": "ibu kepada",
+          "bengali": "মা"
+        },
+        "هاوسەر": {
+          "english": "spouses",
+          "arabic": "زوجان",
+          "kurmanji": "hevjîn",
+          "turkish": "eş",
+          "persian": "همسر",
+          "german": "verheiratet mit",
+          "urdu": "میاں بیوی",
+          "japanese": "夫婦",
+          "french": "époux",
+          "spanish": "esposos",
+          "chinese": "夫妻",
+          "hindi": "पति-पत्नी",
+          "russian": "супруги",
+          "swedish": "makar",
+          "hebrew": "בני זוג",
+          "modernSyriac": "ܙܘܓܐ",
+          "classicalSyriac": "ܒܢܝ̈ ܙܘܓܐ",
+          "malay": "suami isteri",
+          "bengali": "দম্পতি"
+        },
+        "خوشک": {
+          "english": "sisters",
+          "arabic": "أختان",
+          "kurmanji": "xwişk",
+          "turkish": "kız kardeş",
+          "persian": "خواهر",
+          "german": "Schwestern",
+          "urdu": "بہنیں",
+          "japanese": "姉妹",
+          "french": "sœurs",
+          "spanish": "hermanas",
+          "chinese": "姐妹",
+          "hindi": "बहनें",
+          "russian": "сёстры",
+          "swedish": "systrar",
+          "hebrew": "אחיות",
+          "modernSyriac": "ܐܚܘ̈ܬܐ",
+          "classicalSyriac": "ܐܚܘ̈ܬܐ",
+          "malay": "adik-beradik perempuan",
+          "bengali": "বোন"
+        },
+        "برا": {
+          "english": "brothers",
+          "arabic": "أخوان",
+          "kurmanji": "bira",
+          "turkish": "kardeş",
+          "persian": "برادر",
+          "german": "Brüder",
+          "urdu": "بھائی",
+          "japanese": "兄弟",
+          "french": "frères",
+          "spanish": "hermanos",
+          "chinese": "兄弟",
+          "hindi": "भाई",
+          "russian": "братья",
+          "swedish": "bröder",
+          "hebrew": "אחים",
+          "modernSyriac": "ܐܚܘ̈ܢܐ",
+          "classicalSyriac": "ܐܚ̈ܐ",
+          "malay": "adik-beradik lelaki",
+          "bengali": "ভাই"
+        },
+        "نەوە": {
+          "english": "descendant of",
+          "arabic": "من ذرية",
+          "kurmanji": "ji neviyên",
+          "turkish": "soyundan",
+          "persian": "از نوادگان",
+          "german": "Nachkomme von",
+          "urdu": "از نسلِ",
+          "japanese": "〜の子孫",
+          "french": "descendant de",
+          "spanish": "descendiente de",
+          "chinese": "是…的后裔",
+          "hindi": "वंशज",
+          "russian": "потомок",
+          "swedish": "ättling till",
+          "hebrew": "מצאצאי",
+          "modernSyriac": "ܡܢ ܙܪܥܐ",
+          "classicalSyriac": "ܡܢ ܙܪܥ",
+          "malay": "keturunan",
+          "bengali": "বংশধর"
+        },
+        "هاونشین": {
+          "english": "companions",
+          "arabic": "صاحبان",
+          "kurmanji": "hevrê",
+          "turkish": "yoldaş",
+          "persian": "همنشین",
+          "german": "Gefährten",
+          "urdu": "ساتھی",
+          "japanese": "仲間",
+          "french": "compagnons",
+          "spanish": "compañeros",
+          "chinese": "同伴",
+          "hindi": "साथी",
+          "russian": "соратники",
+          "swedish": "följeslagare",
+          "hebrew": "מקורבים",
+          "modernSyriac": "ܚܒܪ̈ܐ",
+          "classicalSyriac": "ܚܒܪ̈ܐ",
+          "malay": "sahabat",
+          "bengali": "সঙ্গী"
+        },
+        "وەزیر": {
+          "english": "minister of",
+          "arabic": "وزير",
+          "kurmanji": "wezîrê",
+          "turkish": "veziri",
+          "persian": "وزیر",
+          "german": "Wesir von",
+          "urdu": "وزیر",
+          "japanese": "〜の大臣",
+          "french": "ministre de",
+          "spanish": "visir de",
+          "chinese": "是…的大臣",
+          "hindi": "वज़ीर",
+          "russian": "визирь",
+          "swedish": "vesir åt",
+          "hebrew": "וזירו של",
+          "modernSyriac": "ܘܙܝܪܐ",
+          "classicalSyriac": "ܡܕܒܪܢܐ",
+          "malay": "menteri kepada",
+          "bengali": "মন্ত্রী"
+        },
+        "ئەرک": {
+          "english": "mission",
+          "arabic": "مهمّة",
+          "kurmanji": "erk",
+          "turkish": "görevi",
+          "persian": "مأموریت",
+          "german": "Auftrag",
+          "urdu": "فریضہ",
+          "japanese": "使命",
+          "french": "mission",
+          "spanish": "misión",
+          "chinese": "使命是",
+          "hindi": "दायित्व",
+          "russian": "миссия",
+          "swedish": "uppdrag",
+          "hebrew": "שליחות",
+          "modernSyriac": "ܫܠܝܚܘܬܐ",
+          "classicalSyriac": "ܫܠܝܚܘܬܐ",
+          "malay": "misi",
+          "bengali": "দায়িত্ব"
+        },
+        "ژیاوە لە": {
+          "english": "lived in",
+          "arabic": "عاش في",
+          "kurmanji": "jiya li",
+          "turkish": "yaşadığı yer",
+          "persian": "زیست در",
+          "german": "lebte in",
+          "urdu": "رہائش",
+          "japanese": "〜に住んだ",
+          "french": "a vécu en",
+          "spanish": "vivió en",
+          "chinese": "生活于",
+          "hindi": "निवास",
+          "russian": "жил в",
+          "swedish": "bodde i",
+          "hebrew": "חי ב־",
+          "modernSyriac": "ܚܝܠܗ ܓܘ",
+          "classicalSyriac": "ܥܡܪ ܒܓܘ",
+          "malay": "tinggal di",
+          "bengali": "বাসস্থান"
+        },
+        "ماوەیەک ژیاوە لە": {
+          "english": "lived for a while in",
+          "arabic": "عاش مدة في",
+          "kurmanji": "demekê jiya li",
+          "turkish": "bir süre yaşadığı yer",
+          "persian": "مدتی زیست در",
+          "german": "lebte eine Zeit lang in",
+          "urdu": "کچھ عرصہ رہائش",
+          "japanese": "〜にしばらく住んだ",
+          "french": "a vécu un temps à",
+          "spanish": "vivió un tiempo en",
+          "chinese": "一度生活于",
+          "hindi": "कुछ समय निवास",
+          "russian": "некоторое время жил в",
+          "swedish": "bodde en tid i",
+          "hebrew": "חי זמן מה ב־",
+          "modernSyriac": "ܚܝܠܗ ܚܕ ܥܕܢܐ ܓܘ",
+          "classicalSyriac": "ܥܡܪ ܙܒܢܐ ܒܓܘ",
+          "malay": "tinggal seketika di",
+          "bengali": "কিছুকালের বাসস্থান"
+        },
+        "لەدایکبووە لە": {
+          "english": "born in",
+          "arabic": "وُلد في",
+          "kurmanji": "ji dayik bû li",
+          "turkish": "doğduğu yer",
+          "persian": "زاده شد در",
+          "german": "geboren in",
+          "urdu": "جائے پیدائش",
+          "japanese": "〜で生まれた",
+          "french": "né à",
+          "spanish": "nació en",
+          "chinese": "生于",
+          "hindi": "जन्मस्थान",
+          "russian": "родился в",
+          "swedish": "född i",
+          "hebrew": "נולד ב־",
+          "modernSyriac": "ܗܘܝܠܗ ܓܘ",
+          "classicalSyriac": "ܐܬܝܠܕ ܒܓܘ",
+          "malay": "lahir di",
+          "bengali": "জন্মস্থান"
+        },
+        "فەرمانڕەو بووە لە": {
+          "english": "ruled in",
+          "arabic": "حكم في",
+          "kurmanji": "serwer bû li",
+          "turkish": "hüküm sürdüğü yer",
+          "persian": "فرمانروا بود در",
+          "german": "herrschte in",
+          "urdu": "حکمرانی",
+          "japanese": "〜を治めた",
+          "french": "a régné en",
+          "spanish": "gobernó en",
+          "chinese": "统治",
+          "hindi": "शासन",
+          "russian": "правил в",
+          "swedish": "härskade i",
+          "hebrew": "משל ב־",
+          "modernSyriac": "ܡܠܝܟܠܗ ܓܘ",
+          "classicalSyriac": "ܡܠܟ ܒܓܘ",
+          "malay": "memerintah di",
+          "bengali": "যেখানে শাসন করেছেন"
+        },
+        "کۆچی کرد بەرەو": {
+          "english": "emigrated to",
+          "arabic": "هاجر إلى",
+          "kurmanji": "koç kir bo",
+          "turkish": "hicret ettiği yer",
+          "persian": "هجرت کرد به",
+          "german": "wanderte aus nach",
+          "urdu": "ہجرت",
+          "japanese": "〜へ移住した",
+          "french": "a émigré à",
+          "spanish": "emigró a",
+          "chinese": "迁徙至",
+          "hindi": "हिजरत",
+          "russian": "переселился в",
+          "swedish": "utvandrade till",
+          "hebrew": "היגר אל",
+          "modernSyriac": "ܫܢܝܠܗ ܠܘܬ",
+          "classicalSyriac": "ܫܢܐ ܠܘܬ",
+          "malay": "berhijrah ke",
+          "bengali": "হিজরত করেছেন"
+        },
+        "گەشتی کردووە بەرەو": {
+          "english": "travelled to",
+          "arabic": "سافرت إلى",
+          "kurmanji": "rêwîtî kir bo",
+          "turkish": "yolculuk ettiği yer",
+          "persian": "سفر کرد به",
+          "german": "reiste nach",
+          "urdu": "سفر",
+          "japanese": "〜へ旅した",
+          "french": "a voyagé en",
+          "spanish": "viajó a",
+          "chinese": "前往",
+          "hindi": "यात्रा",
+          "russian": "отправилась в",
+          "swedish": "reste till",
+          "hebrew": "נסעה אל",
+          "modernSyriac": "ܙܠܝܠܗ ܒܐܘܪܚܐ ܠܘܬ",
+          "classicalSyriac": "ܪܕܬ ܠܘܬ",
+          "malay": "mengembara ke",
+          "bengali": "যেখানে ভ্রমণ করেছেন"
+        },
+        "نێردرا بۆ": {
+          "english": "sent to",
+          "arabic": "أُرسل إلى",
+          "kurmanji": "hate şandin bo",
+          "turkish": "gönderildiği kavim",
+          "persian": "فرستاده شد به",
+          "german": "gesandt zu",
+          "urdu": "مبعوث",
+          "japanese": "〜へ遣わされた",
+          "french": "envoyé aux",
+          "spanish": "enviado a",
+          "chinese": "被派往",
+          "hindi": "भेजे गए",
+          "russian": "послан к",
+          "swedish": "sänd till",
+          "hebrew": "נשלח אל",
+          "modernSyriac": "ܦܝܫܠܗ ܡܫܘܕܪܐ ܠܘܬ",
+          "classicalSyriac": "ܐܫܬܠܚ ܠܘܬ",
+          "malay": "diutus kepada",
+          "bengali": "যাদের কাছে প্রেরিত"
+        },
+        "بانگەوازی کردووە لە": {
+          "english": "called to God in",
+          "arabic": "دعا إلى الله في",
+          "kurmanji": "gazî Xwedê kir li",
+          "turkish": "tebliğ ettiği yer",
+          "persian": "دعوت کرد در",
+          "german": "rief zu Gott auf in",
+          "urdu": "مقامِ دعوت",
+          "japanese": "〜で宣教した",
+          "french": "a appelé à Dieu les gens de",
+          "spanish": "predicó en",
+          "chinese": "传教于",
+          "hindi": "अल्लाह की ओर बुलाया",
+          "russian": "призывал к Аллаху в",
+          "swedish": "kallade till Gud i",
+          "hebrew": "קרא לאללה ב־",
+          "modernSyriac": "ܟܪܝܙܠܗ ܓܘ",
+          "classicalSyriac": "ܟܪܙ ܐܠܗܐ ܒܓܘ",
+          "malay": "berdakwah kepada Allah di",
+          "bengali": "যেখানে আল্লাহর দিকে দাওয়াত দিয়েছেন"
+        },
+        "نامەیەکی نارد بۆ": {
+          "english": "sent a letter to",
+          "arabic": "أرسل رسالة إلى",
+          "kurmanji": "nameyek şand bo",
+          "turkish": "mektup gönderdi",
+          "persian": "نامه‌ای فرستاد به",
+          "german": "sandte einen Brief an",
+          "urdu": "خط بنام",
+          "japanese": "〜に書簡を送った",
+          "french": "a envoyé une lettre à",
+          "spanish": "envió una carta a",
+          "chinese": "致信",
+          "hindi": "पत्र भेजा",
+          "russian": "отправил письмо",
+          "swedish": "skickade ett brev till",
+          "hebrew": "שלח מכתב אל",
+          "modernSyriac": "ܫܘܕܪܠܗ ܐܓܪܬܐ ܠܘܬ",
+          "classicalSyriac": "ܫܕܪ ܐܓܪܬܐ ܠܘܬ",
+          "malay": "menghantar surat kepada",
+          "bengali": "যাকে চিঠি পাঠিয়েছেন"
+        },
+        "هەوڵی دا بۆ لابردنی": {
+          "english": "strove to abolish",
+          "arabic": "سعى لإزالة",
+          "kurmanji": "hewl da ku rake",
+          "turkish": "ortadan kaldırmaya çalıştı",
+          "persian": "کوشید براندازد",
+          "german": "wollte abschaffen",
+          "urdu": "خاتمے کی کوشش",
+          "japanese": "〜の廃絶に努めた",
+          "french": "s'est efforcé d'abolir",
+          "spanish": "se esforzó por abolir",
+          "chinese": "力图铲除",
+          "hindi": "मिटाने की कोशिश",
+          "russian": "стремился искоренить",
+          "swedish": "strävade efter att avskaffa",
+          "hebrew": "פעל לסילוק",
+          "modernSyriac": "ܢܣܝܠܗ ܕܡܒܛܠ",
+          "classicalSyriac": "ܐܬܚܦܛ ܠܡܒܛܠܘ",
+          "malay": "berusaha menghapuskan",
+          "bengali": "যার বিলোপে সচেষ্ট ছিলেন"
+        },
+        "ڕاسپێردرا بۆ دابەزاندنی": {
+          "english": "entrusted with bringing down",
+          "arabic": "كُلّف بإنزال",
+          "kurmanji": "hate spartin ku bîne xwarê",
+          "turkish": "indirmekle görevlendirildi",
+          "persian": "مأمور فرود آوردن",
+          "german": "beauftragt mit der Herabsendung von",
+          "urdu": "نزول پر مامور",
+          "japanese": "〜を下す役目を託された",
+          "french": "chargé de faire descendre",
+          "spanish": "encargado de hacer descender",
+          "chinese": "奉命降示",
+          "hindi": "उतारने पर नियुक्त",
+          "russian": "поручено ниспослать",
+          "swedish": "fick i uppdrag att föra ned",
+          "hebrew": "הופקד על הורדת",
+          "modernSyriac": "ܦܝܫܠܗ ܡܦܘܩܕܐ ܕܡܚܬ",
+          "classicalSyriac": "ܐܬܓܥܠ ܠܡܚܬܘ",
+          "malay": "diamanahkan menurunkan",
+          "bengali": "যা নাযিলের দায়িত্ব পেয়েছেন"
+        },
+        "دراوە بە": {
+          "english": "given to",
+          "arabic": "أُنزل على",
+          "kurmanji": "hate dayîn bo",
+          "turkish": "verildiği peygamber",
+          "persian": "داده شد به",
+          "german": "gegeben an",
+          "urdu": "عطا شدہ",
+          "japanese": "〜に授けられた",
+          "french": "révélation faite à",
+          "spanish": "se reveló a",
+          "chinese": "被赐予",
+          "hindi": "नाज़िल",
+          "russian": "ниспослан(ы)",
+          "swedish": "gavs till",
+          "hebrew": "התגלות ל־",
+          "modernSyriac": "ܢܚܝܬܠܗ ܥܠ",
+          "classicalSyriac": "ܐܬܝܗܒ ܠܘܬ",
+          "malay": "diturunkan kepada",
+          "bengali": "যাঁর ওপর নাযিল"
+        },
+        "باسکراوە لە": {
+          "english": "mentioned in",
+          "arabic": "ذُكر في",
+          "kurmanji": "behs lê hatiye kirin di",
+          "turkish": "geçtiği sure",
+          "persian": "یاد شده در",
+          "german": "erwähnt in",
+          "urdu": "مذکور",
+          "japanese": "〜で言及されている",
+          "french": "dont parle",
+          "spanish": "se menciona en",
+          "chinese": "见于",
+          "hindi": "ज़िक्र",
+          "russian": "упоминается в",
+          "swedish": "nämns i",
+          "hebrew": "אזכור בסורת",
+          "modernSyriac": "ܡܕܘܟܪܐ ܓܘ",
+          "classicalSyriac": "ܐܬܕܟܪ ܒܓܘ",
+          "malay": "disebut dalam",
+          "bengali": "যেখানে উল্লেখ আছে"
+        },
+        "ناو هێنراوە لە": {
+          "english": "named in",
+          "arabic": "ذُكر اسمه في",
+          "kurmanji": "navê wî hatiye di",
+          "turkish": "adının geçtiği sure",
+          "persian": "نامش آمده در",
+          "german": "namentlich erwähnt in",
+          "urdu": "نام مذکور",
+          "japanese": "〜で名が挙げられている",
+          "french": "nommé dans",
+          "spanish": "se nombra en",
+          "chinese": "其名见于",
+          "hindi": "नाम का ज़िक्र",
+          "russian": "назван по имени в",
+          "swedish": "nämns vid namn i",
+          "hebrew": "שמו נזכר בסורת",
+          "modernSyriac": "ܫܡܗ ܡܕܘܟܪܐ ܓܘ",
+          "classicalSyriac": "ܐܬܐܡܪ ܫܡܗ ܒܓܘ",
+          "malay": "dinamakan dalam",
+          "bengali": "যেখানে নাম এসেছে"
+        },
+        "ناوهێنراوە لە": {
+          "english": "named in",
+          "arabic": "ذُكر اسمه في",
+          "kurmanji": "navê wî hatiye di",
+          "turkish": "adının geçtiği sure",
+          "persian": "نامش آمده در",
+          "german": "namentlich erwähnt in",
+          "urdu": "نام مذکور",
+          "japanese": "〜で名が挙げられている",
+          "french": "nommé dans",
+          "spanish": "se nombra en",
+          "chinese": "其名见于",
+          "hindi": "नाम का ज़िक्र",
+          "russian": "назван по имени в",
+          "swedish": "nämns vid namn i",
+          "hebrew": "שמו נזכר בסורת",
+          "modernSyriac": "ܫܡܗ ܡܕܘܟܪܐ ܓܘ",
+          "classicalSyriac": "ܐܬܐܡܪ ܫܡܗ ܒܓܘ",
+          "malay": "dinamakan dalam",
+          "bengali": "যেখানে নাম এসেছে"
+        },
+        "شاژن بوو لە": {
+          "english": "queen of",
+          "arabic": "ملكة",
+          "kurmanji": "şahbanûya",
+          "turkish": "melikesi",
+          "persian": "ملکهٔ",
+          "german": "Königin von",
+          "urdu": "ملکہ",
+          "japanese": "〜の女王",
+          "french": "reine de",
+          "spanish": "reina de",
+          "chinese": "是…的女王",
+          "hindi": "रानी",
+          "russian": "царица",
+          "swedish": "drottning över",
+          "hebrew": "מלכת",
+          "modernSyriac": "ܡܠܟܬܐ ܝܠܗ ܗܘܐ ܓܘ",
+          "classicalSyriac": "ܡܠܟܬ ܒܓܘ",
+          "malay": "ratu",
+          "bengali": "রানি"
+        },
+        "کەشتیەکەی گیرسایەوە لە": {
+          "english": "his ark came to rest on",
+          "arabic": "استوت سفينته على",
+          "kurmanji": "keştiya wî rawestiya li",
+          "turkish": "gemisinin oturduğu yer",
+          "persian": "کشتی‌اش نشست بر",
+          "german": "seine Arche landete auf",
+          "urdu": "کشتی ٹھہری",
+          "japanese": "箱舟が〜に止まった",
+          "french": "son arche s'est posée sur",
+          "spanish": "su arca se posó en",
+          "chinese": "其方舟停泊于",
+          "hindi": "कश्ती जा ठहरी",
+          "russian": "его ковчег остановился на",
+          "swedish": "hans ark stannade på",
+          "hebrew": "תיבתו נחה על",
+          "modernSyriac": "ܩܒܘܬܐ ܕܝܠܗ ܢܚܝܬܠܗ ܥܠ",
+          "classicalSyriac": "ܢܚܬܬ ܩܒܘܬܗ ܥܠ",
+          "malay": "bahteranya berlabuh di",
+          "bengali": "যেখানে তাঁর নৌকা থেমেছিল"
+        },
+        "دەکەوێتە": {
+          "english": "lies in",
+          "arabic": "يقع في",
+          "kurmanji": "dikeve",
+          "turkish": "bulunduğu yer",
+          "persian": "واقع در",
+          "german": "liegt in",
+          "urdu": "واقع",
+          "japanese": "〜にある",
+          "french": "dans la région de",
+          "spanish": "se encuentra en",
+          "chinese": "位于",
+          "hindi": "स्थित",
+          "russian": "находится в",
+          "swedish": "ligger i",
+          "hebrew": "באזור",
+          "modernSyriac": "ܝܠܗ ܓܘ",
+          "classicalSyriac": "ܐܝܬܘܗܝ ܒܓܘ",
+          "malay": "terletak di",
+          "bengali": "যেখানে অবস্থিত"
+        },
+        "لەخوارووی": {
+          "english": "south of",
+          "arabic": "جنوب",
+          "kurmanji": "li başûrê",
+          "turkish": "güneyinde",
+          "persian": "جنوبِ",
+          "german": "südlich von",
+          "urdu": "جنوب میں",
+          "japanese": "〜の南にある",
+          "french": "au sud de",
+          "spanish": "al sur de",
+          "chinese": "位于…以南",
+          "hindi": "दक्षिण में",
+          "russian": "к югу от",
+          "swedish": "söder om",
+          "hebrew": "מדרום ל־",
+          "modernSyriac": "ܠܬܝܡܢܐ ܡܢ",
+          "classicalSyriac": "ܠܬܝܡܢܐ ܡܢ",
+          "malay": "di selatan",
+          "bengali": "দক্ষিণে"
+        },
+        "باکوور و ڕۆژئاوای": {
+          "english": "north-west of",
+          "arabic": "شمال غرب",
+          "kurmanji": "li bakur û rojavayê",
+          "turkish": "kuzeybatısında",
+          "persian": "شمال غربِ",
+          "german": "nordwestlich von",
+          "urdu": "شمال مغرب میں",
+          "japanese": "〜の北西にある",
+          "french": "au nord-ouest de",
+          "spanish": "al noroeste de",
+          "chinese": "位于…西北",
+          "hindi": "उत्तर-पश्चिम में",
+          "russian": "к северо-западу от",
+          "swedish": "nordväst om",
+          "hebrew": "מצפון־מערב ל־",
+          "modernSyriac": "ܠܓܪܒܝ ܡܥܪܒܐ ܡܢ",
+          "classicalSyriac": "ܠܓܪܒܝܐ ܘܠܡܥܪܒܐ ܡܢ",
+          "malay": "di barat laut",
+          "bengali": "উত্তর-পশ্চিমে"
+        }
+      }
+    };
+
+    function kgPick(entry, fallback) {
+      if (!entry) return fallback;
+      if (KG_KURDISH_SCRIPT) return entry.kurdish || fallback;
+      return entry[KG_LANG] || fallback;
+    }
+    function kgNodeLabel(n) { return kgPick(KG_I18N.nodes[String(n.id)], n.label); }
+    function kgType(type) { return kgPick(KG_I18N.types[type], type); }
+    function kgRelation(relation) { return relation ? kgPick(KG_I18N.relations[relation], relation) : ''; }
+    function kgUI(key, fallback) { return kgPick(KG_I18N.ui[key], fallback); }
+    // A search finds a node by what the reader sees and by its Kurdish name alike.
+    function kgMatches(n, query) {
+      const needle = query.toLocaleLowerCase();
+      return [n.label, n.type, kgNodeLabel(n), kgType(n.type)]
+        .some(text => String(text).toLocaleLowerCase().includes(needle));
+    }
+
+    (function applyPageLanguage() {
+      document.documentElement.lang = { sorani: 'ckb', badini: 'ckb', hawrami: 'ckb', english: 'en',
+        arabic: 'ar', kurmanji: 'ku', turkish: 'tr', persian: 'fa', german: 'de', spanish: 'es',
+        chinese: 'zh-Hans', hindi: 'hi', urdu: 'ur', japanese: 'ja', russian: 'ru', french: 'fr',
+        swedish: 'sv', hebrew: 'he', modernSyriac: 'syr', classicalSyriac: 'syc', malay: 'ms',
+        bengali: 'bn' }[KG_LANG] || 'ckb';
+      document.documentElement.dir = KG_RTL ? 'rtl' : 'ltr';
+      const input = document.getElementById('search-input');
+      if (input) input.placeholder = kgUI('searchPlaceholder', input.placeholder);
+      const header = document.querySelector('.popover-header');
+      if (header) header.textContent = kgUI('fontSettings', header.textContent);
+      const labels = document.querySelectorAll('.font-control-label');
+      if (labels[0]) labels[0].textContent = kgUI('nodeFontSize', labels[0].textContent);
+      if (labels[1]) labels[1].textContent = kgUI('edgeFontSize', labels[1].textContent);
+      const toggle = document.getElementById('toggle-legend-btn');
+      if (toggle) toggle.textContent = kgUI('toggleLegend', toggle.textContent.trim());
+      document.querySelectorAll('#legend .legend-item span').forEach(span => {
+        span.textContent = kgType(span.textContent.trim());
+      });
+    })();
+  </script>
+  <!-- KG_I18N END -->
+  <script>
+    const dataJson = {
+        "nodes": [
+          {
+            "id": 1,
+            "label": "هاروون",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 2,
+            "label": "مووسا",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 3,
+            "label": "فیرعەون",
+            "type": "کەس"
+          },
+          {
+            "id": 4,
+            "label": "قاروون",
+            "type": "کەس"
+          },
+          {
+            "id": 5,
+            "label": "میسڕ",
+            "type": "شوێن"
+          },
+          {
+            "id": 7,
+            "label": "ئیبراهیم",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 6,
+            "label": "یەعقوب (ئیسرائیل)",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 8,
+            "label": "ئیسحاق",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 9,
+            "label": "ئیسماعیل",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 10,
+            "label": "موحەممەد",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 11,
+            "label": "مەککە",
+            "type": "شوێن"
+          },
+          {
+            "id": 12,
+            "label": "نوح",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 13,
+            "label": "تەورات",
+            "type": "کتێبی ئاسمانی"
+          },
+          {
+            "id": 14,
+            "label": "قورئان",
+            "type": "کتێبی ئاسمانی"
+          },
+          {
+            "id": 15,
+            "label": "داوود",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 16,
+            "label": "سولەیمان",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 17,
+            "label": "فەڵەستین",
+            "type": "شوێن"
+          },
+          {
+            "id": 18,
+            "label": "القصص (٢٨)",
+            "type": "سوورەت"
+          },
+          {
+            "id": 19,
+            "label": "محمد (٤٧)",
+            "type": "سوورەت"
+          },
+          {
+            "id": 20,
+            "label": "البقرة (٢)",
+            "type": "سوورەت"
+          },
+          {
+            "id": 21,
+            "label": "عیسا",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 22,
+            "label": "ئینجیل",
+            "type": "کتێبی ئاسمانی"
+          },
+          {
+            "id": 23,
+            "label": "مەریەم",
+            "type": "کەس"
+          },
+          {
+            "id": 24,
+            "label": "جوبرەئیل",
+            "type": "فریشتە"
+          },
+          {
+            "id": 25,
+            "label": "ساڵح",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 26,
+            "label": "سەموود",
+            "type": "شوێن"
+          },
+          {
+            "id": 27,
+            "label": "مەدینە",
+            "type": "شوێن"
+          },
+          {
+            "id": 28,
+            "label": "هامان",
+            "type": "کەس"
+          },
+          {
+            "id": 29,
+            "label": "یوسف",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 30,
+            "label": "مژدەی هاتنی ئەحمەد",
+            "type": "چەمک"
+          },
+          {
+            "id": 31,
+            "label": "الصف (٦١)",
+            "type": "سوورەت"
+          },
+          {
+            "id": 32,
+            "label": "پەڕاوەکانی ئیبراهیم",
+            "type": "کتێبی ئاسمانی"
+          },
+          {
+            "id": 33,
+            "label": "پەڕاوەکانی مووسا",
+            "type": "کتێبی ئاسمانی"
+          },
+          {
+            "id": 34,
+            "label": "الأعلى (١٩)",
+            "type": "سوورەت"
+          },
+          {
+            "id": 35,
+            "label": "هاجەر",
+            "type": "کەس"
+          },
+          {
+            "id": 36,
+            "label": "سارا",
+            "type": "کەس"
+          },
+          {
+            "id": 37,
+            "label": "میکائیل",
+            "type": "فریشتە"
+          },
+          {
+            "id": 38,
+            "label": "هارووت",
+            "type": "کەس"
+          },
+          {
+            "id": 39,
+            "label": "مارووت",
+            "type": "کەس"
+          },
+          {
+            "id": 40,
+            "label": "شەبا",
+            "type": "شوێن"
+          },
+          {
+            "id": 41,
+            "label": "شاژنی شەبا",
+            "type": "کەس"
+          },
+          {
+            "id": 42,
+            "label": "زەبوور",
+            "type": "کتێبی ئاسمانی"
+          },
+          {
+            "id": 43,
+            "label": "جوودی",
+            "type": "شوێن"
+          },
+          {
+            "id": 44,
+            "label": "ئیلیاس",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 45,
+            "label": "بەعل",
+            "type": "پەرستراو"
+          },
+          {
+            "id": 46,
+            "label": "وەد",
+            "type": "پەرستراو"
+          },
+          {
+            "id": 47,
+            "label": "سواع",
+            "type": "پەرستراو"
+          },
+          {
+            "id": 48,
+            "label": "یەغوس",
+            "type": "پەرستراو"
+          },
+          {
+            "id": 49,
+            "label": "یەعوق",
+            "type": "پەرستراو"
+          },
+          {
+            "id": 50,
+            "label": "نەسر",
+            "type": "پەرستراو"
+          },
+          {
+            "id": 51,
+            "label": "لات",
+            "type": "پەرستراو"
+          },
+          {
+            "id": 52,
+            "label": "عوززا",
+            "type": "پەرستراو"
+          },
+          {
+            "id": 53,
+            "label": "مەننات",
+            "type": "پەرستراو"
+          },
+          {
+            "id": 54,
+            "label": "ڵوت",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 55,
+            "label": "سەدۆم",
+            "type": "شوێن"
+          },
+          {
+            "id": 56,
+            "label": "عامۆرا",
+            "type": "شوێن"
+          },
+          {
+            "id": 57,
+            "label": "بەنداوی مەئریب",
+            "type": "شوێن"
+          },
+          {
+            "id": 58,
+            "label": "سبأ (٣٤)",
+            "type": "سوورەت"
+          },
+          {
+            "id": 59,
+            "label": "النمل (٢٧)",
+            "type": "سوورەت"
+          },
+          {
+            "id": 60,
+            "label": "شوعەیب",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 61,
+            "label": "مەدیەن",
+            "type": "شوێن"
+          },
+          {
+            "id": 62,
+            "label": "عیمران (یەهوەقیم)",
+            "type": "کەس"
+          },
+          {
+            "id": 63,
+            "label": "حەننە",
+            "type": "کەس"
+          },
+          {
+            "id": 64,
+            "label": "ئەلیزابێت",
+            "type": "کەس"
+          },
+          {
+            "id": 65,
+            "label": "زەکەریا",
+            "type": "پێغەمبەر"
+          },
+          {
+            "id": 66,
+            "label": "یەحیا",
+            "type": "پێغەمبەر"
+          },
+        ],
+        "relations": [
+          {
+            "source": 23,
+            "target": 66,
+            "relation": "پورزا",
+            "direction": "both"
+          },
+          {
+            "source": 23,
+            "target": 62,
+            "relation": "کچ"
+          },
+          {
+            "source": 63,
+            "target": 62,
+            "relation": "هاوسەر",
+            "direction": "both"
+          },
+          {
+            "source": 62,
+            "target": 6,
+            "relation": "نەوە"
+          },
+          {
+            "source": 64,
+            "target": 63,
+            "relation": "خوشک",
+            "direction": "both"
+          },
+          {
+            "source": 65,
+            "target": 64,
+            "relation": "هاوسەر",
+            "direction": "both"
+          },
+          {
+            "source": 66,
+            "target": 64,
+            "relation": "کوڕ"
+          },
+          {
+            "source": 66,
+            "target": 65,
+            "relation": "کوڕ"
+          },
+          {
+            "source": 4,
+            "target": 2,
+            "relation": "ئامۆزا",
+            "direction": "both"
+          },
+          {
+            "source": 4,
+            "target": 3,
+            "relation": "هاونشین",
+            "direction": "both"
+          },
+          {
+            "source": 2,
+            "target": 1,
+            "relation": "برا",
+            "direction": "both"
+          },
+          {
+            "source": 2,
+            "target": 5,
+            "relation": "ژیاوە لە"
+          },
+          {
+            "source": 1,
+            "target": 5,
+            "relation": "ژیاوە لە"
+          },
+          {
+            "source": 4,
+            "target": 5,
+            "relation": "ژیاوە لە"
+          },
+          {
+            "source": 3,
+            "target": 5,
+            "relation": "فەرمانڕەو بووە لە"
+          },
+          {
+            "source": 1,
+            "target": 6,
+            "relation": "نەوە"
+          },
+          {
+            "source": 2,
+            "target": 6,
+            "relation": "نەوە"
+          },
+          {
+            "source": 8,
+            "target": 7,
+            "relation": "کوڕ"
+          },
+          {
+            "source": 6,
+            "target": 8,
+            "relation": "کوڕ"
+          },
+          {
+            "source": 9,
+            "target": 7,
+            "relation": "کوڕ"
+          },
+          {
+            "source": 10,
+            "target": 9,
+            "relation": "نەوە"
+          },
+          {
+            "source": 10,
+            "target": 11,
+            "relation": "لەدایکبووە لە"
+          },
+          {
+            "source": 7,
+            "target": 12,
+            "relation": "نەوە"
+          },
+          {
+            "source": 13,
+            "target": 2,
+            "relation": "دراوە بە"
+          },
+          {
+            "source": 14,
+            "target": 10,
+            "relation": "دراوە بە"
+          },
+          {
+            "source": 4,
+            "target": 1,
+            "relation": "ئامۆزا",
+            "direction": "both"
+          },
+          {
+            "source": 16,
+            "target": 15,
+            "relation": "کوڕ"
+          },
+          {
+            "source": 15,
+            "target": 6,
+            "relation": "نەوە"
+          },
+          {
+            "source": 15,
+            "target": 17,
+            "relation": "فەرمانڕەو بووە لە"
+          },
+          {
+            "source": 16,
+            "target": 17,
+            "relation": "فەرمانڕەو بووە لە"
+          },
+          {
+            "source": 2,
+            "target": 18,
+            "relation": "باسکراوە لە"
+          },
+          {
+            "source": 3,
+            "target": 18,
+            "relation": "باسکراوە لە"
+          },
+          {
+            "source": 10,
+            "target": 19,
+            "relation": "باسکراوە لە"
+          },
+          {
+            "source": 2,
+            "target": 20,
+            "relation": "باسکراوە لە"
+          },
+          {
+            "source": 3,
+            "target": 20,
+            "relation": "باسکراوە لە"
+          },
+          {
+            "source": 22,
+            "target": 21,
+            "relation": "دراوە بە"
+          },
+          {
+            "source": 21,
+            "target": 23,
+            "relation": "کوڕ"
+          },
+          {
+            "source": 23,
+            "target": 63,
+            "relation": "کچ"
+          },
+          {
+            "source": 24,
+            "target": 14,
+            "relation": "ڕاسپێردرا بۆ دابەزاندنی"
+          },
+          {
+            "source": 25,
+            "target": 26,
+            "relation": "نێردرا بۆ"
+          },
+          {
+            "source": 10,
+            "target": 27,
+            "relation": "کۆچی کرد بەرەو"
+          },
+          {
+            "source": 26,
+            "target": 27,
+            "relation": "باکوور و ڕۆژئاوای"
+          },
+          {
+            "source": 28,
+            "target": 18,
+            "relation": "باسکراوە لە"
+          },
+          {
+            "source": 28,
+            "target": 3,
+            "relation": "وەزیر"
+          },
+          {
+            "source": 29,
+            "target": 6,
+            "relation": "کوڕ"
+          },
+          {
+            "source": 29,
+            "target": 5,
+            "relation": "ژیاوە لە"
+          },
+          {
+            "source": 21,
+            "target": 30,
+            "relation": "ئەرک",
+            "direction": "none"
+          },
+          {
+            "source": 30,
+            "target": 31,
+            "relation": "باسکراوە لە"
+          },
+          {
+            "source": 24,
+            "target": 20,
+            "relation": "ناو هێنراوە لە"
+          },
+          {
+            "source": 32,
+            "target": 7,
+            "relation": "دراوە بە"
+          },
+          {
+            "source": 33,
+            "target": 2,
+            "relation": "دراوە بە"
+          },
+          {
+            "source": 33,
+            "target": 34,
+            "relation": "باسکراوە لە"
+          },
+          {
+            "source": 32,
+            "target": 34,
+            "relation": "باسکراوە لە"
+          },
+          {
+            "source": 35,
+            "target": 7,
+            "relation": "هاوسەر",
+            "direction": "both"
+          },
+          {
+            "source": 36,
+            "target": 7,
+            "relation": "هاوسەر",
+            "direction": "both"
+          },
+          {
+            "source": 36,
+            "target": 8,
+            "relation": "دایک"
+          },
+          {
+            "source": 35,
+            "target": 9,
+            "relation": "دایک"
+          },
+          {
+            "source": 30,
+            "target": 10,
+            "relation": "",
+            "direction": "none"
+          },
+          {
+            "source": 37,
+            "target": 20,
+            "relation": "ناو هێنراوە لە"
+          },
+          {
+            "source": 38,
+            "target": 20,
+            "relation": "ناوهێنراوە لە"
+          },
+          {
+            "source": 39,
+            "target": 20,
+            "relation": "ناو هێنراوە لە"
+          },
+          {
+            "source": 41,
+            "target": 40,
+            "relation": "شاژن بوو لە"
+          },
+          {
+            "source": 41,
+            "target": 17,
+            "relation": "گەشتی کردووە بەرەو"
+          },
+          {
+            "source": 16,
+            "target": 41,
+            "relation": "نامەیەکی نارد بۆ"
+          },
+          {
+            "source": 40,
+            "target": 11,
+            "relation": "لەخوارووی"
+          },
+          {
+            "source": 42,
+            "target": 15,
+            "relation": "دراوە بە"
+          },
+          {
+            "source": 12,
+            "target": 43,
+            "relation": "کەشتیەکەی گیرسایەوە لە"
+          },
+          {
+            "source": 44,
+            "target": 6,
+            "relation": "نەوە"
+          },
+          {
+            "source": 44,
+            "target": 17,
+            "relation": "بانگەوازی کردووە لە"
+          },
+          {
+            "source": 44,
+            "target": 45,
+            "relation": "هەوڵی دا بۆ لابردنی"
+          },
+          {
+            "source": 12,
+            "target": 46,
+            "relation": "هەوڵی دا بۆ لابردنی"
+          },
+          {
+            "source": 12,
+            "target": 47,
+            "relation": "هەوڵی دا بۆ لابردنی"
+          },
+          {
+            "source": 12,
+            "target": 48,
+            "relation": "هەوڵی دا بۆ لابردنی"
+          },
+          {
+            "source": 12,
+            "target": 49,
+            "relation": "هەوڵی دا بۆ لابردنی"
+          },
+          {
+            "source": 12,
+            "target": 50,
+            "relation": "هەوڵی دا بۆ لابردنی"
+          },
+          {
+            "source": 10,
+            "target": 51,
+            "relation": "هەوڵی دا بۆ لابردنی"
+          },
+          {
+            "source": 10,
+            "target": 52,
+            "relation": "هەوڵی دا بۆ لابردنی"
+          },
+          {
+            "source": 10,
+            "target": 53,
+            "relation": "هەوڵی دا بۆ لابردنی"
+          },
+          {
+            "source": 54,
+            "target": 12,
+            "relation": "نەوە"
+          },
+          {
+            "source": 54,
+            "target": 55,
+            "relation": "بانگەوازی کردووە لە"
+          },
+          {
+            "source": 54,
+            "target": 56,
+            "relation": "بانگەوازی کردووە لە"
+          },
+          {
+            "source": 55,
+            "target": 17,
+            "relation": "دەکەوێتە"
+          },
+          {
+            "source": 56,
+            "target": 17,
+            "relation": "دەکەوێتە"
+          },
+          {
+            "source": 57,
+            "target": 40,
+            "relation": "دەکەوێتە"
+          },
+          {
+            "source": 57,
+            "target": 58,
+            "relation": "باسکراوە لە"
+          },
+          {
+            "source": 40,
+            "target": 58,
+            "relation": "باسکراوە لە"
+          },
+          {
+            "source": 41,
+            "target": 59,
+            "relation": "باسکراوە لە"
+          },
+          {
+            "source": 25,
+            "target": 12,
+            "relation": "نەوە"
+          },
+          {
+            "source": 60,
+            "target": 7,
+            "relation": "نەوە"
+          },
+          {
+            "source": 60,
+            "target": 61,
+            "relation": "بانگەوازی کردووە لە"
+          },
+          {
+            "source": 2,
+            "target": 61,
+            "relation": "ماوەیەک ژیاوە لە"
+          }
+        ]
+      };
+
+    const typeColor = {
+      'پێغەمبەر': '#96c1fc',
+      'سوورەت': '#ea7cf3',
+      'شوێن': '#f77b7f',
+      'کەس': '#ffff00',
+      'کتێبی ئاسمانی': '#7be040',
+      'چەمک': '#fea804',
+      'فریشتە': '#ac84e4',
+      'پەرستراو': '#8a8afd'
+    };
+
+      const nodes = dataJson.nodes.map(n => ({
+        id: n.id,
+        key: n.label,
+        label: kgNodeLabel(n),
+        title: kgNodeLabel(n) + ' (' + kgType(n.type) + ')',
+        group: n.type,
+        color: {
+          background: typeColor[n.type] || '#cccccc',
+          border: '#66'
+        },
+        shape: 'ellipse',
+        borderWidth: 1,
+        font: { size: 15, face: 'Rabar', color: '#333' }
+      }));
+
+    const edges = dataJson.relations.map((r, idx) => {
+      let arrowString = 'to';
+      
+      if (r.direction === 'both') {
+        arrowString = 'from,to';
+      } else if (r.direction === 'none') {
+        arrowString = '';
+      }
+      
+      return {
+        id: idx + '-' + r.source + '-' + r.target,
+        from: r.source,
+        to: r.target,
+        label: kgRelation(r.relation),
+        arrows: arrowString,
+        font: { size: 11, align: 'middle', color: '#555' },
+        smooth: { type: 'dynamic' }
+      };
+    });
+
+    const container = document.getElementById('network');
+    const data = {
+      nodes: new vis.DataSet(nodes),
+      edges: new vis.DataSet(edges)
+    };
+    
+    const options = {
+      interaction: {
+        hover: true,
+        multiselect: false,
+        dragNodes: true,
+        dragView: true,
+        zoomView: true,
+        tooltipDelay: 100
+      },
+      physics: {
+        enabled: true,
+        stabilization: {
+          iterations: 300,
+          updateInterval: 25
+        },
+        barnesHut: {
+          gravitationalConstant: -4000,
+          springLength: 200,
+          springConstant: 0.02,
+          damping: 0.3,
+          avoidOverlap: 0.8
+        }
+      },
+      edges: {
+        color: { color: '#666', opacity: 0.7 },
+        width: 1.5,
+        font: { size: 11, strokeWidth: 3, strokeColor: '#ffffff' },
+        smooth: {
+          type: 'dynamic',
+          roundness: 0.5
+        }
+      },
+      nodes: {
+        shape: 'ellipse',
+        borderWidth: 2,
+        size: 25,
+        chosen: {
+          node: function(values, id, selected, hovering) {
+            values.borderWidth = 4;
+            values.size = 30;
+          }
+        }
+      }
+    };
+
+    const network = new vis.Network(container, data, options);
+
+    let currentNodeFontSize = 35;
+    let currentEdgeFontSize = 30;
+    const minFontSize = 8;
+    const maxNodeFontSize = 35;
+    const maxEdgeFontSize = 30;
+
+    // Tells the native app (iOS's WKScriptMessageHandler "fontSettings", or Flutter's
+    // JavaScriptChannel of the same name) what the two sizes are now, so it can persist them to
+    // UserDefaults/SharedPreferences. Guarded for whichever bridge this page is actually running
+    // under — this same HTML is shared by both apps' webviews.
+    function notifyFontSizeChange() {
+      const payload = JSON.stringify({ node: currentNodeFontSize, edge: currentEdgeFontSize });
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.fontSettings) {
+        window.webkit.messageHandlers.fontSettings.postMessage(payload);
+      } else if (window.fontSettings && window.fontSettings.postMessage) {
+        window.fontSettings.postMessage(payload);
+      }
+    }
+
+    // Called once by native after the page finishes loading, with whatever was last saved (or
+    // the defaults above, for a reader who has never changed them). Runs through the same
+    // update functions a button press does, so the display and the graph itself both pick up
+    // the persisted sizes rather than only the in-memory defaults.
+    function applyPersistedFontSizes(node, edge) {
+      currentNodeFontSize = node;
+      currentEdgeFontSize = edge;
+      updateNodeFontSize();
+      updateEdgeFontSize();
+    }
+
+    const originalColors = {};
+    nodes.forEach(n => {
+      originalColors[n.id] = { background: typeColor[n.group], border: '#666' };
+    });
+
+    // Search functionality
+    const searchInput = document.getElementById('search-input');
+    const searchResults = document.getElementById('search-results');
+    const fontSettingsBtn = document.getElementById('font-settings-btn');
+    const fontPopover = document.getElementById('font-popover');
+    
+    const nodeFontIncrease = document.getElementById('node-font-increase');
+    const nodeFontDecrease = document.getElementById('node-font-decrease');
+    const nodeFontDisplay = document.getElementById('node-font-size');
+    
+    const edgeFontIncrease = document.getElementById('edge-font-increase');
+    const edgeFontDecrease = document.getElementById('edge-font-decrease');
+    const edgeFontDisplay = document.getElementById('edge-font-size');
+
+    // Toggle font popover
+    fontSettingsBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      fontPopover.classList.toggle('active');
+    });
+
+    // Node font size controls
+    nodeFontIncrease.addEventListener('click', function() {
+      if (currentNodeFontSize < maxNodeFontSize) {
+        currentNodeFontSize += 2;
+        updateNodeFontSize();
+      }
+    });
+
+    nodeFontDecrease.addEventListener('click', function() {
+      if (currentNodeFontSize > minFontSize) {
+        currentNodeFontSize -= 2;
+        updateNodeFontSize();
+      }
+    });
+
+    // Edge font size controls
+    edgeFontIncrease.addEventListener('click', function() {
+      if (currentEdgeFontSize < maxEdgeFontSize) {
+        currentEdgeFontSize += 1;
+        updateEdgeFontSize();
+      }
+    });
+
+    edgeFontDecrease.addEventListener('click', function() {
+      if (currentEdgeFontSize > minFontSize) {
+        currentEdgeFontSize -= 1;
+        updateEdgeFontSize();
+      }
+    });
+
+      function updateNodeFontSize() {
+        nodeFontDisplay.textContent = currentNodeFontSize;
+
+        const allNodes = data.nodes.get();
+        allNodes.forEach(n => {
+          data.nodes.update({
+            id: n.id,
+            font: { size: currentNodeFontSize, face: 'Rabar', color: '#333' }
+          });
+        });
+
+        network.redraw(); // 👈 add this line
+        notifyFontSizeChange();
+      }
+
+      function updateEdgeFontSize() {
+        edgeFontDisplay.textContent = currentEdgeFontSize;
+
+        const allEdges = data.edges.get();
+        allEdges.forEach(e => {
+          data.edges.update({
+            id: e.id,
+            font: { size: currentEdgeFontSize, face: 'Rabar', align: 'middle', color: '#555', strokeWidth: 3, strokeColor: '#ffffff' }
+          });
+        });
+
+        network.redraw(); // 👈 add this line
+        notifyFontSizeChange();
+      }
+
+
+
+    searchInput.addEventListener('input', function() {
+      const query = this.value.trim();
+      
+      if (query.length === 0) {
+        searchResults.style.display = 'none';
+        resetColors();
+        return;
+      }
+
+      const matches = dataJson.nodes.filter(n => kgMatches(n, query));
+
+      if (matches.length > 0) {
+        searchResults.innerHTML = matches.map(m => `
+          <div class="search-result-item" data-node-id="${m.id}">
+            <div class="result-label">${kgNodeLabel(m)}</div>
+            <div class="result-type">${kgType(m.type)}</div>
+          </div>
+        `).join('');
+        searchResults.style.display = 'block';
+
+        document.querySelectorAll('.search-result-item').forEach(item => {
+          item.addEventListener('click', function() {
+            const nodeId = parseInt(this.dataset.nodeId);
+            focusNode(nodeId);
+            searchResults.style.display = 'none';
+            searchInput.value = '';
+          });
+        });
+      } else {
+        searchResults.style.display = 'none';
+      }
+    });
+
+    function focusNode(nodeId) {
+      const node = data.nodes.get(nodeId);
+      const connected = network.getConnectedNodes(nodeId);
+      
+      // Reset all nodes
+      data.nodes.forEach(n => {
+        data.nodes.update({
+          id: n.id,
+          color: { background: '#eee', border: '#ddd' }
+        });
+      });
+      
+      // Highlight selected node
+      data.nodes.update({
+        id: nodeId,
+        color: { background: '#fff200', border: '#ff7700' }
+      });
+      
+      // Highlight connected nodes
+      connected.forEach(id => {
+        const connectedNode = data.nodes.get(id);
+        data.nodes.update({
+          id: id,
+          color: {
+            background: typeColor[connectedNode.group] || '#ddd',
+            border: '#666'
+          }
+        });
+      });
+
+      // Focus on node with animation
+      network.focus(nodeId, {
+        scale: 1.5,
+        animation: {
+          duration: 1000,
+          easingFunction: 'easeInOutQuad'
+        }
+      });
+    }
+
+    function resetColors() {
+      data.nodes.forEach(n => {
+        data.nodes.update({
+          id: n.id,
+          color: originalColors[n.id]
+        });
+      });
+    }
+
+    // Combined click handler
+    network.on('click', function(params) {
+      if (params.nodes.length) {
+        const nodeId = params.nodes[0];
+        focusNode(nodeId);
+
+        // Send to Flutter
+        if (window.nodeSelected) {
+          const node = data.nodes.get(nodeId);
+          const nodeData = {
+            id: node.id,
+            label: node.key,
+            type: node.group,
+            displayLabel: node.label,
+            displayType: kgType(node.group)
+          };
+          nodeSelected.postMessage(JSON.stringify(nodeData));
+        }
+      } else {
+        resetColors();
+      }
+    });
+
+    // Fit network after stabilization
+    network.once('stabilizationIterationsDone', () => {
+      network.fit({
+        animation: {
+          duration: 1000,
+          easingFunction: 'easeInOutQuad'
+        }
+      });
+    });
+
+    // Close search results when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+        searchResults.style.display = 'none';
+      }
+      if (!fontSettingsBtn.contains(e.target) && !fontPopover.contains(e.target)) {
+        fontPopover.classList.remove('active');
+      }
+    });
+      
+      fontPopover.addEventListener('click', function(e) {
+        e.stopPropagation(); // prevents document click from firing
+      });
+
+
+    // Prevent context menu
+    container.addEventListener('contextmenu', e => e.preventDefault());
+    
+    
+    document.getElementById('downloadPdfBtn').addEventListener('click', async () => {
+      try {
+        showStatus('Generating HD PDF... please wait.');
+        const { jsPDF } = window.jspdf;
+
+        const currentView = network.getViewPosition();
+        const currentScale = network.getScale();
+        network.fit({ animation: false });
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        const scaleFactor = 4;
+        const networkEl = document.getElementById('network');
+        const originalWidth = networkEl.offsetWidth;
+        const originalHeight = networkEl.offsetHeight;
+        const newWidth = originalWidth * scaleFactor;
+        const newHeight = originalHeight * scaleFactor;
+        networkEl.style.width = newWidth + 'px';
+        networkEl.style.height = newHeight + 'px';
+        network.redraw();
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        const canvas = await html2canvas(networkEl, {
+          backgroundColor: '#ffffff',
+          scale: 1,
+          useCORS: true
+        });
+
+        networkEl.style.width = originalWidth + 'px';
+        networkEl.style.height = originalHeight + 'px';
+        network.redraw();
+        network.moveTo({ position: currentView, scale: currentScale, animation: false });
+
+        const imgData = canvas.toDataURL('image/png', 1.0);
+        const pdf = new jsPDF({
+          orientation: 'landscape',
+          unit: 'pt',
+          format: [canvas.width, canvas.height]
+        });
+
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        pdf.setFontSize(14);
+        pdf.text("Qur'an Knowledge Graph (Aland Kawa Ali)", 30, 40);
+        pdf.setFontSize(10);
+        pdf.text('Generated on: ' + new Date().toLocaleString(), 30, 60);
+        pdf.save('quran_graph_hd.pdf');
+        showStatus('HD PDF exported successfully.');
+      } catch (err) {
+        console.error(err);
+        showError('Failed to export HD PDF: ' + err.message);
+      }
+    });
+    
+    // Apply font family and size to nodes and relations when page loads
+    window.addEventListener('load', () => {
+      legend.style.display = 'none'; // or 'flex' if you want it hidden initially
+      updateNodeFontSize();  // Apply the current font to node labels
+      updateEdgeFontSize();  // Apply the current font to relation labels
+    });
+      
+      
+      
+      window.exportGraphAsPDF = async function() {
+        try {
+          const { jsPDF } = window.jspdf;
+
+          const currentView = network.getViewPosition();
+          const currentScale = network.getScale();
+          network.fit({ animation: false });
+          await new Promise(resolve => setTimeout(resolve, 800));
+
+          const scaleFactor = 3;
+          const networkEl = document.getElementById('network');
+          const originalWidth = networkEl.offsetWidth;
+          const originalHeight = networkEl.offsetHeight;
+          const newWidth = originalWidth * scaleFactor;
+          const newHeight = originalHeight * scaleFactor;
+
+          networkEl.style.width = newWidth + 'px';
+          networkEl.style.height = newHeight + 'px';
+          network.redraw();
+          await new Promise(resolve => setTimeout(resolve, 300));
+
+          const canvas = await html2canvas(networkEl, {
+            backgroundColor: '#ffffff',
+            scale: 1,
+            useCORS: true
+          });
+
+          networkEl.style.width = originalWidth + 'px';
+          networkEl.style.height = originalHeight + 'px';
+          network.redraw();
+          network.moveTo({ position: currentView, scale: currentScale, animation: false });
+
+          const imgData = canvas.toDataURL('image/png', 1.0);
+          const pdf = new jsPDF({
+            orientation: 'landscape',
+            unit: 'pt',
+            format: [canvas.width, canvas.height]
+          });
+
+          pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+          pdf.setFontSize(14);
+          pdf.text("Qur'an Knowledge Graph (Aland Kawa Ali)", 30, 40);
+          pdf.setFontSize(10);
+          pdf.text('Generated on: ' + new Date().toLocaleString(), 30, 60);
+
+          const pdfBase64 = pdf.output('datauristring');
+          return JSON.stringify({ success: true, data: pdfBase64 });
+        } catch (error) {
+          return JSON.stringify({ success: false, error: error.message });
+        }
+      };
+
+      const toggleLegendBtn = document.getElementById('toggle-legend-btn');
+      const legend = document.getElementById('legend');
+
+      toggleLegendBtn.addEventListener('click', () => {
+        if (legend.style.display === 'none' || legend.style.display === '') {
+          legend.style.display = 'flex'; // Show the legend
+        } else {
+          legend.style.display = 'none'; // Hide the legend
+        }
+      });
+
+      function onNodeClick(node) {
+        if (window.nodeSelected) {
+          window.nodeSelected.postMessage(JSON.stringify({
+            id: node.id,
+            label: node.label,
+            type: node.type
+          }));
+        }
+      };
+  </script>
+</body>
+</html>

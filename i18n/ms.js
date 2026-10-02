@@ -17,6 +17,8 @@ QPI18n.register('ms', {
   "index.donations": "🤍 Beri sumbangan",
   "index.haram": "Terokai Haram",
   "index.haramNote": "Masjidil Haram dalam 3D, terus dalam pelayar web anda",
+  "index.demo": "Demo aplikasi",
+  "index.demoNote": "Cuba aplikasi terus dalam pelayar web anda",
   "link.openHint": "Jika anda sudah mempunyai aplikasi ini, pautan ini biasanya membukanya dengan sendiri. Jika itu tidak berlaku, ketik butang di atas.",
   "link.brokenLabel": "Pautan ini tidak berfungsi",
   "ayat.pageTitle": "Satu ayat — Qurany Piroz",

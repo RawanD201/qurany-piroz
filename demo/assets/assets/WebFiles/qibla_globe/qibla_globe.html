@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>گۆی زەوی — قیبلە</title>
+<!-- گۆی زەوی: the Earth as a lit globe with the reader on it, مەککە on it, and a line from
+     the reader along the way the phone is pointing; it glows when it runs over مەککە. Built
+     on the تیشکگرتنی خۆر و مانگ web app (zriwe/eclipse) — its three.js, OrbitControls, Earth
+     textures and Sun-position maths — and hosted by both قورئانی پیرۆز apps in a web view,
+     which feed it the location and the heading through window.qiblaGlobe (qibla_globe.js). -->
+<link rel="stylesheet" href="qibla_globe.css" />
+</head>
+<body>
+  <div id="globe-wrap">
+    <canvas id="globe-canvas"></canvas>
+    <div id="globe-loading">…</div>
+  </div>
+  <script src="three.min.js"></script>
+  <script src="OrbitControls.js"></script>
+  <script src="qibla_globe_textures.js"></script>
+  <script src="qibla_globe.js"></script>
+</body>
+</html>

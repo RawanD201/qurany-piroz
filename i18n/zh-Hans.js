@@ -17,6 +17,8 @@ QPI18n.register('zh-Hans', {
   "index.donations": "🤍 捐助",
   "index.haram": "探索禁寺",
   "index.haramNote": "在网页浏览器中以 3D 游览禁寺",
+  "index.demo": "应用演示",
+  "index.demoNote": "直接在网页浏览器中试用本应用",
   "link.openHint": "如果您已安装此应用，此链接通常会自动打开它。如果没有打开，请轻点上方的按钮。",
   "link.brokenLabel": "此链接无效",
   "ayat.pageTitle": "一节经文 — Qurany Piroz",

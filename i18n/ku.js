@@ -17,6 +17,8 @@ QPI18n.register('ku', {
   "index.donations": "🤍 Bexşîn",
   "index.haram": "Li Heremê bigere",
   "index.haramNote": "Mizgefta Heram bi 3D, di geroka xwe ya webê de",
+  "index.demo": "Demoya sepanê",
+  "index.demoNote": "Sepanê rasterast di geroka xwe ya webê de biceribîne",
   "link.openHint": "Heke sepan li cem te hebe, girêdan bi gelemperî bi xwe wê vedike. Heke wisa nebû, li bişkoka jorîn bitikîne.",
   "link.brokenLabel": "Ev girêdan naxebite",
   "ayat.pageTitle": "Ayetek — Quranê Pîroz",

@@ -17,6 +17,8 @@ QPI18n.register('sv', {
   "index.donations": "🤍 Donera",
   "index.haram": "Utforska Haram",
   "index.haramNote": "Masjid al-Haram i 3D, i din webbläsare",
+  "index.demo": "Appdemo",
+  "index.demoNote": "Prova appen direkt i webbläsaren",
   "link.openHint": "Om du redan har appen öppnar länken den normalt av sig själv. Om det inte hände, tryck på knappen ovan.",
   "link.brokenLabel": "Den här länken fungerar inte",
   "ayat.pageTitle": "En vers — Qurany Piroz",

@@ -49,6 +49,9 @@ logs
 .env
 .env.*
 !.env.example
+# …except the web demo's: it is encrypted (see the app's tool/encrypt_web_assets.py) and holds only
+# the Supabase URL and public anon key, which the app needs to start at all.
+!/demo/assets/.env
 
 # Local editor settings; never part of the site.
 .claude/
