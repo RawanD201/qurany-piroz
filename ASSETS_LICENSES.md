@@ -50,7 +50,7 @@ OpenStreetMap copyright page and the licence. Keep both if the plan is kept.
 
 | File | Font | Creator | Source | Licence | Conditions | Changes made | Where used |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `haram-src/src/assets/fonts/Vazirmatn-v33.003-wght.woff2` (built into `haram/assets/`) and `fonts/vazirmatn/Vazirmatn-v33.003-wght.woff2` | Vazirmatn v33.003, variable (weights 100–900) | Saber Rastikerdar — "The Vazirmatn Project Authors" | <https://github.com/rastikerdar/vazirmatn> (tag v33.003, `fonts/webfonts/Vazirmatn[wght].woff2`) | [SIL Open Font License 1.1](https://openfontlicense.org) — no Reserved Font Name | Keep the copyright notice and licence with every copy; the font may not be sold on its own | None — the official file, renamed to carry its version | Arabic-script text (Central Kurdish, Badini, Hawrami, Arabic, Persian, Urdu) in the explorer and on the main pages. The licence and author list are served beside the main pages' copy (`fonts/vazirmatn/OFL.txt`, `AUTHORS.txt`) and kept beside the explorer's source copy (`Vazirmatn-OFL.txt`); the copyright and licence are also in the font file itself. |
+| `haram-src/src/assets/fonts/Vazirmatn-v33.003-wght.woff2` (built into `haram/assets/`) and `fonts/vazirmatn/Vazirmatn-v33.003-wght.woff2` | Vazirmatn v33.003, variable (weights 100–900) | Saber Rastikerdar — "The Vazirmatn Project Authors" | <https://github.com/rastikerdar/vazirmatn> (tag v33.003, `fonts/webfonts/Vazirmatn[wght].woff2`) | [SIL Open Font License 1.1](https://openfontlicense.org) — no Reserved Font Name | Keep the copyright notice and licence with every copy; the font may not be sold on its own | None — the official file, renamed to carry its version | Arabic-script text (Central Kurdish, Badini, Hawrami, Arabic, Persian, Urdu) in the explorer and on the main pages, and the explorer's Arabic place names and recitations in every language. The licence and author list are served beside the main pages' copy (`fonts/vazirmatn/OFL.txt`, `AUTHORS.txt`) and kept beside the explorer's source copy (`Vazirmatn-OFL.txt`); the copyright and licence are also in the font file itself. |
 
 ## Third-party components shipped to the browser
 
@@ -66,9 +66,11 @@ Build-time tools (Vite, TypeScript, ESLint, Vitest) are not shipped to visitors.
 | --- | --- | --- |
 | Qurany Piroz app icon (`apple-touch-icon.png`, copied to `haram-src/src/assets/logo-180.png`) | Qurany Piroz | Loading screen |
 | Site favicons and `logo.png` (Open Graph image) | Qurany Piroz | Page metadata |
-| All procedural geometry and textures (`haram-src/src/world/*`), including the abstract corner panels of the kiswah and its plain-silk fallback | Created for Qurany Piroz | The 3D environment |
+| All procedural geometry and textures (`haram-src/src/world/*`), including the abstract corner panels of the kiswah and its plain-silk fallback, the Black Stone's fragments, Maqam Ibrahim's grille, and everything inside the Kaaba (marble, cloth, carved plaques, gilded doors and bands, the matcaps for wood and metal) | Created for Qurany Piroz | The 3D environment |
 
-Typography uses the visitor's system fonts; no web fonts are downloaded.
+Apart from Vazirmatn (above), typography uses the visitor's system fonts. The photographs of
+the inside of the Kaaba, of the Black Stone and of Maqam Ibrahim that the models follow were
+used only as visual references; none of them is copied or shipped.
 
 ## External assets that were evaluated and not used
 

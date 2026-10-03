@@ -25,6 +25,12 @@ export class Picker {
     this.surfaces = [...occluders, ...walkables];
   }
 
+  /** Adds surfaces built later (the Kaaba's interior): floors to walk on, or solid. */
+  addSurfaces(meshes: readonly Mesh[], walkable: boolean): void {
+    this.surfaces.push(...meshes);
+    (walkable ? this.walkables : this.occluders).push(...meshes);
+  }
+
   /**
    * The point on the floor under the pointer, or null if the pointer is over a wall, an
    * object, the sky, or floor that is too far away.

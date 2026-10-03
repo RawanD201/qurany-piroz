@@ -15,6 +15,8 @@ export interface InfoPanelActions {
   onLookAt(id: PlaceId): void;
   /** Goes up to the clock tower's balcony (offered where the place's location allows it). */
   onBalcony?(id: PlaceId): void;
+  /** Goes inside the Kaaba (offered on the Kaaba's and its door's panels). */
+  onEnterKaaba?(id: PlaceId): void;
   onClose(id: PlaceId): void;
 }
 
@@ -74,6 +76,9 @@ export class InfoPanel {
         button(t('panel.lookAt'), { className: 'pill-button', icon: 'eye', onClick: () => this.actions.onLookAt(id) }),
         ...(PLACE_LOCATIONS[id].balcony && this.actions.onBalcony
           ? [button(t('panel.balcony'), { className: 'pill-button', icon: 'up', onClick: () => this.actions.onBalcony?.(id) })]
+          : []),
+        ...(PLACE_LOCATIONS[id].inside && this.actions.onEnterKaaba
+          ? [button(t('panel.enterKaaba'), { className: 'pill-button', icon: 'home', onClick: () => this.actions.onEnterKaaba?.(id) })]
           : [])
       ),
       placeBody(place)

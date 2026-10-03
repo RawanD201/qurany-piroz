@@ -8,16 +8,20 @@
 import {
   BoxGeometry,
   BufferGeometry,
+  CircleGeometry,
   CylinderGeometry,
   ExtrudeGeometry,
   Float32BufferAttribute,
+  LatheGeometry,
   Matrix4,
+  PlaneGeometry,
   Shape,
   SphereGeometry,
   TorusGeometry,
+  Vector2,
   Vector3,
 } from 'three';
-import { HIJR, KAABA, KAABA_HALF_D, KAABA_HALF_W, maqamPosition } from '../data/layout';
+import { HIJR, KAABA, KAABA_HALF_D, KAABA_HALF_W, MAQAM, maqamPosition } from '../data/layout';
 import { applyBoxUVs, normalizeGeometry, placeRotY, translation, type StaticBatcher } from './geometry';
 import { MATERIAL_UV } from './materials';
 import { BELT_ATLAS } from './textures';
@@ -239,18 +243,11 @@ export function buildKaaba(batch: StaticBatcher): void {
     batch.add(panel, 'kardashiyya', { uv: 'keep', castShadow: false });
   }
 
-  // The Black Stone in its silver frame, on the eastern corner, facing outwards.
-  const bisector = Math.atan2(-1, 1); // local direction (-x, +z) — out of the east corner
-  const stoneAt = (offset: number) =>
-    new Matrix4()
-      .makeRotationY(bisector)
-      .setPosition(-KAABA_HALF_W - offset * Math.SQRT1_2, KAABA.blackStoneHeight, KAABA_HALF_D + offset * Math.SQRT1_2);
-  const frame = new TorusGeometry(0.34, 0.075, 8, 28);
-  frame.scale(1, 1.2, 1);
-  batch.add(local(frame, stoneAt(0.12)), 'silver', { uv: 'keep' });
-  const stone = new SphereGeometry(0.3, 18, 12);
-  stone.scale(1, 1.15, 0.45);
-  batch.add(local(stone, stoneAt(0.1)), 'blackStone', { uv: 'keep' });
+  // The Black Stone in its silver frame, set into the eastern corner.
+  const blackStone = blackStoneParts();
+  for (const part of [blackStone.frame, blackStone.stone]) part.applyMatrix4(KAABA_MATRIX);
+  batch.add(blackStone.frame, 'silver', { uv: 'keep', castShadow: false });
+  batch.add(blackStone.stone, 'blackStone', { uv: 'keep', castShadow: false });
 
   // Mizab al-Rahmah: the gold spout on the roof edge over Hijr Ismail (local +X).
   const mizab = new Matrix4()
@@ -264,44 +261,346 @@ export function buildKaaba(batch: StaticBatcher): void {
   buildMaqam(batch);
 }
 
-/** Maqam Ibrahim: a gold-framed glass enclosure on a marble base. Shape is approximate. */
+// ---- the Black Stone ---------------------------------------------------------------------------
+
+/**
+ * The Black Stone's frame, as photographed: a broad plate of polished silver shaped like a shield
+ * with a pointed foot, wrapped round the Kaaba's eastern corner (the corner shows as a rounded
+ * crease down its middle), rising to a thick rolled rim round an oval opening; inside it, set a
+ * little deeper, the stone's fragments. The exposed face is about 20 × 16 cm and the frame is
+ * pure silver (Wikipedia; Saudipedia); the plate's size is estimated from photographs.
+ *
+ * Built on the corner's outside: a point is given by `u` (metres along the walls, across the
+ * corner; 0 on the corner, positive towards the door), `v` (metres up from the stone's centre)
+ * and `h` (height off the wall). Round the corner itself the walls are joined by an arc of
+ * radius `h`, so nothing ever dips inside the kiswah.
+ */
+const BLACK_STONE = {
+  /** The opening (the stone's exposed face, unwrapped): semi-axes across and up. */
+  opening: { u: 0.095, v: 0.125 },
+  /** The rolled rim round it: its tube's radius, and its height off the wall. */
+  rim: { tube: 0.022, h: 0.052 },
+  /** The stone's face, set back inside the rim. */
+  stoneH: 0.022,
+  /** The plate: half its width, its height above and below the opening's centre. */
+  plate: { halfWidth: 0.43, top: 0.33, bottom: 0.38, edgeH: 0.01 },
+} as const;
+
+/** Kaaba-local position on the frame's surface (see BLACK_STONE). */
+function onBlackStoneCorner(u: number, v: number, h: number, out = new Vector3()): Vector3 {
+  const cx = -KAABA_HALF_W;
+  const cz = KAABA_HALF_D;
+  const y = KAABA.blackStoneHeight + v;
+  const arc = (h * Math.PI) / 4;
+  if (u > arc) return out.set(cx + (u - arc), y, cz + h); // on the door wall (+Z face)
+  if (u < -arc) return out.set(cx - h, y, cz - (-u - arc)); // on the south-east wall (−X face)
+  // Round the corner: from the −X face's normal (θ = −45°) to the +Z face's (θ = +45°).
+  const theta = u / h;
+  const bx = -Math.SQRT1_2;
+  const bz = Math.SQRT1_2;
+  const tx = Math.SQRT1_2;
+  const tz = Math.SQRT1_2;
+  return out.set(cx + h * (bx * Math.cos(theta) + tx * Math.sin(theta)), y, cz + h * (bz * Math.cos(theta) + tz * Math.sin(theta)));
+}
+
+/** The plate's outline (unwrapped u, v): a broad rounded top and a tapering, pointed foot. */
+function blackStoneOutline(): { u: number; v: number }[] {
+  const { halfWidth, top, bottom } = BLACK_STONE.plate;
+  const points: { u: number; v: number }[] = [];
+  const upper = 40;
+  for (let k = 0; k <= upper; k++) {
+    // A rounded, slightly squared top (a superellipse), broadest a little above the opening.
+    const a = (k / upper) * Math.PI;
+    const cu = Math.cos(a);
+    const sv = Math.sin(a);
+    points.push({ u: halfWidth * Math.sign(cu) * Math.pow(Math.abs(cu), 0.8), v: top * Math.pow(sv, 0.8) });
+  }
+  const lower = 40;
+  for (const side of [-1, 1]) {
+    const run: { u: number; v: number }[] = [];
+    for (let k = 1; k <= lower; k++) {
+      const t = k / lower;
+      run.push({ u: side * halfWidth * Math.pow(1 - t * t, 1.8), v: -bottom * t });
+    }
+    if (side > 0) run.reverse();
+    points.push(...run);
+  }
+  return points;
+}
+
+/** Where the ray from the opening's centre through (u, v) leaves the outline. */
+function outlineAlong(outline: readonly { u: number; v: number }[], u: number, v: number): { u: number; v: number } {
+  const len = Math.hypot(u, v) || 1;
+  const du = u / len;
+  const dv = v / len;
+  let best = Infinity;
+  for (let i = 0; i < outline.length; i++) {
+    const a = outline[i];
+    const b = outline[(i + 1) % outline.length];
+    const eu = b.u - a.u;
+    const ev = b.v - a.v;
+    const den = du * ev - dv * eu;
+    if (Math.abs(den) < 1e-12) continue;
+    const t = (a.u * ev - a.v * eu) / den;
+    const s = (a.u * dv - a.v * du) / den;
+    if (t > 0 && s >= 0 && s <= 1) best = Math.min(best, t);
+  }
+  return { u: du * best, v: dv * best };
+}
+
+/**
+ * A surface built in (u, v, h) on the corner. Each vertex carries the way its surface should
+ * face (also in u, v, h); triangles are wound to face that way, so the shapes can be built
+ * without minding their winding.
+ */
+class CornerSurface {
+  readonly positions: number[] = [];
+  readonly uvs: number[] = [];
+  readonly facing: Vector3[] = [];
+  readonly index: number[] = [];
+
+  /** Adds a vertex; `face` is the direction (du, dv, dh) the surface faces there. */
+  vertex(u: number, v: number, h: number, face: [number, number, number], uv: [number, number] = [0, 0]): number {
+    const p = onBlackStoneCorner(u, v, h);
+    this.positions.push(p.x, p.y, p.z);
+    this.uvs.push(uv[0], uv[1]);
+    // The facing direction, carried through the same mapping.
+    const step = 0.002;
+    const q = onBlackStoneCorner(u + face[0] * step, v + face[1] * step, Math.max(1e-4, h + face[2] * step));
+    this.facing.push(q.sub(p));
+    return this.positions.length / 3 - 1;
+  }
+
+  /** A quad strip: rows of equal length, row k joined to row k + 1 (closed round if `loop`). */
+  grid(rows: number[][], loop: boolean): void {
+    for (let r = 0; r + 1 < rows.length; r++) {
+      const a = rows[r];
+      const b = rows[r + 1];
+      const n = loop ? a.length : a.length - 1;
+      for (let i = 0; i < n; i++) {
+        const j = (i + 1) % a.length;
+        this.triangle(a[i], b[i], a[j]);
+        this.triangle(a[j], b[i], b[j]);
+      }
+    }
+  }
+
+  triangle(a: number, b: number, c: number): void {
+    const pa = new Vector3().fromArray(this.positions, a * 3);
+    const pb = new Vector3().fromArray(this.positions, b * 3);
+    const pc = new Vector3().fromArray(this.positions, c * 3);
+    const normal = pb.sub(pa).cross(pc.sub(pa));
+    const want = new Vector3().add(this.facing[a]).add(this.facing[b]).add(this.facing[c]);
+    if (normal.dot(want) >= 0) this.index.push(a, b, c);
+    else this.index.push(a, c, b);
+  }
+
+  build(): BufferGeometry {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute('position', new Float32BufferAttribute(this.positions, 3));
+    geometry.setAttribute('uv', new Float32BufferAttribute(this.uvs, 2));
+    geometry.setIndex(this.index);
+    geometry.computeVertexNormals();
+    return geometry;
+  }
+}
+
+/**
+ * The Black Stone's frame (silver) and face (the stone), in the Kaaba's local frame. Exported
+ * for the geometry tests.
+ */
+export function blackStoneParts(): { frame: BufferGeometry; stone: BufferGeometry } {
+  const { opening, rim, stoneH, plate } = BLACK_STONE;
+  const ringU = opening.u + rim.tube;
+  const ringV = opening.v + rim.tube;
+  const around = 96;
+  const tube = 12;
+  const radial = 14;
+  const outline = blackStoneOutline();
+  const frame = new CornerSurface();
+  const stone = new CornerSurface();
+
+  // Per step round the opening: the rim tube's centre and its outward direction (in u, v).
+  const ring = Array.from({ length: around }, (_, k) => {
+    const a = (k / around) * Math.PI * 2;
+    const cu = ringU * Math.cos(a);
+    const cv = ringV * Math.sin(a);
+    const nu = ringV * Math.cos(a);
+    const nv = ringU * Math.sin(a);
+    const nl = Math.hypot(nu, nv);
+    return { cu, cv, nu: nu / nl, nv: nv / nl };
+  });
+
+  // The rolled rim: a tube round the opening.
+  const tubeRows: number[][] = [];
+  for (let t = 0; t <= tube; t++) {
+    const psi = (t / tube) * Math.PI * 2;
+    const c = Math.cos(psi);
+    const sn = Math.sin(psi);
+    tubeRows.push(ring.map((r) => frame.vertex(r.cu + r.nu * rim.tube * c, r.cv + r.nv * rim.tube * c, rim.h + rim.tube * sn, [r.nu * c, r.nv * c, sn])));
+  }
+  frame.grid(tubeRows, true);
+
+  // The plate: from the rim's outer side down and out to the outline, then a thin edge to the wall.
+  const plateRows: number[][] = [];
+  for (let k = 0; k <= radial; k++) {
+    const s = k / radial;
+    plateRows.push(
+      ring.map((r) => {
+        const inner = { u: r.cu + r.nu * rim.tube, v: r.cv + r.nv * rim.tube };
+        const edge = outlineAlong(outline, inner.u, inner.v);
+        const u = inner.u + (edge.u - inner.u) * s;
+        const v = inner.v + (edge.v - inner.v) * s;
+        // Steep just outside the rim, flattening towards the edge: a shallow, polished bowl.
+        const h = plate.edgeH + (rim.h - plate.edgeH) * Math.pow(1 - s, 2.2);
+        return frame.vertex(u, v, h, [0, 0, 1]);
+      })
+    );
+  }
+  frame.grid(plateRows, true);
+  const wallRow = ring.map((r) => {
+    const inner = { u: r.cu + r.nu * rim.tube, v: r.cv + r.nv * rim.tube };
+    const edge = outlineAlong(outline, inner.u, inner.v);
+    const len = Math.hypot(edge.u, edge.v) || 1;
+    return frame.vertex(edge.u, edge.v, 0.001, [edge.u / len, edge.v / len, 0]);
+  });
+  // The edge's own vertices again, facing outwards (a crisp edge, not smoothed into the top).
+  const edgeTop = ring.map((r) => {
+    const inner = { u: r.cu + r.nu * rim.tube, v: r.cv + r.nv * rim.tube };
+    const edge = outlineAlong(outline, inner.u, inner.v);
+    const len = Math.hypot(edge.u, edge.v) || 1;
+    return frame.vertex(edge.u, edge.v, plate.edgeH, [edge.u / len, edge.v / len, 0]);
+  });
+  frame.grid([edgeTop, wallRow], true);
+
+  // The well inside the rim, down to the stone.
+  const wellTop = ring.map((r) => frame.vertex(r.cu - r.nu * rim.tube, r.cv - r.nv * rim.tube, rim.h, [-r.nu, -r.nv, 0]));
+  const wellBottom = ring.map((r) => frame.vertex(r.cu - r.nu * rim.tube, r.cv - r.nv * rim.tube, stoneH, [-r.nu, -r.nv, 0]));
+  frame.grid([wellTop, wellBottom], true);
+
+  // The stone: a slightly domed face filling the opening, its texture spanning it.
+  const stoneRows: number[][] = [];
+  const centre = stone.vertex(0, 0, stoneH + 0.012, [0, 0, 1], [0.5, 0.5]);
+  for (let k = 1; k <= 6; k++) {
+    const s = k / 6;
+    stoneRows.push(
+      ring.map((r) => {
+        const u = (r.cu - r.nu * rim.tube) * s;
+        const v = (r.cv - r.nv * rim.tube) * s;
+        return stone.vertex(u, v, stoneH + 0.012 * (1 - s * s), [0, 0, 1], [0.5 + u / (2 * opening.u), 0.5 + v / (2 * opening.v)]);
+      })
+    );
+  }
+  for (let i = 0; i < around; i++) stone.triangle(centre, stoneRows[0][i], stoneRows[0][(i + 1) % around]);
+  stone.grid(stoneRows, true);
+
+  return { frame: frame.build(), stone: stone.build() };
+}
+
+// ---- Maqam Ibrahim ------------------------------------------------------------------------------
+
+/** An upright octagonal prism (or frustum) with flat faces, one face towards local +Z. */
+function octagon(apothemBottom: number, apothemTop: number, height: number, open = false): BufferGeometry {
+  const toRadius = 1 / Math.cos(Math.PI / 8);
+  const g = new CylinderGeometry(apothemTop * toRadius, apothemBottom * toRadius, height, 8, 1, open, Math.PI / 8);
+  // Flat-shaded facets: each face keeps its own normal.
+  const flat = g.toNonIndexed();
+  g.dispose();
+  flat.computeVertexNormals();
+  return flat;
+}
+
+/**
+ * Maqam Ibrahim (see MAQAM in layout.ts): on a round base of white marble over green granite, an
+ * eight-sided cage of gilded brass — a solid band at its foot, a pierced arabesque grille on
+ * every face (glass behind it), a frieze, a cornice — under a shallow eight-sided roof, a collar,
+ * a small drum and dome, and a beaded finial with a crescent. Inside, the crystal cover stands
+ * over the stone in its casing, with the two footprints on top.
+ */
 function buildMaqam(batch: StaticBatcher): void {
   const p = maqamPosition();
   const at = (y: number) => placeRotY(p.x, y, p.z, KAABA.rotationY);
+  const add = (geometry: BufferGeometry, material: Parameters<StaticBatcher['add']>[1], y: number, options: { castShadow?: boolean } = {}) =>
+    batch.add(geometry, material, { matrix: at(y), uv: 'keep', ...options });
+  const { base, cage, crystal, stone, roof } = MAQAM;
   const marbleSize = MATERIAL_UV.marbleWhite?.worldSize ?? 4;
+  const apothem = cage.side / (2 * Math.tan(Math.PI / 8));
+  const corner = cage.side / (2 * Math.sin(Math.PI / 8));
 
-  const base = new CylinderGeometry(1.1, 1.2, 0.42, 8);
-  base.applyMatrix4(at(0.21));
-  applyBoxUVs(normalizeGeometry(base), marbleSize);
-  batch.add(base, 'marbleWhite', { uv: 'keep' });
+  // The base: a green granite plinth, the white marble drum and its lip.
+  add(new CylinderGeometry(base.radius + 0.06, base.radius + 0.08, base.plinth, 40), 'granite', base.plinth / 2);
+  const drum = new CylinderGeometry(base.radius - 0.02, base.radius, base.height - base.plinth - 0.07, 40);
+  drum.applyMatrix4(at(base.plinth + (base.height - base.plinth - 0.07) / 2));
+  applyBoxUVs(normalizeGeometry(drum), marbleSize);
+  batch.add(drum, 'marbleWhite', { uv: 'keep' });
+  const lip = new CylinderGeometry(base.radius + 0.03, base.radius + 0.01, 0.07, 40);
+  lip.applyMatrix4(at(base.height - 0.035));
+  applyBoxUVs(normalizeGeometry(lip), marbleSize);
+  batch.add(lip, 'marbleWhite', { uv: 'keep' });
 
-  const cageBottom = 0.42;
-  const cageHeight = 1.6;
-  const radius = 0.8;
-  batch.add(new CylinderGeometry(radius, radius, cageHeight, 8, 1, true), 'glass', {
-    matrix: at(cageBottom + cageHeight / 2),
-    uv: 'keep',
-    castShadow: false,
-    receiveShadow: false,
-  });
+  // The cage.
+  const foot = base.height;
+  const panelBottom = foot + cage.footBand;
+  const panelTop = panelBottom + cage.panel;
+  const cageTop = panelTop + cage.frieze;
+  add(octagon(apothem + 0.02, apothem + 0.02, cage.footBand), 'brass', foot + cage.footBand / 2);
+  add(octagon(apothem + 0.02, apothem + 0.02, cage.frieze), 'brass', panelTop + cage.frieze / 2);
+  // A grille on each face, and a pane of glass just inside it.
   for (let k = 0; k < 8; k++) {
-    const angle = (k / 8) * Math.PI * 2 + Math.PI / 8;
-    const bar = new BoxGeometry(0.07, cageHeight, 0.07);
-    bar.translate(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
-    batch.add(bar, 'gold', { matrix: at(cageBottom + cageHeight / 2), uv: 'keep' });
+    const angle = (k / 8) * Math.PI * 2;
+    const face = new Matrix4().makeRotationY(angle).multiply(translation(0, 0, apothem));
+    const grille = new PlaneGeometry(cage.side, cage.panel);
+    grille.applyMatrix4(face);
+    add(grille, 'goldLattice', panelBottom + cage.panel / 2, { castShadow: true });
+    const pane = new PlaneGeometry(cage.side, cage.panel).applyMatrix4(new Matrix4().makeRotationY(angle).multiply(translation(0, 0, apothem - 0.03)));
+    batch.add(pane, 'glass', { matrix: at(panelBottom + cage.panel / 2), uv: 'keep', castShadow: false, receiveShadow: false });
+    // The posts at the corners, from the foot band to the frieze.
+    const postAngle = angle + Math.PI / 8;
+    const post = new BoxGeometry(0.085, cageTop - foot, 0.085).translate(Math.sin(postAngle) * corner, 0, Math.cos(postAngle) * corner);
+    add(post, 'brass', foot + (cageTop - foot) / 2);
   }
-  for (const y of [cageBottom + 0.03, cageBottom + cageHeight]) {
-    const ring = new TorusGeometry(radius, 0.05, 6, 24);
-    ring.rotateX(Math.PI / 2);
-    batch.add(ring, 'gold', { matrix: at(y), uv: 'keep' });
+  // The cornice, and the roof rising from it to the collar.
+  add(octagon(apothem + 0.07, apothem + 0.07, 0.05), 'brass', cageTop + 0.025);
+  const roofBottom = cageTop + 0.05;
+  add(octagon(apothem + 0.07, roof.collarApothem, roof.rise), 'brass', roofBottom + roof.rise / 2);
+  const collarBottom = roofBottom + roof.rise;
+  add(octagon(roof.collarApothem, roof.collarApothem, roof.collar), 'brass', collarBottom + roof.collar / 2);
+  // Drum and dome.
+  const drumBottom = collarBottom + roof.collar;
+  add(new CylinderGeometry(roof.dome + 0.012, roof.dome + 0.012, 0.03, 32), 'brass', drumBottom + 0.015);
+  add(new CylinderGeometry(roof.dome, roof.dome, roof.drum, 32, 1, true), 'brass', drumBottom + roof.drum / 2);
+  const domeBase = drumBottom + roof.drum;
+  add(new SphereGeometry(roof.dome, 32, 12, 0, Math.PI * 2, 0, Math.PI / 2).scale(1, 0.85, 1), 'brass', domeBase);
+  // The finial: a rod with three beads, and a crescent opening upwards.
+  const finialBase = domeBase + roof.dome * 0.85;
+  add(new CylinderGeometry(0.012, 0.016, roof.finial, 8), 'brass', finialBase + roof.finial / 2);
+  for (const [y, r] of [[0.04, 0.032], [0.11, 0.042], [0.18, 0.028]] as const) add(new SphereGeometry(r, 12, 8), 'brass', finialBase + y);
+  const crescent = new TorusGeometry(0.055, 0.011, 6, 24, Math.PI * 1.45);
+  // Turn the gap in the ring (centred at 1.725π) to the top, so the horns point up.
+  crescent.rotateZ(Math.PI / 2 - (Math.PI * 2 + Math.PI * 1.45) / 2);
+  add(crescent, 'brass', finialBase + roof.finial + 0.04);
+
+  // Inside: the stone in its casing on the base, two footprints on its top, under the crystal.
+  const stoneTop = panelBottom + stone.height;
+  add(new BoxGeometry(stone.size, stone.height + cage.footBand, stone.size), 'brass', foot + (stone.height + cage.footBand) / 2);
+  for (const side of [-1, 1]) {
+    const print = new CircleGeometry(0.5, 24).rotateX(-Math.PI / 2).scale(stone.foot.width, 1, stone.foot.length);
+    print.translate(side * 0.085, 0, 0.01);
+    // A plain, dark patch of the stone texture (not its fragments).
+    const uv = print.getAttribute('uv');
+    for (let i = 0; i < uv.count; i++) uv.setXY(i, 0.5 + (uv.getX(i) - 0.5) * 0.04, 0.12 + (uv.getY(i) - 0.5) * 0.04);
+    add(print, 'blackStone', stoneTop + 0.002, { castShadow: false });
   }
-  batch.add(new SphereGeometry(radius + 0.03, 18, 8, 0, Math.PI * 2, 0, Math.PI / 2), 'gold', {
-    matrix: at(cageBottom + cageHeight),
-    uv: 'keep',
-  });
-  const domeTop = cageBottom + cageHeight + radius;
-  batch.add(new CylinderGeometry(0.035, 0.06, 0.5, 6), 'gold', { matrix: at(domeTop + 0.25), uv: 'keep' });
-  batch.add(new SphereGeometry(0.08, 10, 6), 'gold', { matrix: at(domeTop + 0.52), uv: 'keep' });
-  // The stone itself, inside its casing.
-  batch.add(new BoxGeometry(0.5, 0.42, 0.5), 'silver', { matrix: at(cageBottom + 0.21), uv: 'keep' });
+  const bell = new LatheGeometry(
+    [
+      new Vector2(crystal.radius, 0),
+      new Vector2(crystal.radius, crystal.height * 0.45),
+      new Vector2(crystal.radius * 0.92, crystal.height * 0.68),
+      new Vector2(crystal.radius * 0.72, crystal.height * 0.86),
+      new Vector2(crystal.radius * 0.42, crystal.height * 0.97),
+      new Vector2(0.001, crystal.height),
+    ],
+    32
+  );
+  batch.add(bell, 'glass', { matrix: at(panelBottom - 0.02), uv: 'keep', castShadow: false, receiveShadow: false });
 }

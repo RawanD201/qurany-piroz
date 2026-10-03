@@ -25,7 +25,7 @@ Related documents: [`SOURCES.md`](SOURCES.md) (where every description comes fro
 4. [How the world and its assets are loaded](#how-the-world-and-its-assets-are-loaded)
 5. [Adding a place](#adding-a-place) · [Adding an object](#adding-an-object) · [Writing descriptions](#writing-descriptions)
 6. [Languages and translations](#languages-and-translations)
-7. [The real plan](#the-real-plan) · [Day and night](#day-and-night) · [The kiswah](#the-kiswah) · [The Mataf floor, Zamzam and the clock](#the-mataf-floor-zamzam-and-the-clock) · [Hajj and Umrah guide](#hajj-and-umrah-guide)
+7. [The real plan](#the-real-plan) · [Day and night](#day-and-night) · [The kiswah](#the-kiswah) · [The Mataf floor, Zamzam and the clock](#the-mataf-floor-zamzam-and-the-clock) · [The Black Stone, Maqam Ibrahim and the inside of the Kaaba](#the-black-stone-maqam-ibrahim-and-the-inside-of-the-kaaba) · [Hajj and Umrah guide](#hajj-and-umrah-guide)
 8. [Movement, camera and controls](#movement-camera-and-controls)
 9. [Graphics quality and performance](#graphics-quality-and-performance)
 10. [Deployment](#deployment)
@@ -109,6 +109,8 @@ haram-src/src/
 ├── data/                    Pure data and maths — no three.js, unit-tested
 │   ├── layout.ts            ALL world dimensions and positions (approximate, documented)
 │   ├── structure.ts         Derived pier/column/wall/dome positions (shared by 3D + collision)
+│   ├── levels.ts            The levels: the ground, the clock-tower balcony, inside the Kaaba
+│   ├── kaaba-interior.ts    The room inside the Kaaba: sizes, plaques, entry and views
 │   ├── places.ts            Place names and descriptions (the file to edit or translate)
 │   ├── place-locations.ts   Marker anchors, "Go there" viewpoints, tap shapes
 │   └── sources.ts           Reference list cited by the descriptions
@@ -121,6 +123,7 @@ haram-src/src/
 │   ├── materials.ts         Material library
 │   ├── geometry.ts          Static batcher (merging), arches, UVs
 │   ├── kaaba.ts             Kaaba, kiswah band, door, Black Stone, Mizab, Hijr, Maqam
+│   ├── kaaba-interior.ts    The room inside the Kaaba (shown only while the visitor is in it)
 │   ├── mosque.ts            Floors, porticoes, halls, columns, walls, gates, Mas'a, minarets
 │   ├── surroundings.ts      City blocks, hills, clock tower (schematic backdrop)
 │   └── environment.ts       Sky (stars at night), sun/floodlight, static shadow map,
@@ -260,9 +263,10 @@ the main pages, so it looks the same on every device and every Kurdish letter (�
 is drawn properly. It is self-hosted (the page's security policy allows only its own fonts):
 one variable font, every weight, 111 KB, declared in `styles/main.css` with a `unicode-range`
 for Arabic script, so Latin text stays in the system font and a visitor reading a language in
-another script never downloads it. Its flat baseline also suits Urdu, which the system would
-otherwise set in tall Nastaliq. The Arabic recitations and Arabic place names keep a
-traditional Naskh face; Syriac uses a Syriac font where the device has one.
+another script downloads it only when Arabic text is shown. Its flat baseline also suits Urdu,
+which the system would otherwise set in tall Nastaliq. The Arabic place names in the panels and
+the Arabic recitations in the guide use it too, in every language (the systems' own Arabic fonts
+vary and are often thin); Syriac uses a Syriac font where the device has one.
 
 **About the translations.** They follow the app's own translations for terminology, and the
 tests check every language for completeness, placeholders and markup. The religious content
@@ -421,6 +425,48 @@ How it works:
 - **Markers** skip the ground-level line-of-sight test up there, label the main places at any
   distance, and hide the clock tower's own marker, which is overhead. Double-click walking is
   for the ground only.
+
+## The Black Stone, Maqam Ibrahim and the inside of the Kaaba
+
+These are drawn after photographs and published figures (see `SOURCES.md`), with what is not
+published estimated and said so in the panels.
+
+**The Black Stone** (`blackStoneParts()` in `world/kaaba.ts`) sits in the eastern corner about
+1.5 m up. Its frame, as photographed, is a broad plate of polished silver shaped like a shield
+with a pointed foot, wrapped round the corner (the corner shows as a rounded crease down its
+middle), rising to a thick rolled rim round an oval opening about 20 × 16 cm; inside, set a little
+deeper, the stone's dark fragments in their brownish paste (an illustrative mosaic, painted in
+`textures.ts`). The plate is built on the outside of the corner, so no part of it dips into the
+kiswah; a test checks that, and that the stone faces out.
+
+**Maqam Ibrahim** (`MAQAM` in `data/layout.ts`, `buildMaqam` in `world/kaaba.ts`): a round base
+of white marble trimmed with green granite; an eight-sided cage of pale, polished gold-plated
+brass, one face towards the Kaaba, with an arched arabesque grille on each face (transparent
+between its bars, glass behind it); a frieze, a cornice, a shallow eight-sided roof, a collar, a
+small drum and dome, and a beaded finial with a crescent. Inside stand the crystal cover (1.30 m
+high, 80 cm across at its foot, as published) and the stone in its casing with its two
+footprints. The cage's size and the base's height are estimated from photographs.
+
+**Inside the Kaaba** (`world/kaaba-interior.ts`, data in `data/kaaba-interior.ts`). "Go inside the
+Kaaba" in the Kaaba's or its door's panel, the "Inside the Kaaba" places, or
+`/haram?view=kaaba` take the visitor into the room, a level of its own with its own collision
+world (`buildKaabaInteriorWorld()`) at the door's sill height; "Leave the Kaaba" (top left)
+brings them out in front of the door. Visitors cannot normally go in; the notice on arrival says
+the view is for learning. As photographed: cream marble walls halfway up with dark green marble
+skirting and bands, green silk with a woven pattern above and on the ceiling (in shallow folds),
+three pillars of polished wood with gilded bands and capitals on square bases, antique lamps of
+silver and gold hanging close together from a brass rod along the pillars, the small white
+cupboard with its green marble top, carved stone plaques set into the marble (their carving is
+an abstract pattern, not lettering), embroidered panels on the cloth, the inside of the door,
+and Bab al-Tawbah, golden, on the right, in front of the staircase in the north corner. The
+room's measurements are not published, so it is fitted within the outer walls.
+
+The room is closed, so it uses none of the scene's lights: walls, floor and ceiling carry their
+light baked into their vertices (`lightAt`: a warm ambient level, soft shadow where surfaces
+meet and round the pillars, the lamps along the rod, light bounced from the floor), and the
+wood and metals use **matcaps** — small painted spheres of polished wood, gold and silver
+reflecting the green cloth and the cream marble — so they shine without real-time lights. It
+looks the same by day and night and on every quality tier.
 
 ## Hajj and Umrah guide
 
@@ -685,7 +731,13 @@ impossible, and nothing here claims otherwise.
   abstract designs (see [The kiswah](#the-kiswah)). The door is shown behind its curtain; the
   marble base is a plain plinth.
 - **Night view** is an artistic impression of the floodlighting, not a lighting survey.
-- **Hijr Ismail, the Mizab and Maqam Ibrahim** are approximate in shape, size and position.
+- **Hijr Ismail, the Mizab and Maqam Ibrahim** are approximate in shape, size and position;
+  Maqam Ibrahim's enclosure and the Black Stone's frame follow photographs, with their sizes
+  estimated where they are not published.
+- **Inside the Kaaba** is drawn after published photographs, but its measurements are not
+  published: it is fitted within the outer walls with an approximate ceiling height. The number
+  and places of the lamps and plaques, the plaques' carving, the cloth's pattern and the doors'
+  decoration are illustrative.
 - **Zamzam** is underground; its position is approximate, and the circle marking it on the
   floor is drawn for the model (there is no such marking today).
 - **The Mataf's tiles** follow the real pattern of rows facing the Kaaba, but tile size and the
@@ -706,7 +758,7 @@ impossible, and nothing here claims otherwise.
 
 ## Known limitations
 
-- Ground level only (and the clock-tower balcony): upper floors, roofs and the multi-level
+- Ground level only (and the clock-tower balcony and the inside of the Kaaba): upper floors, roofs and the multi-level
   Mataf/Mas'a are not walkable; the King Abdullah expansion cannot be entered.
 - Six gates are described as places; the other mapped entrances are plain doorways.
 - No people, crowds or sound. Day and night are two fixed lighting states, not a moving sun.
@@ -719,13 +771,13 @@ impossible, and nothing here claims otherwise.
 Automated (`npm run check` — all passing at release):
 
 - **Type checking** (TypeScript, strict) and **linting** (ESLint + typescript-eslint).
-- **53 unit tests** (Vitest): collision (push-out, sliding, no tunnelling, bounds, line of
+- **58 unit tests** (Vitest): collision (push-out, sliding, no tunnelling, bounds, line of
   sight); player movement (smooth acceleration/deceleration, speed setting, gravity,
   turning, reduced motion); place data (complete English text, valid sources, every place has
-  a location); **walkability** (spawn and every "Go there" viewpoint are on free ground and
-  reachable on foot by flood-fill); settings validation; localisation fallback; quality-tier
+  a location); **walkability** (spawn and every "Go there" viewpoint are on free ground on its
+  own level and reachable on foot by flood-fill, on the ground and inside the Kaaba); settings validation; localisation fallback; quality-tier
   detection and adaptive step-down; the time-of-day setting; the kiswah's folded corner
-  panels; route finding and automatic walking (around walls, unreachable places, stopping on
+  panels; the Black Stone's frame (outside the walls, the stone facing out); route finding and automatic walking (around walls, unreachable places, stopping on
   input or when blocked); the guides' content and sources, the order of the rites, and the
   tawaf (anticlockwise, from the Black Stone) and sa’i routes being walkable; the full sa’i
   (seven laps, ending at Marwah, hastening only between the green markers); paced routes that

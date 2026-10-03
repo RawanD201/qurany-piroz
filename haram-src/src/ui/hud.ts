@@ -6,7 +6,8 @@ import type { DeviceProfile } from '../boot/support';
 import { CAMERA } from '../config';
 import { t, type StringKey } from '../i18n/strings';
 import { backLink } from './back-link';
-import { button, el } from './dom';
+import type { Level } from '../data/levels';
+import { button, el, icon } from './dom';
 
 export interface HudActions {
   onPlaces(opener: HTMLElement): void;
@@ -18,8 +19,8 @@ export interface HudActions {
   onNightToggle(night: boolean): void;
   /** Multiply the zoom by this factor; 0 resets it. */
   onZoom(factor: number): void;
-  /** Leave the clock-tower balcony. */
-  onBackDown(): void;
+  /** Leave the current level: down from the balcony, or out of the Kaaba. */
+  onLevelBack(): void;
 }
 
 /** Makes room in the top bar, one step at a time, until it fits on one line. */
@@ -61,7 +62,7 @@ export class Hud {
   private readonly zoomLevel: HTMLButtonElement;
   private readonly zoomIn: HTMLButtonElement;
   private readonly zoomOut: HTMLButtonElement;
-  private readonly backDown: HTMLButtonElement;
+  private readonly levelButton: HTMLButtonElement;
   private lastDirection = -1;
   /** Last rotation drawn; starts out of range so the first update always draws. */
   private lastDialDegrees = Number.POSITIVE_INFINITY;
@@ -129,13 +130,13 @@ export class Hud {
     this.bottomLeft = el('div', { className: 'hud__bottom-left' });
     const bottomRight = el('div', { className: 'hud__bottom-right' });
 
-    // Shown only on the clock-tower balcony.
-    this.backDown = button(t('hud.backDown'), {
-      className: 'hud-button hud-button--back-down',
+    // Shown off the Haram's ground: on the balcony and inside the Kaaba.
+    this.levelButton = button(t('hud.backDown'), {
+      className: 'hud-button hud-button--level',
       icon: 'down',
-      onClick: () => actions.onBackDown(),
+      onClick: () => actions.onLevelBack(),
     });
-    this.backDown.hidden = true;
+    this.levelButton.hidden = true;
 
     if (profile.isTouch) {
       this.fastButton = button(t('hud.walkFaster'), {
@@ -186,7 +187,7 @@ export class Hud {
     bottomRight.prepend(zoom);
 
     this.crosshair = el('div', { className: 'crosshair', hidden: true, attrs: { 'aria-hidden': 'true' } });
-    this.root = el('div', { className: 'hud' }, topBar, this.backDown, this.bottomLeft, bottomRight, this.crosshair);
+    this.root = el('div', { className: 'hud' }, topBar, this.levelButton, this.bottomLeft, bottomRight, this.crosshair);
     if (this.hint) this.root.append(this.hint);
     parent.appendChild(this.root);
 
@@ -229,11 +230,16 @@ export class Hud {
     this.zoomOut.disabled = zoom <= 1.01;
   }
 
-  /** Shows the "Back down" button while the visitor is on the clock-tower balcony. */
-  setBalcony(on: boolean): void {
-    this.backDown.hidden = !on;
+  /** Shows the way back for the current level (none on the Haram's ground). */
+  setLevel(level: Level): void {
+    const off = level !== 'ground';
+    this.levelButton.hidden = !off;
+    if (off) {
+      const label = t(level === 'balcony' ? 'hud.backDown' : 'hud.leaveKaaba');
+      this.levelButton.replaceChildren(icon(level === 'balcony' ? 'down' : 'back'), el('span', { className: 'button__text', text: label }));
+    }
     // Moves notices down, out of the button's way (see CSS).
-    document.body.classList.toggle('is-on-balcony', on);
+    document.body.classList.toggle('has-level-button', off);
   }
 
   setNight(night: boolean): void {

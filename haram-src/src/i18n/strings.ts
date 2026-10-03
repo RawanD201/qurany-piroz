@@ -56,6 +56,7 @@ const STRINGS = {
   'hud.zoomIn': { en: 'Zoom in' },
   'hud.zoomOut': { en: 'Zoom out' },
   'hud.backDown': { en: 'Back down' },
+  'hud.leaveKaaba': { en: 'Leave the Kaaba' },
   // The top bar's way out to qurany-piroz.com; its accessible name is error.home, which must
   // contain this word in every language (what a voice-control user says is what they see).
   'hud.back': { en: 'Back' },
@@ -110,6 +111,9 @@ const STRINGS = {
   'toast.saiDone': { en: 'Sa’i complete: seven laps, ending at Marwah.' },
   'toast.balcony': { en: 'On the clock tower’s balcony, about 370 m up. Walk along it, zoom in, or choose “Back down”.' },
   'toast.balconyWalk': { en: 'Double-click walking works on the ground. Choose “Back down” to return.' },
+  'toast.insideKaaba': {
+    en: 'Inside the Kaaba — a model for learning; visitors cannot normally go in. Choose “Leave the Kaaba” to go back out.',
+  },
   'places.heading': { en: 'Places' },
   'places.intro': { en: 'Choose a place to read about it and turn towards it.' },
   'places.close': { en: 'Close places' },
@@ -118,6 +122,7 @@ const STRINGS = {
   'panel.goThere': { en: 'Go there' },
   'panel.lookAt': { en: 'Look at it' },
   'panel.balcony': { en: 'View from the balcony' },
+  'panel.enterKaaba': { en: 'Go inside the Kaaba' },
   'panel.modelNote': { en: 'About this 3D model' },
   'panel.sources': { en: 'Sources' },
   'panel.opensInNewTab': { en: '(opens in a new tab)' },

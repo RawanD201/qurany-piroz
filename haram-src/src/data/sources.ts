@@ -100,6 +100,14 @@ export const SOURCES = {
     label: 'Wikipedia — Masjid al-Haram',
     url: 'https://en.wikipedia.org/wiki/Masjid_al-Haram',
   },
+  // Inside the Kaaba
+  'islamiclandmarks-kaaba': {
+    label: "IslamicLandmarks.com — Inside the Ka'bah",
+    url: 'https://www.islamiclandmarks.com/makkah-haram-sharief/inside-the-kabah',
+  },
+  'bukhari-397': { label: 'Sahih al-Bukhari 397', url: 'https://sunnah.com/bukhari:397' },
+  'bukhari-505': { label: 'Sahih al-Bukhari 505', url: 'https://sunnah.com/bukhari:505' },
+  'abudawud-2028': { label: 'Sunan Abi Dawud 2028', url: 'https://sunnah.com/abudawud:2028' },
 } as const satisfies Record<string, Omit<SourceRef, 'id'>>;
 
 export type SourceId = keyof typeof SOURCES;

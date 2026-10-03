@@ -669,7 +669,7 @@ html.js-booted .loading__stalled {
 }
 
 /* "Back down", shown only on the clock-tower balcony: under the top bar, on the left. */
-.hud-button--back-down {
+.hud-button--level {
   position: absolute;
   top: calc(68px + var(--safe-top));
   left: calc(12px + var(--safe-left));
@@ -679,11 +679,11 @@ html.js-booted .loading__stalled {
   color: var(--on-brand);
 }
 
-.hud-button--back-down:hover {
+.hud-button--level:hover {
   background: var(--brand-strong);
 }
 
-body.is-on-balcony .toast {
+body.has-level-button .toast {
   top: calc(122px + var(--safe-top));
 }
 
@@ -869,11 +869,16 @@ body.is-on-balcony .toast {
   outline: none;
 }
 
+/* Arabic names and recitations in the bundled Vazirmatn (see the top of this file), on every
+   page, not only in Arabic-script languages: the systems' own Arabic fonts vary a great deal
+   and are often thin. */
 .place__arabic {
-  margin: 0;
-  font-size: 20px;
-  color: var(--muted);
-  font-family: 'Geeza Pro', 'Noto Naskh Arabic', 'Segoe UI', Tahoma, serif;
+  margin: 2px 0 0;
+  font-family: Vazirmatn, 'Geeza Pro', 'Noto Naskh Arabic', 'Segoe UI', Tahoma, sans-serif;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: #e9dcb4;
   text-align: start;
 }
 
@@ -1099,8 +1104,9 @@ body.is-on-balcony .toast {
 
 .guide__arabic {
   margin: 0 0 8px;
-  font-family: 'Geeza Pro', 'Noto Naskh Arabic', 'Segoe UI', Tahoma, serif;
+  font-family: Vazirmatn, 'Geeza Pro', 'Noto Naskh Arabic', 'Segoe UI', Tahoma, sans-serif;
   font-size: 21px;
+  font-weight: 500;
   line-height: 1.9;
   text-align: right;
 }
@@ -1419,11 +1425,11 @@ body.is-text-mode .app {
   }
 
   /* Below the compass. */
-  .hud-button--back-down {
+  .hud-button--level {
     top: calc(108px + var(--safe-top));
   }
 
-  body.is-on-balcony .toast {
+  body.has-level-button .toast {
     top: calc(162px + var(--safe-top));
   }
 }
@@ -1439,11 +1445,11 @@ body.has-compass-below .toast {
   top: calc(118px + var(--safe-top));
 }
 
-body.has-compass-below .hud-button--back-down {
+body.has-compass-below .hud-button--level {
   top: calc(108px + var(--safe-top));
 }
 
-body.has-compass-below.is-on-balcony .toast {
+body.has-compass-below.has-level-button .toast {
   top: calc(162px + var(--safe-top));
 }
 

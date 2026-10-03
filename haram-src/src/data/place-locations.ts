@@ -24,6 +24,8 @@ import {
   type Vec2,
   type Vec3,
 } from './layout';
+import { KAABA_INTERIOR_ANCHORS, KAABA_INTERIOR_VIEWS } from './kaaba-interior';
+import type { Level } from './levels';
 import { MARWAH_CENTER, SAFA_CENTER } from './plan-data';
 import type { PlaceId } from './places';
 import { gateFrames, porticoArcadeEdges } from './structure';
@@ -53,6 +55,10 @@ export interface PlaceLocation {
   priority?: number;
   /** Offers the view from the clock tower's balcony (see BALCONY in layout.ts). */
   balcony?: boolean;
+  /** Offers to go inside the Kaaba. */
+  inside?: boolean;
+  /** The level the place is on (default: the Haram's ground). */
+  level?: Level;
 }
 
 const B = 0.7071067811865476;
@@ -69,7 +75,7 @@ function kaabaBox(): PickShape {
 
 function maqamAnchor(): Vec3 {
   const p = maqamPosition();
-  return { x: p.x, y: 3.6, z: p.z };
+  return { x: p.x, y: 3.9, z: p.z };
 }
 
 function gateLocation(id: GateId): PlaceLocation {
@@ -123,6 +129,7 @@ function build(): Record<PlaceId, PlaceLocation> {
       viewpoint: { x: SPAWN.x, z: SPAWN.z },
       lookAt: KAABA_CENTER,
       pick: kaabaBox(),
+      inside: true,
     },
     kiswah: {
       anchor: kiswahAnchor,
@@ -143,6 +150,7 @@ function build(): Record<PlaceId, PlaceLocation> {
         size: { x: KAABA.door.width + 0.6, y: KAABA.door.height + 0.6, z: 0.8 },
         rotationY: KAABA.rotationY,
       },
+      inside: true,
     },
     blackStone: {
       anchor: blackStoneAnchor,
@@ -266,6 +274,33 @@ function build(): Record<PlaceId, PlaceLocation> {
         rotationY: 0,
       },
     },
+
+    // ---- inside the Kaaba (level 'kaaba') -------------------------------------------------------
+    kaabaInterior: {
+      anchor: KAABA_INTERIOR_ANCHORS.room,
+      markerRange: 25,
+      priority: 2,
+      viewpoint: KAABA_INTERIOR_VIEWS.room.position,
+      lookAt: KAABA_INTERIOR_VIEWS.room.lookAt,
+      level: 'kaaba',
+    },
+    kaabaPillars: {
+      anchor: KAABA_INTERIOR_ANCHORS.pillars,
+      markerRange: 25,
+      priority: 1,
+      viewpoint: KAABA_INTERIOR_VIEWS.pillars.position,
+      lookAt: KAABA_INTERIOR_VIEWS.pillars.lookAt,
+      level: 'kaaba',
+    },
+    babAlTawbah: {
+      anchor: KAABA_INTERIOR_ANCHORS.tawbah,
+      markerRange: 25,
+      priority: 1,
+      viewpoint: KAABA_INTERIOR_VIEWS.tawbah.position,
+      lookAt: KAABA_INTERIOR_VIEWS.tawbah.lookAt,
+      level: 'kaaba',
+    },
+
   };
 }
 

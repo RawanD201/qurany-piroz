@@ -16,6 +16,7 @@
 // curtain over the door) without any letters.
 
 import { CanvasTexture, NoColorSpace, RepeatWrapping, SRGBColorSpace, type Texture } from 'three';
+import { MAQAM } from '../data/layout';
 
 export type TextureKey =
   | 'marble'
@@ -27,7 +28,9 @@ export type TextureKey =
   | 'rock'
   | 'plaza'
   | 'ceiling'
-  | 'city';
+  | 'city'
+  | 'blackStone'
+  | 'lattice';
 
 /** Metres covered by one repeat of the world-mapped textures. */
 export const TEXTURE_WORLD_SIZE = {
@@ -410,6 +413,176 @@ function rock(size: number, detail: boolean): Painted {
     normal: detail ? normalCanvas(height, n, n, 5) : undefined,
     normalStrength: 1,
   };
+}
+
+// ---- the Black Stone and Maqam Ibrahim's lattice ------------------------------------------------
+
+/**
+ * The Black Stone's exposed face, seen through its silver frame: fragments of dark,
+ * reddish-brown stone, polished smooth by pilgrims' hands, cemented together in a brownish paste
+ * (Wikipedia; Saudipedia). The pieces are raised and glossy; the paste is duller and recessed.
+ * The real pieces' shapes and places are not reproduced: these are illustrative. The texture
+ * spans the frame's oval opening (u across, v up).
+ */
+function blackStone(size: number, detail: boolean): Painted {
+  const n = Math.min(size, 256);
+  const grain = new Fbm(24, 3, 71);
+  const cloud = new Fbm(4, 2, 73);
+  // Fragment centres, jittered on a loose grid over the opening (a Voronoi mosaic: each piece is
+  // the area nearest its centre, the seams between pieces are paste).
+  const random = mulberry32(19);
+  const seeds: { u: number; v: number; tone: number }[] = [];
+  for (let gy = 0; gy < 4; gy++) {
+    for (let gx = 0; gx < 3; gx++) {
+      seeds.push({ u: 0.2 + gx * 0.3 + (random() - 0.5) * 0.18, v: 0.14 + gy * 0.24 + (random() - 0.5) * 0.16, tone: random() });
+    }
+  }
+  const rgb = new Uint8ClampedArray(n * n * 3);
+  const height = new Float32Array(n * n);
+  const rough = new Float32Array(n * n);
+  for (let y = 0; y < n; y++) {
+    const v = 1 - y / n;
+    for (let x = 0; x < n; x++) {
+      const u = x / n;
+      let d1 = Infinity;
+      let d2 = Infinity;
+      let tone = 0;
+      for (const p of seeds) {
+        const d = Math.hypot((u - p.u) * 1.15, v - p.v);
+        if (d < d1) {
+          d2 = d1;
+          d1 = d;
+          tone = p.tone;
+        } else if (d < d2) d2 = d;
+      }
+      const g = grain.sample(u, v) - 0.5;
+      const c = cloud.sample(u, v) - 0.5;
+      // Wandering seams, and a bed of paste round the edge of the opening.
+      const seam = smoothstep(0.012, 0.04, d2 - d1 + g * 0.03);
+      const bed = 1 - smoothstep(0.4, 0.47, Math.hypot(u - 0.5, v - 0.5) + g * 0.04);
+      const stone = seam * bed;
+      const i = (y * n + x) * 3;
+      // Paste: a dull, dark brown. Stone: near-black with a deep reddish-brown cast.
+      const paste = [34 + g * 8, 25 + g * 6, 21 + g * 5];
+      const rock = [20 + tone * 9 + c * 10 + g * 6, 13 + tone * 5 + c * 6 + g * 4, 12 + tone * 3 + c * 5 + g * 3];
+      for (let ch = 0; ch < 3; ch++) rgb[i + ch] = paste[ch] + (rock[ch] - paste[ch]) * stone;
+      // Pieces raised and worn smooth; paste recessed and dull.
+      height[y * n + x] = stone * (0.6 + 0.4 * smoothstep(0, 0.12, d2 - d1)) + g * 0.04;
+      rough[y * n + x] = 0.6 - stone * 0.45 + Math.abs(g) * 0.1;
+    }
+  }
+  return {
+    color: rgbCanvas(n, n, rgb),
+    normal: detail ? normalCanvas(height, n, n, 3) : undefined,
+    surface: detail ? surfaceCanvas(n, n, rough) : undefined,
+    normalStrength: 0.55,
+  };
+}
+
+/** Aspect of one face of Maqam Ibrahim's cage: width ÷ height. */
+const LATTICE_ASPECT = MAQAM.cage.side / MAQAM.cage.panel;
+
+/**
+ * One face of Maqam Ibrahim's gilded cage: a frame round a pointed arch filled with an
+ * arabesque grille — interlaced circles with scrolling tendrils, as on the real panels (an
+ * illustrative pattern, not a copy). Transparent between the bars (the alpha channel), so the
+ * glass and the stone show through.
+ */
+function lattice(size: number, detail: boolean): Painted {
+  const h = Math.min(size, 1024);
+  const w = Math.round(h * LATTICE_ASPECT);
+  const draw = (ctx: CanvasRenderingContext2D, ink: string, deep: string) => {
+    ctx.clearRect(0, 0, w, h);
+    ctx.strokeStyle = ink;
+    ctx.fillStyle = ink;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    const frame = w * 0.07;
+    // The frame: solid round the edge, a deeper band at the foot.
+    ctx.fillRect(0, 0, w, frame);
+    ctx.fillRect(0, h - frame * 1.6, w, frame * 1.6);
+    ctx.fillRect(0, 0, frame, h);
+    ctx.fillRect(w - frame, 0, frame, h);
+    // The pointed arch inside it.
+    const left = frame * 1.6;
+    const right = w - frame * 1.6;
+    const top = frame * 1.8;
+    const spring = top + (right - left) * 0.75;
+    const bottom = h - frame * 2.3;
+    const arch = new Path2D();
+    arch.moveTo(left, bottom);
+    arch.lineTo(left, spring);
+    arch.quadraticCurveTo(left, top + (spring - top) * 0.25, w / 2, top);
+    arch.quadraticCurveTo(right, top + (spring - top) * 0.25, right, spring);
+    arch.lineTo(right, bottom);
+    arch.closePath();
+    // Spandrels above the arch: solid, with a pierced roundel each side.
+    ctx.beginPath();
+    ctx.rect(frame, frame, w - frame * 2, spring - frame);
+    ctx.fill();
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fill(arch);
+    for (const cx of [frame * 2.2, w - frame * 2.2]) {
+      ctx.beginPath();
+      ctx.arc(cx, top + frame * 0.6, frame * 0.55, 0, TAU);
+      ctx.fill();
+    }
+    ctx.restore();
+    // Inside the arch: the grille, clipped to it.
+    ctx.save();
+    ctx.clip(arch);
+    const cell = (right - left) / 2.5;
+    const line = Math.max(2, w * 0.022);
+    ctx.lineWidth = line;
+    for (let row = -1; row * cell < h + cell; row++) {
+      for (let col = -1; col <= 3; col++) {
+        const cx = left + col * cell + (row % 2 ? cell / 2 : 0);
+        const cy = bottom - row * cell * 0.87;
+        // Interlaced circles…
+        ctx.beginPath();
+        ctx.arc(cx, cy, cell * 0.5, 0, TAU);
+        ctx.stroke();
+        // …each holding a small four-petalled rosette…
+        ctx.beginPath();
+        for (let k = 0; k < 4; k++) {
+          const a = (k / 4) * TAU + Math.PI / 4;
+          ctx.moveTo(cx, cy);
+          ctx.quadraticCurveTo(cx + Math.cos(a - 0.5) * cell * 0.3, cy + Math.sin(a - 0.5) * cell * 0.3, cx + Math.cos(a) * cell * 0.24, cy + Math.sin(a) * cell * 0.24);
+          ctx.quadraticCurveTo(cx + Math.cos(a + 0.5) * cell * 0.3, cy + Math.sin(a + 0.5) * cell * 0.3, cx, cy);
+        }
+        ctx.lineWidth = line * 0.7;
+        ctx.stroke();
+        ctx.lineWidth = line;
+        // …and scrolling tendrils in the gaps between them.
+        ctx.beginPath();
+        const sx = cx + cell * 0.5;
+        const sy = cy - cell * 0.29;
+        ctx.arc(sx, sy, cell * 0.13, Math.PI * 0.2, Math.PI * 1.6);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+    // The arch's own moulding, over the grille's ends.
+    ctx.lineWidth = line * 1.8;
+    ctx.strokeStyle = deep;
+    ctx.stroke(arch);
+  };
+  const color = makeCanvas(w, h);
+  draw(color.ctx, '#ffffff', '#e8dcc0');
+  let normal: HTMLCanvasElement | undefined;
+  if (detail) {
+    // Relief from the same drawing: bars raised, gaps low.
+    const relief = makeCanvas(w, h);
+    relief.ctx.fillStyle = '#000';
+    relief.ctx.fillRect(0, 0, w, h);
+    draw(relief.ctx, '#ffffff', '#ffffff');
+    const data = relief.ctx.getImageData(0, 0, w, h).data;
+    const field = new Float32Array(w * h);
+    for (let i = 0; i < field.length; i++) field[i] = Math.max(data[i * 4], data[i * 4 + 3]) / 255;
+    normal = normalCanvas(field, w, h, 3);
+  }
+  return { color: color.canvas, normal, normalStrength: 0.6 };
 }
 
 // ---- drawn designs (ceiling, embroidery) -------------------------------------------------------
@@ -921,6 +1094,8 @@ const PAINTERS: Record<TextureKey, (size: number, detail: boolean) => Painted> =
   plaza,
   ceiling,
   city: () => city(),
+  blackStone,
+  lattice,
 };
 
 /** Textures that repeat across surfaces (the embroidered pieces are placed once each). */
@@ -971,4 +1146,6 @@ export const TEXTURE_KEYS: readonly TextureKey[] = [
   'plaza',
   'ceiling',
   'city',
+  'blackStone',
+  'lattice',
 ];

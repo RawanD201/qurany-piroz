@@ -95,6 +95,27 @@ export const HIJR = {
 export const MAQAM_LOCAL: Vec2 = { x: -0.9, z: 13.2 };
 
 /**
+ * Maqam Ibrahim's enclosure, metres. Published: the stone is about 40–50 cm square, with two
+ * footprints about 27 × 14 cm and 9–10 cm deep; over it, a crystal cover 1.30 m high and 80 cm
+ * across at its foot; round that, a cage of gold-plated brass with a gilded inner grille; the
+ * base is Carrara marble trimmed with green granite (Wikipedia; Saudipedia). The cage's size and
+ * the base's height are estimated from photographs: an eight-sided cage, one face towards the
+ * Kaaba, about 1.45 m across, under a shallow eight-sided roof, a small dome and a crescent.
+ */
+export const MAQAM = {
+  /** Green granite plinth and white marble base (round), and its height to the cage's foot. */
+  base: { radius: 0.86, height: 0.7, plinth: 0.1 },
+  /** The cage: side of the octagon, solid band at its foot, grille panels, frieze at the top. */
+  cage: { side: 0.6, footBand: 0.18, panel: 1.45, frieze: 0.12 },
+  /** The crystal cover over the stone. */
+  crystal: { height: 1.3, radius: 0.4 },
+  /** The stone's casing, and the two footprints on its top. */
+  stone: { size: 0.5, height: 0.42, foot: { length: 0.27, width: 0.14 } },
+  /** Roof (rise), collar, drum, dome and finial, from the cornice up. */
+  roof: { rise: 0.29, collar: 0.09, collarApothem: 0.26, drum: 0.22, dome: 0.24, finial: 0.32 },
+} as const;
+
+/**
  * Approximate location of the Zamzam well, which is underground: about 21 m east of the Kaaba,
  * on the side towards Maqam Ibrahim, in line with the Multazam (see SOURCES.md).
  */

@@ -7,6 +7,7 @@
 // overlap a nearer marker.
 
 import { Vector3, type PerspectiveCamera } from 'three';
+import type { Level } from '../data/levels';
 import type { PlaceLocation } from '../data/place-locations';
 import type { PlaceContent, PlaceId } from '../data/places';
 import { localize } from '../i18n/locale';
@@ -15,6 +16,8 @@ import type { CollisionWorld } from '../physics/collision';
 
 interface Marker {
   id: PlaceId;
+  /** The level the place is on: its marker shows only there. */
+  level: Level;
   button: HTMLButtonElement;
   anchor: Vector3;
   range: number;
@@ -46,12 +49,13 @@ export class MarkerLayer {
   private readonly projected = new Vector3();
   private readonly viewSpace = new Vector3();
   private sightCursor = 0;
+  private level: Level = 'ground';
 
   constructor(
     private readonly container: HTMLElement,
     places: readonly PlaceContent[],
     locations: Readonly<Record<PlaceId, PlaceLocation>>,
-    private readonly collision: CollisionWorld,
+    private collision: CollisionWorld,
     onSelect: (id: PlaceId, button: HTMLButtonElement) => void
   ) {
     for (const place of places) {
@@ -75,6 +79,7 @@ export class MarkerLayer {
       container.appendChild(button);
       this.markers.push({
         id: place.id,
+        level: location.level ?? 'ground',
         button,
         anchor: new Vector3(location.anchor.x, location.anchor.y, location.anchor.z),
         range: location.markerRange,
@@ -113,6 +118,21 @@ export class MarkerLayer {
     this.elevated = elevated;
   }
 
+  /**
+   * Shows only the markers of the level the visitor is on (from the balcony, the ground's), and
+   * tests line of sight against that level's collision world.
+   */
+  setLevel(level: Level, collision: CollisionWorld): void {
+    this.level = level;
+    this.collision = collision;
+    this.elevated = level === 'balcony';
+    for (const m of this.markers) m.sightFrom = null;
+  }
+
+  private onThisLevel(m: Marker): boolean {
+    return m.level === this.level || (this.level === 'balcony' && m.level === 'ground');
+  }
+
   /** Sets the labels' size (1 = full size); takes effect on the next update. */
   setScale(scale: number): void {
     this.scale = scale;
@@ -133,6 +153,10 @@ export class MarkerLayer {
 
     const candidates: { m: Marker; x: number; y: number; distance: number; width: number }[] = [];
     for (const m of this.markers) {
+      if (!this.onThisLevel(m)) {
+        this.hide(m);
+        continue;
+      }
       const distance = eye.distanceTo(m.anchor);
       const range = this.elevated && m.priority >= 1 ? Infinity : m.range;
       let visible = distance <= range;

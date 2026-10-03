@@ -22,6 +22,7 @@ import { createEnvironment, type Environment } from './environment';
 import { createZamzamMarking, type FloorMarking } from './floor-markings';
 import { StaticBatcher } from './geometry';
 import { buildKaaba } from './kaaba';
+import { buildKaabaInterior, type KaabaInterior } from './kaaba-interior';
 import {
   applyEnvironmentMap,
   applyTimeOfDay,
@@ -67,6 +68,8 @@ export interface World {
    * version stays).
    */
   loadKiswahPhotos(): Promise<boolean>;
+  /** The inside of the Kaaba (hidden until the visitor goes in). */
+  interior: KaabaInterior;
   dispose(): void;
 }
 
@@ -189,6 +192,8 @@ export async function buildWorld(
   const hills = new Mesh(buildHills(), materials.mountain);
   hills.matrixAutoUpdate = false;
   scene.add(hills);
+  const interior = buildKaabaInterior(quality.anisotropy);
+  scene.add(interior.group);
   onProgress('environment', 1);
   await nextFrame();
 
@@ -233,6 +238,7 @@ export async function buildWorld(
     updateClock(now?: number) {
       return clock?.update(now) ?? false;
     },
+    interior,
     async loadKiswahPhotos() {
       try {
         const { loadKiswahPhotos } = await import('./kiswah-photos');
@@ -266,6 +272,7 @@ export async function buildWorld(
       for (const set of Object.values(textures)) if (set) disposeTextureSet(set);
       clock?.dispose();
       zamzamMarking?.dispose();
+      interior.dispose();
       disposeMaterials(materials);
       environment.dispose();
     },

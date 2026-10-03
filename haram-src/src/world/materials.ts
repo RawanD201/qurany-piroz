@@ -33,6 +33,9 @@ export type MaterialKey =
   | 'gold'
   | 'silver'
   | 'blackStone'
+  | 'goldLattice'
+  | 'brass'
+  | 'granite'
   | 'glass'
   | 'rock'
   | 'plaza'
@@ -143,7 +146,21 @@ export function createMaterials(options: MaterialOptions): MaterialLibrary {
     kardashiyya: standard(fromSet('kardashiyya', '#2e2513', 0.45, 0.4 * metal)),
     gold: standard({ color: new Color('#d0a64a'), roughness: 0.28, metalness: metal }),
     silver: standard({ color: new Color('#d9dadc'), roughness: 0.22, metalness: metal }),
-    blackStone: standard({ color: new Color('#1b1815'), roughness: 0.35 }),
+    // The Black Stone's fragments, polished by pilgrims' hands, in their duller paste.
+    blackStone: standard(fromSet('blackStone', '#1b1815', 0.3)),
+    // Maqam Ibrahim's gold-plated brass: paler and more polished than the Kaaba's gold.
+    brass: standard({ color: new Color('#e2c47f'), roughness: 0.16, metalness: metal }),
+    // Polished green granite (the trim round Maqam Ibrahim's base).
+    granite: standard({ color: new Color('#2f4a3d'), roughness: 0.22 }),
+    // Maqam Ibrahim's gilded grille: open between the bars (alpha), gold where it is solid.
+    goldLattice: standard({
+      ...(tex.lattice ? fromSet('lattice', '#e2c47f', 0.22) : { roughness: 0.22 }),
+      // The grille's map is white where it is solid; the colour is the brass's.
+      color: new Color('#e2c47f'),
+      metalness: metal,
+      alphaTest: 0.5,
+      side: DoubleSide,
+    }),
     glass: standard({
       color: new Color('#e3f1f8'),
       roughness: 0.06,
@@ -298,7 +315,11 @@ const ENV_INTENSITY: Partial<Record<MaterialKey, number>> = {
   ceilingBack: 0.05,
   kiswah: 0.55,
   gold: 0.9,
+  goldLattice: 0.9,
+  brass: 0.95,
+  granite: 0.6,
   silver: 0.9,
+  blackStone: 0.7,
   hizam: 0.85,
   sitara: 0.85,
   kardashiyya: 0.85,

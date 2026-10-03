@@ -36,9 +36,12 @@ export type PlaceId =
   | 'kingFahdGate'
   | 'babAlUmrah'
   | 'kingAbdullahGate'
-  | 'clockTower';
+  | 'clockTower'
+  | 'kaabaInterior'
+  | 'kaabaPillars'
+  | 'babAlTawbah';
 
-export type PlaceCategory = 'kaaba' | 'mataf' | 'sai' | 'gates' | 'surroundings';
+export type PlaceCategory = 'kaaba' | 'insideKaaba' | 'mataf' | 'sai' | 'gates' | 'surroundings';
 
 export interface PlaceContent {
   id: PlaceId;
@@ -59,13 +62,14 @@ export interface PlaceContent {
 
 export const CATEGORY_LABELS: Record<PlaceCategory, LocalizedText> = {
   kaaba: { en: 'The Kaaba' },
+  insideKaaba: { en: 'Inside the Kaaba' },
   mataf: { en: 'Around the Kaaba' },
   sai: { en: "Safa, Marwah and the Mas'a" },
   gates: { en: 'Gates' },
   surroundings: { en: 'Surroundings' },
 };
 
-export const CATEGORY_ORDER: readonly PlaceCategory[] = ['kaaba', 'mataf', 'sai', 'gates', 'surroundings'];
+export const CATEGORY_ORDER: readonly PlaceCategory[] = ['kaaba', 'insideKaaba', 'mataf', 'sai', 'gates', 'surroundings'];
 
 export const PLACES: readonly PlaceContent[] = [
   {
@@ -431,6 +435,67 @@ export const PLACES: readonly PlaceContent[] = [
       en: 'The tower stands where it is mapped (OpenStreetMap), as a simplified outline. Its clock faces show the current time in Makkah and follow the day and night colours; the dial’s markings, hands and emblem are a simplified drawing, not the real artwork. Zoom in to read them. “View from the balcony” takes you up to a viewing balcony beneath the north clock face, about 370 metres up; its position and size are approximate, and the mosque below is the same simplified model.',
     },
     sources: ['ctbuh-clock-tower', 'britannica-abraj', 'wikipedia-abraj-al-bait', 'wikipedia-clock-towers'],
+  },
+
+  // ---- inside the Kaaba ------------------------------------------------------------------------
+  {
+    id: 'kaabaInterior',
+    category: 'insideKaaba',
+    name: { en: 'Inside the Kaaba' },
+    arabicName: 'داخل الكعبة',
+    summary: { en: 'A single room, its floor about two metres above the Mataf, opened only on a few occasions.' },
+    description: [
+      {
+        en: 'The door opens onto a single room whose floor is about two metres above the ground where tawaf is performed. The floor is of marble and limestone, and the walls are clad in pale marble halfway to the roof, with dark green marble along the floor and in bands.',
+      },
+      {
+        en: 'Above the marble, the upper walls and the ceiling are covered with a green cloth. Old lamps of silver and gold hang close together from rods between the pillars. Plaques recording those who renovated the Kaaba are set in the walls: nine, all in thuluth script except one in kufic, and a tenth added in the time of King Fahd.',
+      },
+      {
+        en: 'The Prophet ﷺ entered the Kaaba and prayed inside it. Bilal, who was with him, later told Ibn Umar where he had prayed: between the two pillars on the left as one enters (Sahih al-Bukhari 397).',
+      },
+      {
+        en: 'The Kaaba is opened only on a few occasions, such as the ceremony of washing it, and its keys are held by the Banu Shaybah. The Prophet ﷺ told Aisha, who wished to pray inside, to pray in the Hijr, for it is part of the House (Sunan Abi Dawud 2028).',
+      },
+    ],
+    modelNote: {
+      en: 'Visitors cannot normally go inside; this view is for learning. It is drawn after published photographs of the room, but its measurements are not published, so it is fitted within the outer walls with an approximate ceiling height. The number and places of the lamps and plaques, the plaques’ carving and the cloth’s pattern are illustrative, not copies of the real ones.',
+    },
+    sources: ['wikipedia-kaaba', 'islamiclandmarks-kaaba', 'bukhari-397', 'abudawud-2028'],
+  },
+  {
+    id: 'kaabaPillars',
+    category: 'insideKaaba',
+    name: { en: 'The pillars inside the Kaaba' },
+    arabicName: 'أعمدة الكعبة',
+    summary: { en: 'Three pillars that hold up the roof, first set there by Abdullah ibn al-Zubayr.' },
+    description: [
+      {
+        en: 'Three pillars of wood, banded with gilded metal, stand inside the Kaaba and hold up its roof. Between one of them and the other two stands a small white cupboard where perfume is kept.',
+      },
+      {
+        en: 'Abdullah ibn al-Zubayr set up the three pillars when he rebuilt the Kaaba. They were replaced during the renovation in the time of King Fahd.',
+      },
+      {
+        en: 'In the Prophet’s time the roof stood on six pillars: when he prayed inside, he had one pillar on his left, one on his right and three behind him (Sahih al-Bukhari 505).',
+      },
+    ],
+    modelNote: { en: 'The pillars are drawn as photographed, in a row; their spacing and the cupboard’s place are approximate.' },
+    sources: ['wikipedia-kaaba', 'islamiclandmarks-kaaba', 'bukhari-505'],
+  },
+  {
+    id: 'babAlTawbah',
+    category: 'insideKaaba',
+    name: { en: 'Bab al-Tawbah' },
+    arabicName: 'باب التوبة',
+    summary: { en: 'The golden door on the right as one enters, to the stairs up to the roof.' },
+    description: [
+      {
+        en: 'Bab al-Tawbah, the Door of Repentance, is a golden door on the right as one enters. It opens onto an enclosed staircase leading to a hatch in the roof.',
+      },
+    ],
+    modelNote: { en: 'The staircase is shown closed, as an enclosure in the corner. Its size, and the door’s decoration, drawn in the style of the Kaaba’s outer door, are approximate.' },
+    sources: ['wikipedia-kaaba', 'islamiclandmarks-kaaba'],
   },
 ];
 

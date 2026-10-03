@@ -13,6 +13,8 @@ import type { DeviceProfile } from '../boot/support';
 import type { LoadingScreen } from '../boot/loading-screen';
 import { CAMERA } from '../config';
 import { BALCONY, CLOCK_TOWER, SPAWN, type Vec2, type Vec3 } from '../data/layout';
+import { KAABA_ENTRY, KAABA_EXIT } from '../data/kaaba-interior';
+import type { Level } from '../data/levels';
 import { PLACE_LOCATIONS } from '../data/place-locations';
 import { PLACES, getPlaceContent, type PlaceId } from '../data/places';
 import { AdaptiveQuality, QUALITY_PRESETS, TIER_ORDER, resolveTier, type QualitySettings, type QualityTier } from '../engine/quality';
@@ -21,7 +23,8 @@ import { localize, rememberLocale } from '../i18n/locale';
 import { t } from '../i18n/strings';
 import { MarkerLayer } from '../interaction/markers';
 import { Picker } from '../interaction/picking';
-import { buildBalconyWorld, buildCollisionWorld } from '../physics/build-colliders';
+import { buildBalconyWorld, buildCollisionWorld, buildKaabaInteriorWorld } from '../physics/build-colliders';
+import type { CollisionWorld } from '../physics/collision';
 import { NavGrid } from '../physics/navigation';
 import { VirtualJoystick } from '../player/joystick';
 import { KeyboardInput, isArrowKey, isTextEntry } from '../player/keyboard';
@@ -98,16 +101,26 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
   const collision = buildCollisionWorld();
   const player = new Player(collision, SPAWN);
   player.speedMultiplier = settings.speed;
-  // The clock-tower balcony is a separate, raised level with its own collision world.
+  // Levels (data/levels.ts): the clock-tower balcony and the inside of the Kaaba are small worlds
+  // of their own.
   const balconyWorld = buildBalconyWorld();
-  let onBalcony = false;
-  /** Where the visitor stood before going up, to bring them back there. */
-  let beforeBalcony: { x: number; z: number; yaw: number; pitch: number } | null = null;
+  const kaabaWorld = buildKaabaInteriorWorld();
+  let level: Level = 'ground';
+  /** Where the visitor stood on the Haram's ground before leaving it, to bring them back there. */
+  let beforeLeaving: { x: number; z: number; yaw: number; pitch: number } | null = null;
 
-  // Optional deep link: /haram?place=safa starts at that place with its panel open.
-  const requested = new URLSearchParams(window.location.search).get('place');
+  // Optional deep links: /haram?place=safa starts at that place with its panel open, and
+  // ?view=balcony or ?view=kaaba (inside it) on that level.
+  const params = new URLSearchParams(window.location.search);
+  const requested = params.get('place');
   const startPlace: PlaceId | null = isPlaceId(requested) ? requested : null;
-  if (startPlace) player.teleport(PLACE_LOCATIONS[startPlace].viewpoint, PLACE_LOCATIONS[startPlace].lookAt);
+  const startView = params.get('view');
+  const startLevel: Level = startPlace
+    ? (PLACE_LOCATIONS[startPlace].level ?? 'ground')
+    : startView === 'balcony' || startView === 'kaaba'
+      ? startView
+      : 'ground';
+  if (startPlace && startLevel === 'ground') player.teleport(PLACE_LOCATIONS[startPlace].viewpoint, PLACE_LOCATIONS[startPlace].lookAt);
   else player.teleport(SPAWN, KAABA_VIEW);
 
   // ---- world ---------------------------------------------------------------------------
@@ -193,14 +206,20 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
   scene.add(destinationRing);
 
   function walkTo(x: number, y: number): void {
-    if (onBalcony) {
+    if (level === 'balcony') {
       toast.show(t('toast.balconyWalk'));
       return;
     }
     const target = picker.pickGround(x, y, canvas);
     if (!target) return; // a wall, an object or the sky — nothing to walk to
-    navGrid ??= NavGrid.fromWorld(collision);
-    const route = navGrid.findPath({ x: player.x, z: player.z }, target);
+    let route: Vec2[] | null;
+    if (level === 'ground') {
+      navGrid ??= NavGrid.fromWorld(collision);
+      route = navGrid.findPath({ x: player.x, z: player.z }, target);
+    } else {
+      // Inside the Kaaba: straight there, sliding round anything in the way.
+      route = levelWorld(level).isFree(target.x, target.z, 0.3) ? [target] : null;
+    }
     if (!route) {
       toast.show(t('toast.cantWalk'));
       return;
@@ -215,7 +234,7 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
       return;
     }
     player.walkPath(route);
-    destinationRing.position.set(destination.x, 0.03, destination.z);
+    destinationRing.position.set(destination.x, levelWorld(level).groundHeight(destination.x, destination.z) + 0.03, destination.z);
     destinationRing.visible = true;
     hud.dismissHint();
     invalidate();
@@ -232,6 +251,7 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
   const infoPanel: InfoPanel = new InfoPanel(ui, {
     onGoThere: (id) => void travelTo(id),
     onBalcony: () => void goUpToBalcony(),
+    onEnterKaaba: () => void enterKaaba(),
     onLookAt: (id) => {
       player.turnTowards(PLACE_LOCATIONS[id].lookAt, reducedMotion ? 0 : CAMERA.turnDuration);
       invalidate();
@@ -247,14 +267,15 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
   scene.add(overlays.group);
 
   /** Moves to a place's viewpoint (with a fade) unless already close by; then faces it. */
-  function moveTo(position: Vec2, lookAt: Vec3): void {
-    if (!onBalcony && Math.hypot(player.x - position.x, player.z - position.z) < 4) {
+  function moveTo(position: Vec2, lookAt: Vec3, target: Level = 'ground'): void {
+    if (level === target && target !== 'balcony' && Math.hypot(player.x - position.x, player.z - position.z) < 4) {
       player.turnTowards(lookAt, reducedMotion ? 0 : CAMERA.turnDuration);
       invalidate();
       return;
     }
+    rememberDeparture(target);
     void fade.run(() => {
-      placeOnGround(position, lookAt);
+      placeOnLevel(target, position, lookAt);
       invalidate();
     }, reducedMotion);
   }
@@ -266,14 +287,22 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
     invalidate();
   }
 
-  // ---- the clock-tower balcony -------------------------------------------------------------
-  function setLevel(balcony: boolean): void {
-    if (balcony === onBalcony) return;
-    onBalcony = balcony;
-    player.setWorld(balcony ? balconyWorld : collision);
-    rig.setClip(balcony ? CAMERA.balconyFarNear : CAMERA.near, CAMERA.far);
-    markers.setElevated(balcony);
-    hud.setBalcony(balcony);
+  // ---- levels: the Haram's ground, the balcony, inside the Kaaba ------------------------------
+  function levelWorld(which: Level): CollisionWorld {
+    if (which === 'balcony') return balconyWorld;
+    if (which === 'kaaba') return kaabaWorld;
+    return collision;
+  }
+
+  function setLevel(next: Level): void {
+    if (next === level) return;
+    level = next;
+    const nextWorld = levelWorld(next);
+    player.setWorld(nextWorld);
+    rig.setClip(next === 'balcony' ? CAMERA.balconyFarNear : CAMERA.near, CAMERA.far);
+    markers.setLevel(next, nextWorld);
+    hud.setLevel(next);
+    world.interior.group.visible = next === 'kaaba';
     destinationRing.visible = false;
   }
 
@@ -283,7 +312,7 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
    * itself (its own layer) with a close near plane, so the railing and glass are never clipped.
    */
   function renderView(): void {
-    if (!onBalcony) {
+    if (level !== 'balcony') {
       renderer.render(scene, camera);
       return;
     }
@@ -305,20 +334,33 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
     rig.setClip(CAMERA.balconyFarNear, CAMERA.far);
   }
 
-  /** Puts the visitor somewhere on the ground (bringing them down from the balcony first). */
-  function placeOnGround(position: Vec2, lookAt?: Vec3): void {
-    setLevel(false);
+  /** Remembers where the visitor stands on the Haram's ground, when they are about to leave it. */
+  function rememberDeparture(target: Level): void {
+    if (level === 'ground' && target !== 'ground') beforeLeaving = { x: player.x, z: player.z, yaw: player.yaw, pitch: player.pitch };
+  }
+
+  /** Puts the visitor on a level — its world and markers — at a spot; says where on arrival. */
+  function placeOnLevel(next: Level, position: Vec2, lookAt?: Vec3, quiet = false): void {
+    const was = level;
+    setLevel(next);
     player.teleport(position, lookAt);
+    if (quiet || was === next) return;
+    if (next === 'kaaba') toast.show(t('toast.insideKaaba'), 6500);
+  }
+
+  /** Puts the visitor somewhere on the Haram's ground (bringing them back from another level). */
+  function placeOnGround(position: Vec2, lookAt?: Vec3): void {
+    placeOnLevel('ground', position, lookAt);
   }
 
   function placeOnBalcony(): void {
-    setLevel(true);
+    setLevel('balcony');
     // Midway along the balcony, at the railing, looking down at the Kaaba.
     player.teleport({ x: CLOCK_TOWER.x, z: BALCONY.innerZ - BALCONY.depth }, KAABA_VIEW);
   }
 
   async function goUpToBalcony(): Promise<void> {
-    if (!onBalcony) beforeBalcony = { x: player.x, z: player.z, yaw: player.yaw, pitch: player.pitch };
+    rememberDeparture('balcony');
     infoPanel.close();
     // Closing the panel hands focus back to the marker that opened it; a focused marker is never
     // hidden, and the clock tower's would then hang overhead. The view takes the focus instead.
@@ -330,9 +372,28 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
     toast.show(t('toast.balcony'), 6500);
   }
 
-  async function goBackDown(): Promise<void> {
-    const back = beforeBalcony;
-    beforeBalcony = null;
+  async function enterKaaba(): Promise<void> {
+    rememberDeparture('kaaba');
+    infoPanel.close();
+    stage.focus({ preventScroll: true });
+    await fade.run(() => {
+      placeOnLevel('kaaba', KAABA_ENTRY.position, KAABA_ENTRY.lookAt);
+      invalidate();
+    }, reducedMotion);
+  }
+
+  /** The button at the top: down from the balcony, or out of the Kaaba. */
+  async function leaveLevel(): Promise<void> {
+    if (level === 'kaaba') {
+      // Out through the door, in front of it.
+      await fade.run(() => {
+        placeOnGround(KAABA_EXIT.position, KAABA_EXIT.lookAt);
+        invalidate();
+      }, reducedMotion);
+      return;
+    }
+    const back = beforeLeaving;
+    beforeLeaving = null;
     await fade.run(() => {
       if (back) {
         placeOnGround({ x: back.x, z: back.z });
@@ -351,7 +412,7 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
       moveTo(view.position, view.lookAt);
     } else if (step.focus) {
       const location = PLACE_LOCATIONS[step.focus];
-      moveTo(location.viewpoint, location.lookAt);
+      moveTo(location.viewpoint, location.lookAt, location.level ?? 'ground');
     }
   }
 
@@ -430,7 +491,7 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
         invalidate();
       },
       onResetPosition: () => void fade.run(() => {
-        setLevel(false);
+        setLevel('ground');
         player.resetToSpawn(KAABA_VIEW);
         invalidate();
       }, reducedMotion),
@@ -480,7 +541,7 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
     },
     onNightToggle: (night) => void setTimeOfDay(night ? 'night' : 'day'),
     onZoom: (factor) => zoomBy(factor),
-    onBackDown: () => void goBackDown(),
+    onLevelBack: () => void leaveLevel(),
   }, homeHref);
   hud.setNight(timeOfDay === 'night');
 
@@ -578,21 +639,43 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
 
   // ---- actions ---------------------------------------------------------------------------
   function selectPlace(id: PlaceId, options: { opener: HTMLElement | null; turn: boolean }): void {
+    const target = PLACE_LOCATIONS[id].level ?? 'ground';
+    // From the balcony, the ground's places are in view below.
+    const here: Level = level === 'balcony' ? 'ground' : level;
+    if (target !== here) {
+      // A place on another level (inside the Kaaba, or back on the Haram's ground): go there.
+      void travelTo(id).then((arrived) => {
+        if (arrived) openPlace(id, null, false);
+      });
+      return;
+    }
+    openPlace(id, options.opener, options.turn);
+  }
+
+  function openPlace(id: PlaceId, opener: HTMLElement | null, turn: boolean): void {
     // Both panels use the same space; reading about a place leaves the guide.
     if (guidePanel.isOpen) guidePanel.close();
-    infoPanel.show(id, options.opener ?? markers.buttonFor(id), true);
+    infoPanel.show(id, opener ?? markers.buttonFor(id), true);
     markers.setActive(id);
-    if (options.turn) player.turnTowards(PLACE_LOCATIONS[id].lookAt, reducedMotion ? 0 : CAMERA.turnDuration);
+    if (turn) player.turnTowards(PLACE_LOCATIONS[id].lookAt, reducedMotion ? 0 : CAMERA.turnDuration);
     invalidate();
   }
 
-  async function travelTo(id: PlaceId): Promise<void> {
+  /** "Go there": to the place's viewpoint, on whichever level it is. */
+  async function travelTo(id: PlaceId): Promise<boolean> {
     const location = PLACE_LOCATIONS[id];
+    const target = location.level ?? 'ground';
+    const was = level;
+    rememberDeparture(target);
     await fade.run(() => {
-      placeOnGround(location.viewpoint, location.lookAt);
+      placeOnLevel(target, location.viewpoint, location.lookAt);
       invalidate();
     }, reducedMotion);
-    toast.show(t('toast.travelled', { name: localize(getPlaceContent(id).name) }));
+    // Arriving on another level has its own notice.
+    if (was === target || (was === 'balcony' && target === 'ground')) {
+      toast.show(t('toast.travelled', { name: localize(getPlaceContent(id).name) }));
+    }
+    return true;
   }
 
   async function setTimeOfDay(next: TimeOfDay): Promise<void> {
@@ -740,7 +823,11 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
 
   // ---- go --------------------------------------------------------------------------------
   // /haram?view=balcony opens on the clock tower's balcony.
-  if (!startPlace && new URLSearchParams(window.location.search).get('view') === 'balcony') placeOnBalcony();
+  if (startLevel === 'balcony') placeOnBalcony();
+  else if (startLevel === 'kaaba') {
+    const spot = startPlace ? PLACE_LOCATIONS[startPlace] : null;
+    placeOnLevel('kaaba', spot?.viewpoint ?? KAABA_ENTRY.position, spot?.lookAt ?? KAABA_ENTRY.lookAt, true);
+  }
 
   let loadingDone = false;
   loading.showReady(controlHints(profile.isTouch, profile.hasFinePointer), () => {

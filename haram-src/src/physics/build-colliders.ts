@@ -10,6 +10,7 @@ import {
   WORLD_BOUNDS,
   hijrCenterline,
   kaabaToWorld,
+  MAQAM,
   maqamPosition,
   type Vec2,
 } from '../data/layout';
@@ -28,6 +29,7 @@ import {
   porticoColumns,
   porticoPiers,
 } from '../data/structure';
+import { KAABA_INTERIOR } from '../data/kaaba-interior';
 import { CollisionWorld } from './collision';
 
 export const ROCK_RADIUS = 7;
@@ -40,6 +42,28 @@ export const PORTAL_DEPTH = 2.6;
 export function buildBalconyWorld(): CollisionWorld {
   const { minX, maxX, innerZ, depth, inset, floorY } = BALCONY;
   return new CollisionWorld({ minX: minX + inset, maxX: maxX - inset, minZ: innerZ - depth + inset, maxZ: innerZ - inset }, 8, floorY);
+}
+
+/**
+ * Inside the Kaaba: a room of its own at the door's sill height, bounded by its four walls,
+ * with the pillars, the cupboard and the staircase enclosure in the way.
+ */
+export function buildKaabaInteriorWorld(): CollisionWorld {
+  const { halfW, halfD, floorY, pillars, pillarBase, cupboard, stair } = KAABA_INTERIOR;
+  const corners = [kaabaToWorld(-halfW, -halfD), kaabaToWorld(halfW, -halfD), kaabaToWorld(halfW, halfD), kaabaToWorld(-halfW, halfD)];
+  const xs = corners.map((c) => c.x);
+  const zs = corners.map((c) => c.z);
+  const world = new CollisionWorld({ minX: Math.min(...xs), maxX: Math.max(...xs), minZ: Math.min(...zs), maxZ: Math.max(...zs) }, 2, floorY);
+  world.addPolyline([...corners, corners[0]], 0.12, { tall: true });
+  for (const x of pillars.xs) {
+    const p = kaabaToWorld(x, pillars.z);
+    world.addBox(p.x, p.z, pillarBase.half, pillarBase.half, KAABA.rotationY, { tall: true });
+  }
+  const c = kaabaToWorld(cupboard.x, cupboard.z);
+  world.addBox(c.x, c.z, cupboard.width / 2, cupboard.depth / 2, KAABA.rotationY);
+  const st = kaabaToWorld(halfW - stair.size / 2, halfD - stair.size / 2);
+  world.addBox(st.x, st.z, stair.size / 2, stair.size / 2, KAABA.rotationY, { tall: true });
+  return world;
 }
 
 function nearBounds(p: Vec2, margin: number): boolean {
@@ -71,7 +95,7 @@ export function buildCollisionWorld(): CollisionWorld {
   );
 
   const maqam = maqamPosition();
-  world.addCircle(maqam.x, maqam.z, 1.25);
+  world.addCircle(maqam.x, maqam.z, MAQAM.base.radius + 0.2);
 
   for (const pier of porticoPiers()) {
     world.addBox(pier.x, pier.z, pier.halfAlong, pier.halfAcross, pier.angle);

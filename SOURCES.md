@@ -21,6 +21,9 @@ Source ids match `haram-src/src/data/sources.ts`.
 | `quran-2-158` | [Quran 2:158](https://quran.com/2/158) | Safa and Marwah among the symbols of Allah |
 | `quran-3-96` | [Quran 3:96–97](https://quran.com/3/96-97) | The first House established for mankind; the standing place of Ibrahim among its clear signs |
 | `quran-22-29` | [Quran 22:29](https://quran.com/22/29) | Tawaf around the ancient House |
+| `bukhari-397` | [Sahih al-Bukhari 397](https://sunnah.com/bukhari:397) | The Prophet ﷺ prayed inside the Kaaba; Bilal told Ibn Umar where: between the two pillars on the left as one enters |
+| `bukhari-505` | [Sahih al-Bukhari 505](https://sunnah.com/bukhari:505) | In the Prophet's ﷺ time the roof stood on six pillars: one on his left, one on his right and three behind him when he prayed inside |
+| `abudawud-2028` | [Sunan Abi Dawud 2028](https://sunnah.com/abudawud:2028) | Aisha, wishing to pray inside the Kaaba, told to pray in the Hijr, for it is part of the House |
 | `bukhari-1584` | [Sahih al-Bukhari 1584](https://sunnah.com/bukhari:1584) | Aisha's question whether the Hijr is part of the Kaaba (yes; left out for lack of funds) and why its door is high |
 | `bukhari-1597` | [Sahih al-Bukhari 1597](https://sunnah.com/bukhari:1597) | Umar ibn al-Khattab's words before kissing the Black Stone |
 | `bukhari-1609` | [Sahih al-Bukhari 1609](https://sunnah.com/bukhari:1609) | The Prophet ﷺ touching only the two Yemeni corners |
@@ -44,9 +47,10 @@ search listings (the site does not allow automated page fetches).
 | `ctbuh-clock-tower` | [CTBUH Skyscraper Center — Makkah Royal Clock Tower](https://www.skyscrapercenter.com/building/makkah-royal-clock-tower/84) | Height (601 m) and completion (2012) |
 | `wikipedia-kaaba` | [Wikipedia — Kaaba](https://en.wikipedia.org/wiki/Kaaba) | Door on the north-eastern wall about 2 m above the ground; Mizab; approximate dimensions (see modelling references) |
 | `wikipedia-kiswah` | [Wikipedia — Kiswah](https://en.wikipedia.org/wiki/Kiswah) | Black silk woven with inscriptions; Quranic verses embroidered in gold and silver thread; the belt two-thirds of the way up (about 95 cm wide, four pieces per side); square corner panels (kardashiyyat) with circular medallions below the belt; the door curtain (sitara, about 7.75 m × 3.5 m, the most elaborately decorated part); replaced annually |
-| `wikipedia-black-stone` | [Wikipedia — Black Stone](https://en.wikipedia.org/wiki/Black_Stone) | Height of about 1.5 m |
+| `wikipedia-black-stone` | [Wikipedia — Black Stone](https://en.wikipedia.org/wiki/Black_Stone) | Height of about 1.5 m; the exposed face about 20 × 16 cm; fragments cemented together in a silver frame fastened by silver nails |
 | `wikipedia-hijr` | [Wikipedia — Hijr Ismail](https://en.wikipedia.org/wiki/Hijr_Ismail) | Hijr Ismail / al-Hatim; the Mizab drains into it |
-| `wikipedia-maqam` | [Wikipedia — Maqam Ibrahim](https://en.wikipedia.org/wiki/Maqam_Ibrahim) | The enclosure; impressions traditionally identified as footprints |
+| `wikipedia-maqam` | [Wikipedia — Maqam Ibrahim](https://en.wikipedia.org/wiki/Maqam_Ibrahim) | The enclosure; impressions traditionally identified as footprints; the stone about 40 cm square |
+| `islamiclandmarks-kaaba` | [IslamicLandmarks.com — Inside the Ka'bah](https://www.islamiclandmarks.com/makkah-haram-sharief/inside-the-kabah) | Inside the Kaaba, with photographs: the marble floor and walls and the green cloth over the upper walls and ceiling (renewed in 1995 under King Fahd), the three pillars (replaced then), the white cupboard where perfume is kept, the plaques recording those who renovated the Kaaba, the golden Bab al-Tawbah to the stairs to the roof |
 | `wikipedia-zamzam` | [Wikipedia — Zamzam Well](https://en.wikipedia.org/wiki/Zamzam_Well) | About 20 m east of the Kaaba; underground; its opening lowered into a basement in the 1960s and the basement entrances closed in 2003; water provided throughout the mosque |
 | `saudipedia-zamzam` | [Saudipedia — Where is Zamzam Well located?](https://saudipedia.com/en/article/3725/religion/the-grand-mosque/where-is-zamzam-well-located) | On the eastern side of the Kaaba, about 21 m away, in line with the Multazam |
 | `islamiclandmarks-zamzam` | [IslamicLandmarks.com — Zamzam Well](https://www.islamiclandmarks.com/makkah-haram-sharief/zamzam-well) | 21 m from the Kaaba towards Maqam Ibrahim; the entrance to the well and the floor marking were removed in 2003 |
@@ -122,12 +126,27 @@ few dimensions it uses come from:
   base, a palm tree above and between the blades).
 - The Mataf's marble in rows facing the Kaaba: the visible layout of the real floor. Tile size
   (1.6 m) and the corner fans are approximate.
+- The Black Stone's frame: pure silver, oval, about 30 cm across, renewed in 1979 and 2001; eight
+  fragments visible in a brownish paste (Saudipedia — The Black Stone); its shape — a broad
+  polished plate with a pointed foot, wrapped round the corner, with a rolled rim round the
+  opening — from photographs. The plate's size is estimated.
+- Maqam Ibrahim: the stone about 50 cm square in Saudi sources (40 × 40 × 20 cm in Wikipedia),
+  its two footprints about 27 × 14 cm and 9–10 cm deep; a crystal cover 1.30 m high and 80 cm
+  across at its foot; a cage of gold-plated brass with a gilded inner grille; a base of Carrara
+  marble trimmed with green granite (Saudipedia — Maqam Ibrahim; Arabic Wikipedia — مقام
+  إبراهيم). The cage's eight-sided shape, roof, dome and crescent from photographs; its size
+  and the base's height are estimated from them.
+- Inside the Kaaba: the floor about 2 m above the Mataf (the door's sill); the room's finishes,
+  pillars, lamps, cupboard, plaques and Bab al-Tawbah from the photographs in IslamicLandmarks.com
+  — Inside the Ka'bah and descriptions in Wikipedia — Kaaba. The room's measurements, the
+  ceiling's height, the pillars' spacing and the number of lamps are not published and are
+  approximate.
 
 - The plan — the courtyard, the Ottoman portico, the halls, the Mas'a, the expansions, the
   gates, the minarets, Maqam Ibrahim's position, the Kaaba's orientation (door wall facing about
   56.5° from north), the clock tower's position and the buildings around — from OpenStreetMap
   (`osm-haram`), simplified to within about a metre.
 
-Everything else — Hijr Ismail's exact curve, the Maqam's enclosure shape, heights and interiors
-of the halls, the generic city and the mountains — is schematic and was not taken from a
-survey.
+Everything else — Hijr Ismail's exact curve, the exact sizes of the Maqam's enclosure and the
+Black Stone's frame, the room inside the Kaaba, heights and interiors of the halls, the generic
+city and the mountains — is approximate or schematic and was not taken from a survey.
