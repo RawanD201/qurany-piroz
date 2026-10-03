@@ -104,6 +104,7 @@ const SKY_FRAGMENT = /* glsl */ `
   uniform vec3 sunColor;
   uniform vec3 sunDirection;
   uniform float night;
+  uniform float sunDisc;
   varying vec3 vDirection;
 
   float hash13(vec3 p) {
@@ -118,7 +119,7 @@ const SKY_FRAGMENT = /* glsl */ `
     vec3 sky = mix(horizonColor, topColor, pow(clamp(h, 0.0, 1.0), 0.55));
     vec3 color = h >= 0.0 ? sky : mix(horizonColor, groundColor, clamp(-h * 6.0, 0.0, 1.0));
     float s = max(dot(d, sunDirection), 0.0);
-    color += sunColor * (pow(s, 900.0) * 2.5 + pow(s, 24.0) * 0.18) * (1.0 - night);
+    color += sunColor * (pow(s, 900.0) * 2.5 * sunDisc + pow(s, 24.0) * 0.18) * (1.0 - night);
     if (night > 0.0 && h > 0.0) {
       // The city's lights glow low over the horizon.
       color += vec3(0.34, 0.21, 0.1) * pow(1.0 - h, 9.0) * 0.4 * night;
@@ -146,6 +147,8 @@ function skyMaterial(): ShaderMaterial {
       sunColor: { value: new Color('#fff1d6') },
       sunDirection: { value: SUN_DIRECTION.clone() },
       night: { value: 0 },
+      // The sun's bright disc (1), or only the glow round it (0).
+      sunDisc: { value: 1 },
     },
     vertexShader: SKY_VERTEX,
     fragmentShader: SKY_FRAGMENT,
@@ -223,7 +226,10 @@ export function createEnvironment(
   const background = new Color();
   scene.background = background;
 
+  // The sky seen has only the sun's glow: the sun itself is the emblem drawn over it (sun-emblem.ts).
+  // The reflection maps keep the bright disc, so polished surfaces still catch the sun.
   const material = skyMaterial();
+  material.uniforms.sunDisc.value = 0;
   const sky = new Mesh(new SphereGeometry(2900, 32, 16), material);
   sky.frustumCulled = false;
   sky.renderOrder = -1;

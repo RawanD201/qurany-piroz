@@ -6,8 +6,15 @@ The 3D model and almost every texture are generated in code by this project (see
 `haram-src/src/world/`). The exceptions are **photographs of the real kiswah** used for its
 belt (hizam) and door curtain (sitara), and the **plan of the mosque and the buildings around
 it**, derived from OpenStreetMap data — both listed below with their licences — and one
-font, **Vazirmatn**, for Arabic-script text (also used by the main pages). No third-party 3D
-models or audio are used. The only external code shipped to visitors is three.js.
+font, **Vazirmatn**, for Arabic-script text (also used by the main pages), and the **flag of
+Kurdistan** in the "Made in Kurdistan" dialog. No third-party 3D models or audio are used. The
+only external code shipped to visitors is three.js.
+
+## The flag of Kurdistan
+
+| File in the explorer | Source | Creator | Licence | Changes made | Where used |
+| --- | --- | --- | --- | --- | --- |
+| `haram-src/src/assets/flag-of-kurdistan.svg` | [Flag of Kurdistan.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Kurdistan.svg) (Wikimedia Commons, drawn to the [Kurdish Institute of Paris's specification](https://www.institutkurde.org/en/kurdorama/the_national_flag_of_kurdistan.php); obtained October 2026) | Unknown author | Public domain | None | The "Made in Kurdistan" dialog, opened from the sun in the sky |
 
 ## Photographs of the kiswah
 

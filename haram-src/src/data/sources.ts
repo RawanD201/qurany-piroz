@@ -2,8 +2,11 @@
 // and the information panel lists them under the text so a reader can check every statement.
 // SOURCES.md at the repository root mirrors this list with notes on what each one supports.
 //
-// Quran references link to quran.com; hadith references use the Sunnah.com numbering.
-// Descriptions paraphrase these sources rather than quoting translations at length.
+// Quran references open the verse in the Qurany Piroz app and are named the way the app names
+// them (see quran.ts); hadith references use the Sunnah.com numbering. Descriptions paraphrase
+// these sources rather than quoting translations at length.
+
+import { ayatUrl, quranReference } from './quran';
 
 export interface SourceRef {
   id: string;
@@ -11,20 +14,32 @@ export interface SourceRef {
   url: string;
 }
 
+interface SourceEntry {
+  /** The label in English (Quran references are named in the visitor's language when shown). */
+  label: string;
+  url: string;
+  quran?: { surat: number; verses: string };
+}
+
+/** A Quran reference: `verses` is one verse or a range ("96–97"). */
+function quran(surat: number, verses: string): SourceEntry {
+  return { label: `Quran ${surat}:${verses}`, url: ayatUrl(surat, verses), quran: { surat, verses } };
+}
+
 export const SOURCES = {
-  'quran-2-125': { label: 'Quran 2:125', url: 'https://quran.com/2/125' },
-  'quran-2-127': { label: 'Quran 2:127', url: 'https://quran.com/2/127' },
-  'quran-2-144': { label: 'Quran 2:144', url: 'https://quran.com/2/144' },
-  'quran-2-158': { label: 'Quran 2:158', url: 'https://quran.com/2/158' },
-  'quran-3-96': { label: 'Quran 3:96–97', url: 'https://quran.com/3/96-97' },
-  'quran-22-29': { label: 'Quran 22:29', url: 'https://quran.com/22/29' },
-  'quran-2-196': { label: 'Quran 2:196', url: 'https://quran.com/2/196' },
-  'quran-2-197': { label: 'Quran 2:197', url: 'https://quran.com/2/197' },
-  'quran-2-198': { label: 'Quran 2:198', url: 'https://quran.com/2/198' },
-  'quran-2-203': { label: 'Quran 2:203', url: 'https://quran.com/2/203' },
-  'quran-3-97': { label: 'Quran 3:97', url: 'https://quran.com/3/97' },
-  'quran-5-95': { label: 'Quran 5:95', url: 'https://quran.com/5/95' },
-  'quran-48-27': { label: 'Quran 48:27', url: 'https://quran.com/48/27' },
+  'quran-2-125': quran(2, '125'),
+  'quran-2-127': quran(2, '127'),
+  'quran-2-144': quran(2, '144'),
+  'quran-2-158': quran(2, '158'),
+  'quran-3-96': quran(3, '96–97'),
+  'quran-22-29': quran(22, '29'),
+  'quran-2-196': quran(2, '196'),
+  'quran-2-197': quran(2, '197'),
+  'quran-2-198': quran(2, '198'),
+  'quran-2-203': quran(2, '203'),
+  'quran-3-97': quran(3, '97'),
+  'quran-5-95': quran(5, '95'),
+  'quran-48-27': quran(48, '27'),
   'bukhari-1542': { label: 'Sahih al-Bukhari 1542', url: 'https://sunnah.com/bukhari:1542' },
   'bukhari-1549': { label: 'Sahih al-Bukhari 1549', url: 'https://sunnah.com/bukhari:1549' },
   'bukhari-1612': { label: 'Sahih al-Bukhari 1612', url: 'https://sunnah.com/bukhari:1612' },
@@ -108,10 +123,12 @@ export const SOURCES = {
   'bukhari-397': { label: 'Sahih al-Bukhari 397', url: 'https://sunnah.com/bukhari:397' },
   'bukhari-505': { label: 'Sahih al-Bukhari 505', url: 'https://sunnah.com/bukhari:505' },
   'abudawud-2028': { label: 'Sunan Abi Dawud 2028', url: 'https://sunnah.com/abudawud:2028' },
-} as const satisfies Record<string, Omit<SourceRef, 'id'>>;
+} as const satisfies Record<string, SourceEntry>;
 
 export type SourceId = keyof typeof SOURCES;
 
 export function getSource(id: SourceId): SourceRef {
-  return { id, ...SOURCES[id] };
+  const entry: SourceEntry = SOURCES[id];
+  const label = entry.quran ? quranReference(entry.quran.surat, entry.quran.verses) : entry.label;
+  return { id, label, url: entry.url };
 }

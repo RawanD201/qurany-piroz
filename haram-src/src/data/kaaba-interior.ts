@@ -13,7 +13,7 @@
 // thickness, the ceiling's height, the pillars' spacing, the number and places of the lamps —
 // is approximate, and said so in the panels.
 
-import type { Vec3 } from './layout';
+import type { Vec2, Vec3 } from './layout';
 import { KAABA, KAABA_HALF_D, KAABA_HALF_W, kaabaToWorld, kaabaToWorld3 } from './layout';
 
 const FLOOR = KAABA.door.bottom;
@@ -66,6 +66,33 @@ export const KAABA_PLAQUES: readonly { x: number; z: number; nx: number; nz: num
   { x: 0.2, z: halfD, nx: 0, nz: -1 },
   { x: 2.5, z: halfD, nx: 0, nz: -1 },
 ];
+
+/**
+ * The door's two leaves, seen from inside: each hangs on a hinge at a jamb, just inside the wall,
+ * and opens into the room (while the stairs stand at the door; see kaaba-stairs.ts).
+ */
+export const DOOR_LEAVES = {
+  hingeZ: halfD - 0.06,
+  width: KAABA.door.width / 2,
+  thickness: 0.05,
+  /** How far they turn open, radians: a little past square to the wall. */
+  open: (95 * Math.PI) / 180,
+};
+
+/**
+ * Each leaf, local: its hinge, which way its free edge points when closed (`toward`, along X), the
+ * angle it turns open about its hinge (three.js rotation.y), and where its free edge then is.
+ */
+export function doorLeaves(): { hinge: Vec2; toward: 1 | -1; turn: number; openEdge: Vec2 }[] {
+  const { hingeZ, width, open } = DOOR_LEAVES;
+  const { centerX } = KAABA.door;
+  return ([1, -1] as const).map((toward) => ({
+    hinge: { x: centerX - toward * width, z: hingeZ },
+    toward,
+    turn: toward * open,
+    openEdge: { x: centerX - toward * width + toward * width * Math.cos(open), z: hingeZ - width * Math.sin(open) },
+  }));
+}
 
 /** Bab al-Tawbah's centre (local), on the staircase's face towards the room. */
 const TAWBAH_LOCAL = { x: halfW - stair.size, z: halfD - stair.size / 2 };

@@ -180,11 +180,12 @@ export class Player {
 
   /**
    * Moves the visitor into another collision world (the clock-tower balcony and back). Call
-   * teleport() straight after, to put them somewhere in it.
+   * teleport() straight after, to put them somewhere in it — unless they walk across where the two
+   * worlds meet (the Kaaba's doorway), when an automatic walk can carry on (`keepWalking`).
    */
-  setWorld(world: CollisionWorld): void {
+  setWorld(world: CollisionWorld, keepWalking = false): void {
     this.world = world;
-    this.path = null;
+    if (!keepWalking) this.path = null;
   }
 
   resetToSpawn(lookAt: Vec3): void {
@@ -256,8 +257,10 @@ export class Player {
     }
 
     // Gravity and ground contact. The floor is level, but this keeps the visitor on it after a
-    // teleport and never lets them fall through it.
+    // teleport and never lets them fall through it. Walking down the Kaaba's stairs, they step
+    // down with the ground instead of falling a little at every step.
     const ground = this.world.groundHeight(this.x, this.z);
+    if (this.grounded && this.vy <= 0 && this.y > ground && this.y - ground < MOVEMENT.stepDown) this.y = ground;
     if (this.y > ground || this.vy > 0) {
       this.vy -= MOVEMENT.gravity * step;
       this.y += this.vy * step;

@@ -55,8 +55,10 @@ export interface PlaceLocation {
   priority?: number;
   /** Offers the view from the clock tower's balcony (see BALCONY in layout.ts). */
   balcony?: boolean;
-  /** Offers to go inside the Kaaba. */
+  /** Offers to go inside the Kaaba, and to bring the stairs to its door. */
   inside?: boolean;
+  /** Offers to open or close the Kaaba's door. */
+  door?: boolean;
   /** The level the place is on (default: the Haram's ground). */
   level?: Level;
 }
@@ -130,6 +132,7 @@ function build(): Record<PlaceId, PlaceLocation> {
       lookAt: KAABA_CENTER,
       pick: kaabaBox(),
       inside: true,
+      door: true,
     },
     kiswah: {
       anchor: kiswahAnchor,
@@ -151,6 +154,7 @@ function build(): Record<PlaceId, PlaceLocation> {
         rotationY: KAABA.rotationY,
       },
       inside: true,
+      door: true,
     },
     blackStone: {
       anchor: blackStoneAnchor,
@@ -283,6 +287,7 @@ function build(): Record<PlaceId, PlaceLocation> {
       viewpoint: KAABA_INTERIOR_VIEWS.room.position,
       lookAt: KAABA_INTERIOR_VIEWS.room.lookAt,
       level: 'kaaba',
+      door: true,
     },
     kaabaPillars: {
       anchor: KAABA_INTERIOR_ANCHORS.pillars,

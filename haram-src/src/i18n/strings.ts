@@ -114,6 +114,10 @@ const STRINGS = {
   'toast.insideKaaba': {
     en: 'Inside the Kaaba — a model for learning; visitors cannot normally go in. Choose “Leave the Kaaba” to go back out.',
   },
+  'toast.stairsAdded': { en: 'The stairs are at the door and the door is open — walk up the stairs to go inside.' },
+  'toast.stairsRemoved': { en: 'The stairs have been taken away and the door is closed.' },
+  'toast.doorOpened': { en: 'The door of the Kaaba is open.' },
+  'toast.doorClosed': { en: 'The door of the Kaaba is closed.' },
   'places.heading': { en: 'Places' },
   'places.intro': { en: 'Choose a place to read about it and turn towards it.' },
   'places.close': { en: 'Close places' },
@@ -123,6 +127,11 @@ const STRINGS = {
   'panel.lookAt': { en: 'Look at it' },
   'panel.balcony': { en: 'View from the balcony' },
   'panel.enterKaaba': { en: 'Go inside the Kaaba' },
+  // The mobile staircase in front of the Kaaba's door (the door is open while it is there).
+  'panel.bringStairs': { en: 'Bring the stairs' },
+  'panel.removeStairs': { en: 'Take the stairs away' },
+  'panel.openDoor': { en: 'Open the door' },
+  'panel.closeDoor': { en: 'Close the door' },
   'panel.modelNote': { en: 'About this 3D model' },
   'panel.sources': { en: 'Sources' },
   'panel.opensInNewTab': { en: '(opens in a new tab)' },
@@ -144,6 +153,8 @@ const STRINGS = {
   'settings.textSize': { en: 'Text size in panels' },
   'settings.reverseDrag': { en: 'Reverse drag direction' },
   'settings.showMarkers': { en: 'Show place markers' },
+  'settings.showPeople': { en: 'Show people praying' },
+  'settings.showTawaf': { en: 'Show people doing tawaf' },
   'settings.resetPosition': { en: 'Return to the starting point' },
   'settings.fullscreen': { en: 'Full screen' },
   'settings.exitFullscreen': { en: 'Exit full screen' },
@@ -174,6 +185,12 @@ const STRINGS = {
   'credits.khalili0251': { en: 'Band panel: Khalili Collection TXT 0251, © Khalili Collections — CC BY-SA 3.0 IGO' },
   'help.controls': { en: 'Controls' },
   'help.textVersion': { en: 'Read about every place without 3D' },
+
+  // Opened by tapping the sun in the sky, which is the sun from the flag of Kurdistan.
+  'about.heading': { en: 'Made in Kurdistan' },
+  'about.name': { en: 'Aland Kawa Ali' },
+  'about.builtBy': { en: 'This website was built in Iraqi Kurdistan by {name}, a Kurdish developer.' },
+  'about.sun': { en: 'The sun in the sky here is the golden sun from the flag of Kurdistan.' },
 
   'toast.qualityLowered': { en: 'Graphics quality lowered to keep movement smooth.' },
   'toast.travelled': { en: 'You are now at: {name}' },

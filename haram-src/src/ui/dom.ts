@@ -70,7 +70,9 @@ export type IconName =
   | 'book'
   | 'up'
   | 'down'
-  | 'back';
+  | 'back'
+  | 'stairs'
+  | 'door';
 
 const ICON_PATHS: Record<IconName, string[]> = {
   places: ['M4 6h16', 'M4 12h16', 'M4 18h10'],
@@ -94,6 +96,8 @@ const ICON_PATHS: Record<IconName, string[]> = {
   // Points left; mirrored for right-to-left languages (main.css).
   back: ['M19 12H5', 'M12 19l-7-7 7-7'],
   book: ['M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z', 'M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5', 'M8 7h8'],
+  stairs: ['M3 20h5v-5h5v-5h5V5h3'],
+  door: ['M5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v17', 'M3 21h18', 'M12 3v18', 'M9.5 12h.01', 'M14.5 12h.01'],
 };
 
 const SVG_NS = 'http://www.w3.org/2000/svg';

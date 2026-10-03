@@ -11,6 +11,7 @@ import { getLocale, localize, type Locale } from '../i18n/locale';
 import { t } from '../i18n/strings';
 import { Dialog } from './dialog';
 import { button, el, icon } from './dom';
+import { prose, sourceItem } from './place-text';
 
 /** Languages written in Arabic script. */
 const ARABIC_SCRIPT: ReadonlySet<Locale> = new Set<Locale>(['ar', 'fa', 'ur', 'ckb', 'kmr', 'sdh']);
@@ -42,7 +43,7 @@ export class GuideChooser {
         'button',
         { className: 'places-list__item', attrs: { type: 'button' } },
         el('span', { className: 'places-list__name', text: localize(guide.title) }),
-        el('span', { className: 'places-list__summary', text: localize(guide.summary) }),
+        el('span', { className: 'places-list__summary', text: prose(guide.summary) }),
         el('span', { className: 'places-list__summary', text: t('guide.stepCount', { count: guide.steps.length }) })
       );
       item.addEventListener('click', () => {
@@ -160,7 +161,7 @@ export class GuidePanel {
     );
 
     if (!step) {
-      for (const paragraph of guide.intro) nodes.push(el('p', { text: localize(paragraph) }));
+      for (const paragraph of guide.intro) nodes.push(el('p', { text: prose(paragraph) }));
       const steps = el('ol', { className: 'guide__steps' });
       guide.steps.forEach((s, i) => {
         const item = el('button', { className: 'guide__step-link', text: localize(s.title), attrs: { type: 'button' } });
@@ -175,9 +176,9 @@ export class GuidePanel {
       facts.append(localize(step.where));
       nodes.push(facts);
       if (!step.inMosque) nodes.push(el('p', { className: 'guide__badge', text: t('guide.outside') }));
-      nodes.push(el('p', { className: 'place__summary', text: localize(step.summary) }));
+      nodes.push(el('p', { className: 'place__summary', text: prose(step.summary) }));
       const points = el('ul', { className: 'guide__points' });
-      for (const point of step.points) points.append(el('li', { text: localize(point) }));
+      for (const point of step.points) points.append(el('li', { text: prose(point) }));
       nodes.push(points);
 
       if (step.recitation) {
@@ -259,12 +260,7 @@ export class GuidePanel {
 
   private sourcesBlock(ids: RiteStep['sources']): HTMLElement {
     const list = el('ul', { className: 'place__sources' });
-    for (const id of ids) {
-      const source = getSource(id);
-      const link = el('a', { text: source.label, attrs: { href: source.url, target: '_blank', rel: 'noopener noreferrer' } });
-      link.append(el('span', { className: 'visually-hidden', text: ` ${t('panel.opensInNewTab')}` }));
-      list.append(el('li', {}, link));
-    }
+    for (const id of ids) list.append(sourceItem(id));
     return el('div', {}, el('h3', { className: 'place__sources-title', text: t('panel.sources') }), list);
   }
 }

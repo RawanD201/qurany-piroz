@@ -5,6 +5,7 @@
 import { Raycaster, Vector2, type Camera, type Group, type Mesh } from 'three';
 import type { Vec2 } from '../data/layout';
 import type { PlaceId } from '../data/places';
+import type { SunEmblem } from '../world/sun-emblem';
 
 const MAX_PICK_DISTANCE = 700;
 /** Double-clicking further away than this does nothing (the route would be very long). */
@@ -69,5 +70,26 @@ export class Picker {
       if (this.raycaster.intersectObjects(this.occluders, false).length > 0) return null;
     }
     return (hit.object.userData.placeId as PlaceId | undefined) ?? null;
+  }
+
+  /** Whether a point on the canvas is on one of `meshes`, within `reach` metres. */
+  pickMeshes(clientX: number, clientY: number, canvas: HTMLElement, meshes: readonly Mesh[], reach: number): boolean {
+    if (!this.setRay(clientX, clientY, canvas)) return false;
+    this.raycaster.near = 0;
+    this.raycaster.far = reach;
+    return this.raycaster.intersectObjects(meshes as Mesh[], false).length > 0;
+  }
+
+  /**
+   * Whether a point on the canvas is on the sun in the sky (world/sun-emblem.ts), with nothing
+   * solid in front of it. The sun keeps its place in the sky wherever the visitor stands, so only
+   * the ray's direction decides; a little leeway round its rays makes it easier to tap.
+   */
+  pickSun(clientX: number, clientY: number, canvas: HTMLElement, sun: SunEmblem): boolean {
+    if (!sun.mesh.visible || !this.setRay(clientX, clientY, canvas)) return false;
+    if (this.raycaster.ray.direction.angleTo(sun.direction) > sun.angularRadius * 1.1) return false;
+    this.raycaster.near = 0;
+    this.raycaster.far = sun.distance;
+    return this.raycaster.intersectObjects(this.surfaces, false).length === 0;
   }
 }

@@ -43,7 +43,8 @@ describe('Hajj and Umrah guides', () => {
 });
 
 describe('guide routes', () => {
-  const world = buildCollisionWorld();
+  // With the people praying in the courtyard: the routes stay clear of them too.
+  const world = buildCollisionWorld({ people: true });
 
   it('the tawaf circuit is walkable all the way round, anticlockwise from the Black Stone', () => {
     const points = [tawafStart().position, ...tawafPath()];

@@ -15,12 +15,12 @@ Source ids match `haram-src/src/data/sources.ts`.
 
 | Id | Source | Used for |
 | --- | --- | --- |
-| `quran-2-125` | [Quran 2:125](https://quran.com/2/125) | Maqam Ibrahim taken as a place of prayer |
-| `quran-2-127` | [Quran 2:127](https://quran.com/2/127) | Ibrahim and Ismail raising the foundations of the House |
-| `quran-2-144` | [Quran 2:144](https://quran.com/2/144) | Facing the Sacred Mosque in prayer (the qibla) |
-| `quran-2-158` | [Quran 2:158](https://quran.com/2/158) | Safa and Marwah among the symbols of Allah |
-| `quran-3-96` | [Quran 3:96–97](https://quran.com/3/96-97) | The first House established for mankind; the standing place of Ibrahim among its clear signs |
-| `quran-22-29` | [Quran 22:29](https://quran.com/22/29) | Tawaf around the ancient House |
+| `quran-2-125` | [Quran 2:125](https://www.qurany-piroz.com/ayat/2/125) | Maqam Ibrahim taken as a place of prayer |
+| `quran-2-127` | [Quran 2:127](https://www.qurany-piroz.com/ayat/2/127) | Ibrahim and Ismail raising the foundations of the House |
+| `quran-2-144` | [Quran 2:144](https://www.qurany-piroz.com/ayat/2/144) | Facing the Sacred Mosque in prayer (the qibla) |
+| `quran-2-158` | [Quran 2:158](https://www.qurany-piroz.com/ayat/2/158) | Safa and Marwah among the symbols of Allah |
+| `quran-3-96` | [Quran 3:96–97](https://www.qurany-piroz.com/ayat/3/96) | The first House established for mankind; the standing place of Ibrahim among its clear signs |
+| `quran-22-29` | [Quran 22:29](https://www.qurany-piroz.com/ayat/22/29) | Tawaf around the ancient House |
 | `bukhari-397` | [Sahih al-Bukhari 397](https://sunnah.com/bukhari:397) | The Prophet ﷺ prayed inside the Kaaba; Bilal told Ibn Umar where: between the two pillars on the left as one enters |
 | `bukhari-505` | [Sahih al-Bukhari 505](https://sunnah.com/bukhari:505) | In the Prophet's ﷺ time the roof stood on six pillars: one on his left, one on his right and three behind him when he prayed inside |
 | `abudawud-2028` | [Sunan Abi Dawud 2028](https://sunnah.com/abudawud:2028) | Aisha, wishing to pray inside the Kaaba, told to pray in the Hijr, for it is part of the House |
@@ -67,13 +67,13 @@ checked against Sunnah.com listings.
 
 | Id | Source | Used for |
 | --- | --- | --- |
-| `quran-2-196` | [Quran 2:196](https://quran.com/2/196) | Completing Hajj and Umrah; not shaving the head in ihram; tamattu’ and its sacrifice |
-| `quran-2-197` | [Quran 2:197](https://quran.com/2/197) | No marital relations during Hajj |
-| `quran-2-198` | [Quran 2:198](https://quran.com/2/198) | Departing Arafat; remembering Allah at al-Mash’ar al-Haram |
-| `quran-2-203` | [Quran 2:203](https://quran.com/2/203) | The appointed days; leaving after two days or staying |
-| `quran-3-97` | [Quran 3:97](https://quran.com/3/97) | Hajj is a duty for those who are able |
-| `quran-5-95` | [Quran 5:95](https://quran.com/5/95) | No hunting in ihram |
-| `quran-48-27` | [Quran 48:27](https://quran.com/48/27) | Heads shaved and hair shortened |
+| `quran-2-196` | [Quran 2:196](https://www.qurany-piroz.com/ayat/2/196) | Completing Hajj and Umrah; not shaving the head in ihram; tamattu’ and its sacrifice |
+| `quran-2-197` | [Quran 2:197](https://www.qurany-piroz.com/ayat/2/197) | No marital relations during Hajj |
+| `quran-2-198` | [Quran 2:198](https://www.qurany-piroz.com/ayat/2/198) | Departing Arafat; remembering Allah at al-Mash’ar al-Haram |
+| `quran-2-203` | [Quran 2:203](https://www.qurany-piroz.com/ayat/2/203) | The appointed days; leaving after two days or staying |
+| `quran-3-97` | [Quran 3:97](https://www.qurany-piroz.com/ayat/3/97) | Hajj is a duty for those who are able |
+| `quran-5-95` | [Quran 5:95](https://www.qurany-piroz.com/ayat/5/95) | No hunting in ihram |
+| `quran-48-27` | [Quran 48:27](https://www.qurany-piroz.com/ayat/48/27) | Heads shaved and hair shortened |
 | `muslim-1218` | [Sahih Muslim 1218](https://sunnah.com/muslim:1218a) | The sequence of the Prophet's ﷺ Hajj: bathing before ihram, ramal in three circuits, prayer at the Maqam, Safa and Marwah, Mina on the 8th, Arafat until sunset, Muzdalifah, stoning Jamrat al-Aqaba with takbir, Tawaf al-Ifadah, Zamzam |
 | `bukhari-1542` | [Sahih al-Bukhari 1542](https://sunnah.com/bukhari:1542) | What men in ihram do not wear; no scented garments |
 | `bukhari-1549` | [Sahih al-Bukhari 1549](https://sunnah.com/bukhari:1549) | The talbiyah |

@@ -12,8 +12,9 @@ import { Mesh, MeshBasicMaterial, RingGeometry, type WebGLRenderer } from 'three
 import type { DeviceProfile } from '../boot/support';
 import type { LoadingScreen } from '../boot/loading-screen';
 import { CAMERA } from '../config';
-import { BALCONY, CLOCK_TOWER, SPAWN, type Vec2, type Vec3 } from '../data/layout';
+import { BALCONY, CLOCK_TOWER, PLAYER, SPAWN, worldToKaaba, type Vec2, type Vec3 } from '../data/layout';
 import { KAABA_ENTRY, KAABA_EXIT } from '../data/kaaba-interior';
+import { DOORWAY, KAABA_LANDING, inDoorSwing, inDoorway, nearStairs, sideOfDoorway } from '../data/kaaba-stairs';
 import type { Level } from '../data/levels';
 import { PLACE_LOCATIONS } from '../data/place-locations';
 import { PLACES, getPlaceContent, type PlaceId } from '../data/places';
@@ -23,7 +24,7 @@ import { localize, rememberLocale } from '../i18n/locale';
 import { t } from '../i18n/strings';
 import { MarkerLayer } from '../interaction/markers';
 import { Picker } from '../interaction/picking';
-import { buildBalconyWorld, buildCollisionWorld, buildKaabaInteriorWorld } from '../physics/build-colliders';
+import { buildBalconyWorld, buildCollisionWorld, buildKaabaInteriorWorld, prayingPeople } from '../physics/build-colliders';
 import type { CollisionWorld } from '../physics/collision';
 import { NavGrid } from '../physics/navigation';
 import { VirtualJoystick } from '../player/joystick';
@@ -31,6 +32,7 @@ import { KeyboardInput, isArrowKey, isTextEntry } from '../player/keyboard';
 import { LookControls } from '../player/look-controls';
 import { Player, type MoveIntent } from '../player/player';
 import { loadSettings, saveSettings, type UserSettings } from '../settings';
+import { AboutPanel } from '../ui/about-panel';
 import { isModalOpen } from '../ui/dialog';
 import { el, button } from '../ui/dom';
 import { Fade, Toast } from '../ui/feedback';
@@ -99,12 +101,21 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
 
   const rig = new CameraRig();
   const collision = buildCollisionWorld();
-  const player = new Player(collision, SPAWN);
-  player.speedMultiplier = settings.speed;
   // Levels (data/levels.ts): the clock-tower balcony and the inside of the Kaaba are small worlds
   // of their own.
   const balconyWorld = buildBalconyWorld();
   const kaabaWorld = buildKaabaInteriorWorld();
+  // The stairs at the Kaaba's door and the door itself (from its panels): the ground's and the
+  // room's worlds follow them — the stairs to climb, the doorway to walk through while the stairs
+  // stand at the open door. The people praying in the courtyard (Settings) are in the ground's world
+  // while they are shown. Each world is built when first needed.
+  let stairs = settings.kaabaStairs;
+  let doorOpen = settings.kaabaDoorOpen;
+  let people = settings.showPeople;
+  const groundWorlds = new Map<string, CollisionWorld>([['', collision]]);
+  const roomWorlds = new Map<string, CollisionWorld>([['', kaabaWorld]]);
+  const player = new Player(levelWorld('ground'), SPAWN);
+  player.speedMultiplier = settings.speed;
   let level: Level = 'ground';
   /** Where the visitor stood on the Haram's ground before leaving it, to bring them back there. */
   let beforeLeaving: { x: number; z: number; yaw: number; pitch: number } | null = null;
@@ -124,13 +135,17 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
   else player.teleport(SPAWN, KAABA_VIEW);
 
   // ---- world ---------------------------------------------------------------------------
-  const world = await buildWorld(renderer, quality, timeOfDay, (stageName, fraction) => {
+  const world = await buildWorld(renderer, quality, timeOfDay, prayingPeople(), (stageName, fraction) => {
     if (stageName === 'textures') loading.set(0.3 + fraction * 0.22, t('loading.textures'));
     else if (stageName === 'environment') loading.set(0.52 + fraction * 0.26, t('loading.environment'));
     else loading.set(0.8, t('loading.lighting'));
   });
   if (world.warnings.length) loading.warn(t('loading.warning', { detail: world.warnings.join(', ') }));
   if (profile.majorPerformanceCaveat) loading.warn(t('error.softwareRendering'));
+  world.setKaabaStairs(stairs);
+  world.setKaabaDoor(doorOpen, true);
+  world.setPeopleShown(people);
+  world.setTawafShown(settings.showTawaf);
   const scene = world.scene;
   const camera = rig.camera;
 
@@ -182,6 +197,8 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
   // ---- prepare shaders (avoids a stutter on the first frames) -------------------------
   loading.set(0.84, t('loading.compiling'));
   rig.sync(player);
+  world.updateForView(camera.position);
+  world.animateTawaf(camera, performance.now() / 1000);
   try {
     await renderer.compileAsync(scene, camera);
   } catch {
@@ -195,8 +212,8 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
   const fade = new Fade(ui);
   const picker = new Picker(camera, world.pickables, world.occluders, world.walkables);
 
-  // Double-click to walk: the route grid is built the first time it is needed.
-  let navGrid: NavGrid | null = null;
+  // Double-click to walk: each ground world's route grid is built the first time it is needed.
+  const navGrids = new Map<CollisionWorld, NavGrid>();
   const destinationRing = new Mesh(
     new RingGeometry(0.32, 0.48, 40).rotateX(-Math.PI / 2),
     new MeshBasicMaterial({ color: '#f0cf55', transparent: true, opacity: 0.9, depthWrite: false })
@@ -214,8 +231,10 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
     if (!target) return; // a wall, an object or the sky — nothing to walk to
     let route: Vec2[] | null;
     if (level === 'ground') {
-      navGrid ??= NavGrid.fromWorld(collision);
-      route = navGrid.findPath({ x: player.x, z: player.z }, target);
+      const ground = levelWorld('ground');
+      let grid = navGrids.get(ground);
+      if (!grid) navGrids.set(ground, (grid = NavGrid.fromWorld(ground)));
+      route = grid.findPath({ x: player.x, z: player.z }, target);
     } else {
       // Inside the Kaaba: straight there, sliding round anything in the way.
       route = levelWorld(level).isFree(target.x, target.z, 0.3) ? [target] : null;
@@ -242,7 +261,7 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
 
   const background = () => [stage, markerLayer, hud.root, infoPanel.element, guidePanel.element];
 
-  const markers = new MarkerLayer(markerLayer, PLACES, PLACE_LOCATIONS, collision, (id, opener) =>
+  const markers = new MarkerLayer(markerLayer, PLACES, PLACE_LOCATIONS, levelWorld('ground'), (id, opener) =>
     selectPlace(id, { opener, turn: false })
   );
   markers.setEnabled(settings.showMarkers);
@@ -252,6 +271,15 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
     onGoThere: (id) => void travelTo(id),
     onBalcony: () => void goUpToBalcony(),
     onEnterKaaba: () => void enterKaaba(),
+    // Each closes the panel, out of the way, so the visitor can watch.
+    onToggleStairs: () => {
+      infoPanel.close();
+      setDoorway(!stairs, !stairs);
+    },
+    onToggleDoor: () => {
+      infoPanel.close();
+      setDoorway(stairs, !doorOpen);
+    },
     onLookAt: (id) => {
       player.turnTowards(PLACE_LOCATIONS[id].lookAt, reducedMotion ? 0 : CAMERA.turnDuration);
       invalidate();
@@ -261,6 +289,8 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
       invalidate();
     },
   });
+  infoPanel.setStairs(stairs);
+  infoPanel.setDoor(doorOpen);
 
   // ---- Hajj and Umrah guide ---------------------------------------------------------------
   const overlays = new GuideOverlays();
@@ -290,21 +320,96 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
   // ---- levels: the Haram's ground, the balcony, inside the Kaaba ------------------------------
   function levelWorld(which: Level): CollisionWorld {
     if (which === 'balcony') return balconyWorld;
-    if (which === 'kaaba') return kaabaWorld;
-    return collision;
+    const exit = stairs && doorOpen;
+    if (which === 'kaaba') {
+      const key = `${doorOpen ? 'open' : ''}${exit ? 'exit' : ''}`;
+      let room = roomWorlds.get(key);
+      if (!room) roomWorlds.set(key, (room = buildKaabaInteriorWorld({ doorOpen, exit })));
+      return room;
+    }
+    const key = `${stairs ? 'stairs' : ''}${exit ? 'doorway' : ''}${people ? 'people' : ''}`;
+    let ground = groundWorlds.get(key);
+    if (!ground) groundWorlds.set(key, (ground = buildCollisionWorld({ kaabaStairs: stairs, kaabaDoorway: exit, people })));
+    return ground;
   }
 
-  function setLevel(next: Level): void {
+  /** `keepWalking`: the visitor walked through the Kaaba's doorway, and an automatic walk carries on. */
+  function setLevel(next: Level, keepWalking = false): void {
     if (next === level) return;
     level = next;
-    const nextWorld = levelWorld(next);
-    player.setWorld(nextWorld);
+    useLevelWorld(keepWalking);
     rig.setClip(next === 'balcony' ? CAMERA.balconyFarNear : CAMERA.near, CAMERA.far);
-    markers.setLevel(next, nextWorld);
     hud.setLevel(next);
-    world.interior.group.visible = next === 'kaaba';
-    destinationRing.visible = false;
+    if (!keepWalking) destinationRing.visible = false;
   }
+
+  /** Puts the visitor and the markers in the current level's world (again, when the stairs come or go). */
+  function useLevelWorld(keepWalking = false): void {
+    const current = levelWorld(level);
+    player.setWorld(current, keepWalking);
+    markers.setLevel(level, current);
+    world.setInsideKaaba(level === 'kaaba');
+  }
+
+  /**
+   * With the stairs at the open door, walking through the doorway takes the visitor from the Haram's
+   * ground into the room, or back out, just where they are (data/kaaba-stairs.ts).
+   */
+  function passDoorway(): void {
+    if (!stairs || !doorOpen || level === 'balcony') return;
+    const side = sideOfDoorway(player.x, player.z, level);
+    if (side === level) return;
+    // A focused marker is never hidden, and one from the other side would stay in view.
+    if (document.activeElement instanceof HTMLElement && markerLayer.contains(document.activeElement)) stage.focus({ preventScroll: true });
+    setLevel(side, true);
+    if (side === 'kaaba') toast.show(t('toast.insideKaaba'), 6500);
+    invalidate();
+  }
+
+  /**
+   * Brings the stairs to the Kaaba's door or takes them away, and opens or closes the door (bringing
+   * the stairs opens it, taking them away closes it; the door also opens and closes on its own). A
+   * visitor standing where the stairs or the door's leaves come or go, or in a doorway about to be
+   * shut, is first moved out of the way, behind a fade: out in front of the door, back onto the
+   * landing, or, inside, back from the door.
+   */
+  function setDoorway(nextStairs: boolean, nextDoor: boolean): void {
+    if (nextStairs === stairs && nextDoor === doorOpen) return;
+    const exitClosing = stairs && doorOpen && !(nextStairs && nextDoor);
+    let moveTo: { level: Level; position: Vec2; lookAt: Vec3 } | null = null;
+    if (level === 'ground') {
+      if (nextStairs !== stairs && nearStairs(player.x, player.z, nextStairs ? PLAYER.radius + 0.1 : 0)) moveTo = { level: 'ground', ...KAABA_EXIT };
+      else if (exitClosing && inDoorway(player.x, player.z)) moveTo = { level: 'ground', ...KAABA_LANDING };
+    } else if (level === 'kaaba' && (nextDoor !== doorOpen || exitClosing) && inDoorSwing(player.x, player.z)) {
+      // Out in the doorway, past the room's wall, as the way out shuts: out onto the ground.
+      const outside = worldToKaaba(player.x, player.z).z > DOORWAY.inner - PLAYER.radius;
+      moveTo = outside && exitClosing ? { level: 'ground', ...(nextStairs ? KAABA_LANDING : KAABA_EXIT) } : { level: 'kaaba', ...KAABA_ENTRY };
+    }
+    const stairsChanged = nextStairs !== stairs;
+    const doorChanged = nextDoor !== doorOpen;
+    stairs = nextStairs;
+    doorOpen = nextDoor;
+    settings = { ...settings, kaabaStairs: stairs, kaabaDoorOpen: doorOpen };
+    saveSettings(settings);
+    infoPanel.setStairs(stairs);
+    infoPanel.setDoor(doorOpen);
+    const target = moveTo;
+    const apply = () => {
+      if (stairsChanged) world.setKaabaStairs(stairs);
+      if (doorChanged) world.setKaabaDoor(doorOpen, reducedMotion);
+      if (target) setLevel(target.level);
+      useLevelWorld();
+      if (target) player.teleport(target.position, target.lookAt);
+      invalidate();
+    };
+    if (target) void fade.run(apply, reducedMotion);
+    else apply();
+    if (stairsChanged) toast.show(t(stairs ? 'toast.stairsAdded' : 'toast.stairsRemoved'), 5000);
+    else toast.show(t(doorOpen ? 'toast.doorOpened' : 'toast.doorClosed'));
+  }
+
+  /** Inside, the door's leaves within reach: tapping them opens or closes the door. */
+  const onDoorLeaves = (x: number, y: number) => level === 'kaaba' && picker.pickMeshes(x, y, canvas, world.interior.doorLeaves, 7);
 
   /**
    * Draws the view. On the balcony it takes two passes: the far scene with a near plane 2 m
@@ -484,6 +589,14 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
         look.reverse = next.reverseDrag;
         markers.setEnabled(next.showMarkers);
         applySizes(next);
+        world.setTawafShown(next.showTawaf);
+        if (next.showPeople !== people) {
+          people = next.showPeople;
+          world.setPeopleShown(people);
+          useLevelWorld();
+          // Anyone standing where a person now prays steps aside.
+          if (level === 'ground') player.teleport({ x: player.x, z: player.z });
+        }
         if (qualityChanged) {
           adaptive.reset();
           applyTier(resolveTier(next.quality, profile));
@@ -507,6 +620,11 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
     homeHref
   );
   settingsPanel.setEffectiveTier(quality.tier);
+
+  // Tapping the sun in the sky (the sun from the flag of Kurdistan) says who made the explorer.
+  const aboutPanel = new AboutPanel(ui, background);
+  /** Whether the pointer is on the sun (never from inside the Kaaba, where it cannot be seen). */
+  const onSun = (x: number, y: number) => level !== 'kaaba' && picker.pickSun(x, y, canvas, world.sunEmblem);
 
   const helpPanel = new HelpPanel(ui, background, {
     isTouch: profile.isTouch,
@@ -570,6 +688,11 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
     onTap: (x, y) => {
       const id = picker.pick(x, y, canvas);
       if (id) selectPlace(id, { opener: null, turn: false });
+      else if (onDoorLeaves(x, y)) setDoorway(stairs, !doorOpen);
+      else if (onSun(x, y)) {
+        keyboard.reset();
+        aboutPanel.open(null);
+      }
     },
     onDoubleClick: (x, y) => walkTo(x, y),
     onZoom: (factor) => zoomBy(factor),
@@ -577,7 +700,7 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
       const now = performance.now();
       if (now - lastHover < 120) return;
       lastHover = now;
-      canvas.classList.toggle('is-pickable', picker.pick(x, y, canvas) !== null);
+      canvas.classList.toggle('is-pickable', picker.pick(x, y, canvas) !== null || onDoorLeaves(x, y) || onSun(x, y));
     },
     onPointerLockChange: (locked) => {
       hud.setPointerLocked(locked);
@@ -754,9 +877,15 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
       if (updateZoom(dt)) needsRender = true;
       // The clock tower keeps Makkah time; its hands move once a minute.
       if (world.updateClock()) needsRender = true;
+      // The Kaaba's door rolls its curtain up and swings open (or closes) over a few seconds.
+      if (world.updateKaabaDoor(dt)) needsRender = true;
+      // The people going round the Kaaba keep walking while they are in view (not from inside the
+      // Kaaba with its door shut).
+      if (world.animateTawaf(camera, now / 1000) && (level !== 'kaaba' || doorOpen)) needsRender = true;
       // A dialog over the view stops any automatic walk.
       if (isModalOpen() && player.isWalkingPath) player.cancelWalk();
       if (player.update(dt, currentIntent())) needsRender = true;
+      passDoorway();
       if (destinationRing.visible && !player.isWalkingPath) {
         destinationRing.visible = false;
         needsRender = true;
@@ -765,6 +894,7 @@ export async function startExplorer({ root, loading, profile, homeHref }: StartO
       if (needsRender) {
         needsRender = false;
         rig.sync(player);
+        world.updateForView(camera.position);
         renderView();
         markers.update(camera, viewWidth, viewHeight);
         hud.updateHeading(player.yaw);

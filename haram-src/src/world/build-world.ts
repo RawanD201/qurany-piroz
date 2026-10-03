@@ -11,17 +11,22 @@ import {
   Mesh,
   MeshBasicMaterial,
   Scene,
+  type Camera,
   type Object3D,
+  type Vector3,
   type WebGLRenderer,
 } from 'three';
+import { KAABA, KAABA_HALF_D, worldToKaaba } from '../data/layout';
 import { PLACE_LOCATIONS, type PickShape } from '../data/place-locations';
 import type { PlaceId } from '../data/places';
+import type { PrayingPerson } from '../data/praying-people';
 import type { QualitySettings } from '../engine/quality';
 import { ClockFaces } from './clock-face';
 import { createEnvironment, type Environment } from './environment';
 import { createZamzamMarking, type FloorMarking } from './floor-markings';
 import { StaticBatcher } from './geometry';
 import { buildKaaba } from './kaaba';
+import { buildKaabaDoor } from './kaaba-door';
 import { buildKaabaInterior, type KaabaInterior } from './kaaba-interior';
 import {
   applyEnvironmentMap,
@@ -35,6 +40,9 @@ import {
   type TimeOfDay,
 } from './materials';
 import { buildMosque } from './mosque';
+import { buildPrayingPeople } from './praying-people';
+import { buildTawafCrowd } from './tawaf-crowd';
+import { createSunEmblem, type SunEmblem } from './sun-emblem';
 import { buildBalcony, buildCity, buildClockTower, buildHills, buildLandmarks } from './surroundings';
 import { TEXTURE_KEYS, createTextureSet, disposeTextureSet, type TextureKey, type TextureSet } from './textures';
 
@@ -70,6 +78,31 @@ export interface World {
   loadKiswahPhotos(): Promise<boolean>;
   /** The inside of the Kaaba (hidden until the visitor goes in). */
   interior: KaabaInterior;
+  /** The sun in the sky, the sun from the flag of Kurdistan (shown by day). */
+  sunEmblem: SunEmblem;
+  /** Shows the stairs at the Kaaba's door, or not (see data/kaaba-stairs.ts). */
+  setKaabaStairs(shown: boolean): void;
+  /**
+   * Opens the Kaaba's door (the curtain rolls up, then the leaves swing open) or closes it; at once
+   * if `instantly`.
+   */
+  setKaabaDoor(open: boolean, instantly?: boolean): void;
+  /** Moves the Kaaba's door on as it opens or closes; true when it moved (a frame to draw). */
+  updateKaabaDoor(dt: number): boolean;
+  /** Whether the visitor is inside the Kaaba: the room is drawn then, or while the door is not shut. */
+  setInsideKaaba(inside: boolean): void;
+  /** Shows or hides the people praying in the courtyard. */
+  setPeopleShown(shown: boolean): void;
+  /**
+   * Fits what is drawn to where the visitor's eye is (before each frame): the people praying near
+   * them in detail and the rest simply; the room inside the Kaaba, through its open door, only from
+   * in front of it and near enough to see in.
+   */
+  updateForView(eye: Vector3): void;
+  /** Shows or hides the people going round the Kaaba. */
+  setTawafShown(shown: boolean): void;
+  /** Moves the tawaf on to `seconds`; true when it is shown and in view (a frame to draw). */
+  animateTawaf(camera: Camera, seconds: number): boolean;
   dispose(): void;
 }
 
@@ -108,6 +141,7 @@ export async function buildWorld(
   renderer: WebGLRenderer,
   quality: QualitySettings,
   time: TimeOfDay,
+  people: readonly PrayingPerson[],
   onProgress: (stage: BuildStage, fraction: number) => void
 ): Promise<World> {
   const warnings: string[] = [];
@@ -194,6 +228,18 @@ export async function buildWorld(
   scene.add(hills);
   const interior = buildKaabaInterior(quality.anisotropy);
   scene.add(interior.group);
+  const door = buildKaabaDoor(materials, interior);
+  scene.add(door.group);
+  let insideKaaba = false;
+  let seesIn = true;
+  const showInterior = () => {
+    interior.group.visible = insideKaaba || (!door.shut && seesIn);
+  };
+  const crowd = buildPrayingPeople(people);
+  scene.add(crowd.group);
+  // Fewer people going round the Kaaba on slower devices (they are only to look at).
+  const tawaf = buildTawafCrowd(quality.tier === 'high' ? 1 : quality.tier === 'medium' ? 0.75 : 0.45);
+  scene.add(tawaf.group);
   onProgress('environment', 1);
   await nextFrame();
 
@@ -202,6 +248,9 @@ export async function buildWorld(
   // Lights must be on the balcony's layer too, or its pass would be unlit.
   environment.sun.layers.enableAll();
   environment.hemisphere.layers.enableAll();
+  const sunEmblem = createSunEmblem();
+  sunEmblem.mesh.visible = time === 'day';
+  scene.add(sunEmblem.mesh);
   onProgress('lighting', 1);
 
   // 4. Invisible pick shapes (not added to the scene: never drawn, only ray-tested).
@@ -234,11 +283,54 @@ export async function buildWorld(
       applyTimeOfDay(materials, next);
       environment.setTimeOfDay(next);
       clock?.setTimeOfDay(next);
+      sunEmblem.mesh.visible = next === 'day';
     },
     updateClock(now?: number) {
       return clock?.update(now) ?? false;
     },
     interior,
+    sunEmblem,
+    setKaabaStairs(shown: boolean) {
+      door.setStairs(shown);
+      // The shadow map is drawn once and kept (environment.ts): redraw it with or without the stairs.
+      renderer.shadowMap.needsUpdate = true;
+    },
+    setKaabaDoor(open: boolean, instantly = false) {
+      door.setOpen(open, instantly);
+      showInterior();
+      renderer.shadowMap.needsUpdate = true;
+    },
+    updateKaabaDoor(dt: number) {
+      if (!door.update(dt)) return false;
+      showInterior();
+      // The curtain casts a shadow too: redraw the shadow map once it has come to rest.
+      if (!door.moving) renderer.shadowMap.needsUpdate = true;
+      return true;
+    },
+    setInsideKaaba(inside: boolean) {
+      insideKaaba = inside;
+      showInterior();
+    },
+    setPeopleShown(shown: boolean) {
+      if (crowd.group.visible === shown) return;
+      crowd.group.visible = shown;
+      renderer.shadowMap.needsUpdate = true;
+    },
+    updateForView(eye: Vector3) {
+      crowd.update(eye);
+      const p = worldToKaaba(eye.x, eye.z);
+      const sees = p.z > KAABA_HALF_D - 1 && Math.hypot(p.x - KAABA.door.centerX, p.z - KAABA_HALF_D) < 40;
+      if (sees !== seesIn) {
+        seesIn = sees;
+        showInterior();
+      }
+    },
+    setTawafShown(shown: boolean) {
+      tawaf.group.visible = shown;
+    },
+    animateTawaf(camera: Camera, seconds: number) {
+      return tawaf.animate(camera, seconds);
+    },
     async loadKiswahPhotos() {
       try {
         const { loadKiswahPhotos } = await import('./kiswah-photos');
@@ -273,6 +365,10 @@ export async function buildWorld(
       clock?.dispose();
       zamzamMarking?.dispose();
       interior.dispose();
+      door.dispose();
+      crowd.dispose();
+      tawaf.dispose();
+      sunEmblem.dispose();
       disposeMaterials(materials);
       environment.dispose();
     },

@@ -25,7 +25,7 @@ Related documents: [`SOURCES.md`](SOURCES.md) (where every description comes fro
 4. [How the world and its assets are loaded](#how-the-world-and-its-assets-are-loaded)
 5. [Adding a place](#adding-a-place) · [Adding an object](#adding-an-object) · [Writing descriptions](#writing-descriptions)
 6. [Languages and translations](#languages-and-translations)
-7. [The real plan](#the-real-plan) · [Day and night](#day-and-night) · [The kiswah](#the-kiswah) · [The Mataf floor, Zamzam and the clock](#the-mataf-floor-zamzam-and-the-clock) · [The Black Stone, Maqam Ibrahim and the inside of the Kaaba](#the-black-stone-maqam-ibrahim-and-the-inside-of-the-kaaba) · [Hajj and Umrah guide](#hajj-and-umrah-guide)
+7. [The real plan](#the-real-plan) · [Day and night](#day-and-night) · [The sun of Kurdistan](#the-sun-of-kurdistan) · [The kiswah](#the-kiswah) · [The Mataf floor, Zamzam and the clock](#the-mataf-floor-zamzam-and-the-clock) · [The Black Stone, Maqam Ibrahim and the inside of the Kaaba](#the-black-stone-maqam-ibrahim-and-the-inside-of-the-kaaba) · [The stairs and the open door](#the-stairs-and-the-open-door) · [People praying and going round the Kaaba](#people-praying-and-going-round-the-kaaba) · [Hajj and Umrah guide](#hajj-and-umrah-guide) · [Quran references](#quran-references)
 8. [Movement, camera and controls](#movement-camera-and-controls)
 9. [Graphics quality and performance](#graphics-quality-and-performance)
 10. [Deployment](#deployment)
@@ -110,10 +110,15 @@ haram-src/src/
 │   ├── layout.ts            ALL world dimensions and positions (approximate, documented)
 │   ├── structure.ts         Derived pier/column/wall/dome positions (shared by 3D + collision)
 │   ├── levels.ts            The levels: the ground, the clock-tower balcony, inside the Kaaba
-│   ├── kaaba-interior.ts    The room inside the Kaaba: sizes, plaques, entry and views
+│   ├── kaaba-interior.ts    The room inside the Kaaba: sizes, plaques, door leaves, entry and views
+│   ├── kaaba-stairs.ts      The stairs at the Kaaba's door, and the doorway between ground and room
 │   ├── places.ts            Place names and descriptions (the file to edit or translate)
 │   ├── place-locations.ts   Marker anchors, "Go there" viewpoints, tap shapes
-│   └── sources.ts           Reference list cited by the descriptions
+│   ├── sources.ts           Reference list cited by the descriptions
+│   ├── praying-people.ts    Where the people praying are, their postures, dress and footprints
+│   ├── tawaf-crowd.ts       The lanes and paces of the people going round the Kaaba
+│   ├── quran.ts             Surat names, "Al-Baqarah (2): 125" references, the app's verse links
+│   └── sun-emblem.ts        The sun from the flag of Kurdistan (its outline and colour)
 ├── engine/
 │   ├── renderer.ts          WebGLRenderer + first-person camera rig
 │   └── quality.ts           Presets, initial tier detection, adaptive step-down
@@ -122,8 +127,13 @@ haram-src/src/
 │   ├── textures.ts          Canvas-painted texture sets: colour + relief/polish/metal maps
 │   ├── materials.ts         Material library
 │   ├── geometry.ts          Static batcher (merging), arches, UVs
-│   ├── kaaba.ts             Kaaba, kiswah band, door, Black Stone, Mizab, Hijr, Maqam
-│   ├── kaaba-interior.ts    The room inside the Kaaba (shown only while the visitor is in it)
+│   ├── kaaba.ts             Kaaba, kiswah band, doorway, Black Stone, Mizab, Hijr, Maqam
+│   ├── kaaba-door.ts        Door curtain (down or lifted) and the stairs on wheels
+│   ├── kaaba-interior.ts    The room inside the Kaaba (shown while the visitor is in it or the door is open)
+│   ├── sun-emblem.ts        The sun in the sky, drawn as the sun of Kurdistan
+│   ├── figures.ts           People's figures: bodies, faces, dress, postures, colours
+│   ├── praying-people.ts    The people praying (detailed near the visitor, simple far away)
+│   ├── tawaf-crowd.ts       The people going round the Kaaba, walking on the graphics card
 │   ├── mosque.ts            Floors, porticoes, halls, columns, walls, gates, Mas'a, minarets
 │   ├── surroundings.ts      City blocks, hills, clock tower (schematic backdrop)
 │   └── environment.ts       Sky (stars at night), sun/floodlight, static shadow map,
@@ -146,6 +156,7 @@ haram-src/src/
 │   ├── places-menu.ts       Places / Explore menu
 │   ├── settings-panel.ts    Quality, speed, sensitivity, markers
 │   ├── help-panel.ts        Controls, about the model, credits
+│   ├── about-panel.ts       "Made in Kurdistan" under the flag, opened from the sun
 │   ├── dialog.ts            Accessible modal (focus trap, Esc, focus return)
 │   ├── text-mode.ts         Text-only version (no WebGL needed)
 │   └── place-text.ts, feedback.ts, dom.ts
@@ -345,6 +356,31 @@ embroidery of the belt, door curtain and corner panels glows warmly through its 
 Everything else (interiors, markers, controls) is unchanged. Tune the look in `PRESETS`
 (environment.ts), `NIGHT_GLOW` and `applyTimeOfDay` (materials.ts).
 
+## The sun of Kurdistan
+
+By day the sun in the sky is drawn as the **golden sun from the flag of Kurdistan**: 21 rays round
+a disc, `#febd11`, the same outline as the sun emblem of the zriwe app (`data/sun-emblem.ts`). It is
+always shown by day, with no setting, and hidden at night.
+
+**Tapping or clicking it** opens "Made in Kurdistan" (`ui/about-panel.ts`): the flag of Kurdistan
+(the public-domain "Flag of Kurdistan.svg" from Wikimedia Commons, see `ASSETS_LICENSES.md`), and a
+note that the website was built in Iraqi Kurdistan by Aland Kawa Ali (ئەلەند کاوە عەلی in Kurdish), a
+Kurdish developer, and that the sun in the sky is the sun from the flag of Kurdistan. The pointer turns into a hand over it, as over
+the places.
+
+How it works (`world/sun-emblem.ts`):
+
+- It is a flat shape, not part of the sky shader, so the depth buffer hides it behind buildings and
+  it can be tapped. Each time it is drawn it is moved out from the camera along `SUN_DIRECTION`
+  (2800 m, inside the far plane) and turned to face the camera, so it keeps its place in the sky
+  wherever the visitor stands, the balcony included. It looks about 6° across, like the sky's own
+  sun disc before it.
+- The visible sky now draws only the soft glow round the sun (the `sunDisc` uniform is 0); the
+  reflection maps keep the bright disc, so polished marble and gold still catch the sun.
+- `Picker.pickSun` counts a tap within its angular radius (with 10% leeway) when nothing solid
+  stands in front of it. A place in front of it, such as the Kaaba, takes the tap instead, and from
+  inside the Kaaba the sun cannot be tapped.
+
 ## The kiswah
 
 The kiswah follows the real cloth (Wikipedia — Kiswah, see `SOURCES.md`) and is shown with
@@ -468,6 +504,87 @@ wood and metals use **matcaps** — small painted spheres of polished wood, gold
 reflecting the green cloth and the cream marble — so they shine without real-time lights. It
 looks the same by day and night and on every quality tier.
 
+## The stairs and the open door
+
+The Kaaba's and its door's panels have **Bring the stairs** (then **Take the stairs away**) and
+**Open the door** (then **Close the door**); "Inside the Kaaba" has the door's button too, and
+inside, tapping the door's leaves opens or closes it. The panel closes, so the visitor can watch.
+Bringing the stairs opens the door and taking them away closes it; the door also opens and closes
+on its own (both choices are remembered, `kaabaStairs` and `kaabaDoorOpen`). The visitor can walk
+through the doorway only while the stairs stand at the open door: with the door shut the stairs
+lead up to it, and with the door open but no stairs the doorway inside ends before the drop.
+When the door opens, the curtain rolls up from its foot, then the
+two leaves swing open into the room, over about three seconds (closing runs the other way round,
+and with reduced motion both happen at once). The visitor can walk up
+the steps, through the doorway into the room, look round, and walk back out and down. The choice
+is remembered with the other settings (`kaabaStairs`, off by default). In reality the stairs are
+brought only when the Kaaba is opened; its measurements are not published, so the staircase here is
+drawn after photographs (`data/kaaba-stairs.ts`): as wide as the door between tall gilded sides
+with a handrail, twelve steps to a landing level with the sill, on wheels.
+
+How it is built:
+
+- **The doorway** (`world/kaaba.ts`) is always open in the kiswah, with gilded jambs and lintel and
+  a marble sill through the wall's thickness. With the door shut, the curtain covers it. Opening,
+  the curtain rolls up to just above the door (`world/kaaba-door.ts`): the sheet's lower edge rises
+  with its photograph cropped to match, and the roll at its foot grows as it takes up the cloth and
+  turns as it climbs. Then the door's two leaves turn about 95° into the room on their hinges
+  (`world/kaaba-interior.ts`), each showing its half of the gilded door on both faces. The room is
+  drawn from outside too, through the doorway, whenever the door is not shut.
+- **Shadows.** three.js draws a solid's shadow from its faces turned away from the light, so sunlight
+  would pass through the doorway as if the wall facing the sun were not there. A box the size of
+  the room, drawn only into the shadow map and from its sunward faces, stands in for it. The static
+  shadow map is redrawn whenever the stairs come or go, and again when the curtain comes to rest.
+- **Walking.** Each level stays a flat collision world, but a world can now carry a raised surface
+  (`CollisionWorld.setRaised`). With the stairs, the ground's world has a corridor as wide as the
+  door cut through the Kaaba's outline into the room, the stairs' sides as walls, and the stairs
+  walked as an even slope along their front edges up to the landing and the doorway at sill height.
+  The room's world gets the doorway, a short corridor out of it and the two opened leaves. Both are
+  built the first time they are needed; the route grid for double-click walking is kept per world.
+  Going down, the visitor steps down with the slope rather than falling at each step
+  (`MOVEMENT.stepDown`).
+- **Through the doorway** the visitor moves between the ground's world and the room's just where
+  they are, in the middle of the wall (two lines 10 cm apart, so standing on one does not switch to
+  and fro); an automatic walk carries on across. Arriving inside shows the usual notice and
+  "Leave the Kaaba".
+- **Taking the stairs away** while standing on them or in the doorway first moves the visitor out in
+  front of the door behind a fade (and, inside, bringing them while standing where the leaves swing
+  moves the visitor back from the door).
+
+## People praying and going round the Kaaba
+
+Settings has two switches, both on by default: **Show people praying** and **Show people doing
+tawaf**. The people are figures built in code (`world/figures.ts`), not models or photographs, and
+faceless at a distance: men's bodies in the proportions of a grown man, with hands and feet; a head
+shaped into a face (brow, nose, cheekbones, lips, chin), the eyes, brows, nose shading and mouth
+painted onto it (a small canvas texture, multiplied over the skin), hair and beards shaped and
+shaded on the head. Robes fall in folds, deepest at the hem. They are dressed as people in the
+Haram are — a thobe with a white cap or a head cloth and its cord; the two white sheets of ihram,
+head bare; for women in the tawaf, an abaya and headscarf — in many skin tones and shades of white,
+cream, grey and brown. Each has a soft shadow on the floor under them.
+
+- **Praying** (`data/praying-people.ts`, `world/praying-people.ts`): about 1,150 people in rows
+  round the Kaaba, in the courtyard and under the Ottoman portico, each facing the Kaaba and each at
+  a different moment of their own prayer, as between the congregational prayers: standing with the
+  right hand over the left on the chest, bowing with the hands on the knees, in prostration
+  (forehead, nose, hands, knees and toes on the floor, elbows raised) and sitting back on the heels.
+  The Mataf is left to the tawaf, and a lane is kept clear from it to every viewpoint and round each
+  one. The visitor walks round them: they are in the ground's collision world while shown (a
+  footprint for each posture), and the tests check every place stays in reach.
+- **Tawaf** (`data/tawaf-crowd.ts`, `world/tawaf-crowd.ts`): about 470 people (fewer on the medium
+  and low tiers) walking anticlockwise round the Kaaba, outside Hijr Ismail and Maqam Ibrahim, in
+  lanes, each at its own pace of about a metre a second, thicker near the Kaaba. The walking is done
+  on the graphics card from the time: each goes round their lane facing the way they go, legs and
+  arms swinging with the stride, knees bending, robes swaying. They are only to look at: the
+  visitor can walk among them, and "Walk one circuit" walks with them.
+
+**Cost.** Each posture in each dress is one figure drawn many times over (an `InstancedMesh`), in a
+detailed version for the people within 24 m of the visitor and a simple one beyond; people are
+handed between them as the visitor moves (the walkers twice a second, as they walk on). That is
+about 40 draw calls and some 200,000 triangles in a typical view of the courtyard. While the tawaf
+is shown and in view, the explorer draws every frame instead of only when something changes; hide
+it to save battery. The people praying cast shadows into the static shadow map; the walkers do not.
+
 ## Hajj and Umrah guide
 
 The **Hajj & Umrah** button opens step-by-step guides (`src/data/rites.ts`, `src/ui/guide.ts`):
@@ -499,9 +616,27 @@ differ between the schools of law, and pilgrims should follow qualified scholars
 official instructions. Tests check that every step cites known sources and that both routes
 are walkable.
 
+## Quran references
+
+Quran references are written the way the Qurany Piroz app writes them, the surat's name, its
+number, then the verse, in the visitor's language: "Al-Baqarah (2): 125", "مانگاکە (2): 125". They
+link to the verse **in the app**, through the app's own deep link
+`https://www.qurany-piroz.com/ayat/<surat>/<ayat>` (see [`DEEPLINKS.md`](DEEPLINKS.md)), never to
+another Quran site. Where the app is installed and verified the link opens the verse in it;
+elsewhere it opens the site's page for the verse, which offers to open it in the app or download
+it. On Android the link hands the verse to the app directly (an `intent://` link with that page as
+its fallback), because a browser keeps a site's links to itself in the browser.
+
+Descriptions and their translations keep citing verses plainly, "(Quran 2:125)", in each language's
+own words for "Quran"; `withSuratNames()` (`data/quran.ts`) rewrites them as they are shown, so
+translators never spell surat names. `SURAT_NAMES` holds the names of the cited surats in all 22
+languages (the Kurdish, Arabic, English and Turkish ones are the app's own, from its `Quran.db`, as
+in `/surats.js`); citing a new surat needs its names there, and a test checks every cited surat has
+them and that no plain "2:125" is left in any language.
+
 ## Label and text size
 
-Settings has two sliders: **Label size** scales the place markers (60–130%, 85% by default; the
+Settings has two sliders: **Label size** scales the place markers (60–130%, 60% by default; the
 overlap layout scales with them) and **Text size in panels** scales the text of the information
 panel, the guide and the dialogs (80–150%, via CSS `zoom`, which keeps each panel's width;
 browsers without it show the normal size). Both are remembered with the other settings.
@@ -728,8 +863,12 @@ impossible, and nothing here claims otherwise.
 - **The Kaaba** uses published approximate dimensions; its surfaces are simplified. The
   kiswah's woven calligraphy, belt and door curtain come from photographs of real kiswah (the
   belt's panels repeat, so its verses are not in their true order); the corner panels are
-  abstract designs (see [The kiswah](#the-kiswah)). The door is shown behind its curtain; the
-  marble base is a plain plinth.
+  abstract designs (see [The kiswah](#the-kiswah)). The door is shown behind its curtain, or open
+  with the curtain lifted when the stairs are brought; the marble base is a plain plinth.
+- **The stairs at the door** are drawn after photographs; their size, steps and decoration are
+  approximate, and the curtain's lifting and the door's opening are simplified.
+- **The people** praying and going round the Kaaba are illustrative: how many there are, where,
+  their postures, dress and pace.
 - **Night view** is an artistic impression of the floodlighting, not a lighting survey.
 - **Hijr Ismail, the Mizab and Maqam Ibrahim** are approximate in shape, size and position;
   Maqam Ibrahim's enclosure and the Black Stone's frame follow photographs, with their sizes
@@ -761,7 +900,9 @@ impossible, and nothing here claims otherwise.
 - Ground level only (and the clock-tower balcony and the inside of the Kaaba): upper floors, roofs and the multi-level
   Mataf/Mas'a are not walkable; the King Abdullah expansion cannot be entered.
 - Six gates are described as places; the other mapped entrances are plain doorways.
-- No people, crowds or sound. Day and night are two fixed lighting states, not a moving sun.
+- The people are figures built in code, not photographic; the crowds are lighter than the real
+  ones, women are shown only in the tawaf, and nobody prays in the halls. No sound. Day and night
+  are two fixed lighting states, not a moving sun.
 - The translations of the religious content still need review by qualified native speakers (see [Languages and translations](#languages-and-translations)).
 - Texture size and antialiasing cannot change without reloading.
 - No real-device testing was possible in the build environment (see Testing).
@@ -771,7 +912,7 @@ impossible, and nothing here claims otherwise.
 Automated (`npm run check` — all passing at release):
 
 - **Type checking** (TypeScript, strict) and **linting** (ESLint + typescript-eslint).
-- **58 unit tests** (Vitest): collision (push-out, sliding, no tunnelling, bounds, line of
+- **86 unit tests** (Vitest): collision (push-out, sliding, no tunnelling, bounds, line of
   sight); player movement (smooth acceleration/deceleration, speed setting, gravity,
   turning, reduced motion); place data (complete English text, valid sources, every place has
   a location); **walkability** (spawn and every "Go there" viewpoint are on free ground on its
@@ -783,8 +924,18 @@ Automated (`npm run check` — all passing at release):
   (seven laps, ending at Marwah, hastening only between the green markers); paced routes that
   pause and turn back at each end; the clock-tower balcony (standing at its height, unable to
   step off, reaching the railing, and back to the ground); the Mataf floor's shader (every map
-  sampled with the Kaaba-facing tiling) and its rows; the label and text size settings.
-  Walkability and the routes are checked on the real plan.
+  sampled with the Kaaba-facing tiling) and its rows; the label and text size settings (60% labels
+  by default, also for visitors whose saved settings carry the old 85% default); the
+  stairs at the Kaaba's door (their heights, walls on their sides, a double-click route up them,
+  walking up through the doorway into the room and back down without falling, switching sides only
+  in the doorway, every place still reachable with them, the door opening curtain first and closing
+  leaves first, the setting off by default); Quran
+  references (surat names in every language, no plain citations left, links only to the app's
+  verse links); the sun emblem's outline; the people praying (laid out the same way every time,
+  in the courtyard facing the Kaaba, clear of the Mataf, every viewpoint and the mosque's columns,
+  every place still reachable with them, with or without the stairs) and going round the Kaaba
+  (anticlockwise, clear of the Kaaba, Hijr Ismail and Maqam Ibrahim, never through each other);
+  the door shut with the stairs at it, and open without them; the people's switches on by default. Walkability and the routes are checked on the real plan.
 
 Manual checks performed in Chromium (desktop and phone emulation):
 

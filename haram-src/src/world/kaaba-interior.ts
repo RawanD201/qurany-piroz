@@ -2,15 +2,16 @@
 // drawn after photographs of the room: cream marble walls and floor with dark green marble
 // bands, the green silk above and on the ceiling, three wooden pillars with gilded bands, the
 // antique lamps hanging from brass rods between them, the white cupboard, carved stone plaques,
-// the inside of the door, and Bab al-Tawbah on its staircase in the north corner. Built in the
-// Kaaba's local frame and turned with it.
+// the inside of the door (its two leaves open into the room while the stairs stand at the door), and
+// Bab al-Tawbah on its staircase in the north corner. Built in the Kaaba's local frame and turned
+// with it.
 //
 // The room is closed and lit from within, so nothing here uses the scene's sun or sky: the flat
 // surfaces carry their light baked into their vertices (lamplight, soft shadow in the corners
 // and round the pillars), and the rounded and metal things use matcaps — small painted spheres
 // of polished wood, gold and silver reflecting the green cloth and the cream marble. It looks the
 // same by day and by night and on every quality tier, and needs no extra lights. The group is
-// shown only while the visitor is inside.
+// shown only while the visitor is inside, or can see in through the open door.
 
 import {
   BoxGeometry,
@@ -41,7 +42,7 @@ import {
   type Texture,
 } from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { KAABA_INTERIOR, KAABA_PLAQUES, TAWBAH_LOCAL } from '../data/kaaba-interior';
+import { DOOR_LEAVES, KAABA_INTERIOR, KAABA_PLAQUES, TAWBAH_LOCAL, doorLeaves } from '../data/kaaba-interior';
 import { KAABA } from '../data/layout';
 import { normalCanvas } from './textures';
 
@@ -764,7 +765,34 @@ export interface KaabaInterior {
   group: Group;
   /** Floors the visitor can walk to with a double-click. */
   floors: Mesh[];
+  /** The door's two leaves (tapping them opens or closes the door). */
+  doorLeaves: Mesh[];
+  /** How far the door's two leaves are open into the room: 0 shut, 1 wide open. */
+  setDoorOpening(amount: number): void;
   dispose(): void;
+}
+
+/**
+ * One leaf of the door, built round its hinge (at the origin, the leaf reaching along X towards
+ * the other leaf, `toward`), showing its half of the gilded door on both faces: from inside on its
+ * inner face, from outside on its outer face, each reading left to right from that side. Its edges
+ * take the gold of the strip between the leaves.
+ */
+function doorLeaf(toward: 1 | -1, height: number): BufferGeometry {
+  const { width, thickness } = DOOR_LEAVES;
+  const g = new BoxGeometry(width, height, thickness).translate((toward * width) / 2, height / 2, 0);
+  // Seen from inside, +X is on the left: the leaf hinged at that jamb shows the art's left half.
+  const inner = toward > 0 ? 0.5 : 0;
+  const outer = 0.5 - inner;
+  const normal = g.getAttribute('normal');
+  const uv = g.getAttribute('uv');
+  for (let i = 0; i < uv.count; i++) {
+    const nz = normal.getZ(i);
+    if (nz < -0.5) uv.setX(i, inner + uv.getX(i) * 0.5);
+    else if (nz > 0.5) uv.setX(i, outer + uv.getX(i) * 0.5);
+    else uv.setXY(i, 0.5, Math.abs(normal.getY(i)) > 0.5 ? 0.5 : uv.getY(i));
+  }
+  return g;
 }
 
 export function buildKaabaInterior(anisotropy: number): KaabaInterior {
@@ -892,18 +920,29 @@ export function buildKaabaInterior(anisotropy: number): KaabaInterior {
     return gold(map, normal, 0.9);
   };
   const frameMat = shiny('gold');
+  // The door's two leaves, each on its hinge (turned open by setDoorOpening).
+  const hinges: { pivot: Group; turn: number }[] = [];
+  const leafMeshes: Mesh[] = [];
   {
     const { width, height, centerX } = KAABA.door;
-    const door = new PlaneGeometry(width, height).rotateY(Math.PI).translate(centerX, floorY + height / 2, halfD - 0.06);
-    add(door, doorArt(2));
+    const art = doorArt(2);
+    for (const leaf of doorLeaves()) {
+      const pivot = new Group();
+      pivot.position.set(leaf.hinge.x, floorY, leaf.hinge.z);
+      // A ring handle on its inner face, near the middle of the door.
+      const handle = new TorusGeometry(0.06, 0.012, 8, 20).translate(leaf.toward * (DOOR_LEAVES.width - 0.18), 1.25, -0.04);
+      const leafMesh = new Mesh(doorLeaf(leaf.toward, height), art);
+      leafMeshes.push(leafMesh);
+      pivot.add(leafMesh, new Mesh(handle, frameMat));
+      group.add(pivot);
+      hinges.push({ pivot, turn: leaf.turn });
+    }
     // Its gilded frame, standing out from the wall.
     const frame: BufferGeometry[] = [
       new BoxGeometry(0.16, height + 0.16, 0.08).translate(centerX - width / 2 - 0.08, floorY + (height + 0.16) / 2, halfD - 0.04),
       new BoxGeometry(0.16, height + 0.16, 0.08).translate(centerX + width / 2 + 0.08, floorY + (height + 0.16) / 2, halfD - 0.04),
       new BoxGeometry(width + 0.32, 0.16, 0.08).translate(centerX, floorY + height + 0.08, halfD - 0.04),
     ];
-    // Ring handles on the two leaves.
-    for (const sx of [-0.18, 0.18]) frame.push(new TorusGeometry(0.06, 0.012, 8, 20).translate(centerX + sx, floorY + 1.25, halfD - 0.1));
     add(merge(frame), frameMat);
   }
   {
@@ -1103,6 +1142,10 @@ export function buildKaabaInterior(anisotropy: number): KaabaInterior {
   return {
     group,
     floors: [floor],
+    doorLeaves: leafMeshes,
+    setDoorOpening(amount: number) {
+      for (const { pivot, turn } of hinges) pivot.rotation.y = turn * amount;
+    },
     dispose() {
       group.traverse((o) => {
         if (o instanceof Mesh) o.geometry.dispose();

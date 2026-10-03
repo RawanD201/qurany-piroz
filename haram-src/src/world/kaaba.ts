@@ -1,5 +1,6 @@
-// The Kaaba and the features immediately around it: the kiswah with its band, corner panels
-// and door curtain, the Black Stone, the Mizab, Hijr Ismail and Maqam Ibrahim.
+// The Kaaba and the features immediately around it: the kiswah with its band and corner panels,
+// the doorway, the Black Stone, the Mizab, Hijr Ismail and Maqam Ibrahim. (The door curtain and
+// the stairs, which change when the door is opened, are in kaaba-door.ts.)
 //
 // Everything is modelled in the Kaaba's local frame (see layout.ts) and then turned into place.
 // Proportions follow published approximate dimensions; details are deliberately simplified,
@@ -21,15 +22,17 @@ import {
   Vector2,
   Vector3,
 } from 'three';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { KAABA_INTERIOR } from '../data/kaaba-interior';
 import { HIJR, KAABA, KAABA_HALF_D, KAABA_HALF_W, MAQAM, maqamPosition } from '../data/layout';
 import { applyBoxUVs, normalizeGeometry, placeRotY, translation, type StaticBatcher } from './geometry';
 import { MATERIAL_UV } from './materials';
 import { BELT_ATLAS } from './textures';
 
-const KAABA_MATRIX = placeRotY(0, 0, 0, KAABA.rotationY);
+export const KAABA_MATRIX = placeRotY(0, 0, 0, KAABA.rotationY);
 
 /** Builds a piece in Kaaba-local space and moves it into the world. */
-function local(geometry: BufferGeometry, matrix: Matrix4, uvWorldSize?: number): BufferGeometry {
+export function local(geometry: BufferGeometry, matrix: Matrix4, uvWorldSize?: number): BufferGeometry {
   normalizeGeometry(geometry);
   geometry.applyMatrix4(matrix);
   // UVs are projected in the Kaaba's own frame, before the 45° turn, so they stay square to
@@ -182,9 +185,12 @@ function hijrWall(): BufferGeometry {
  * BoxGeometry's own coordinates run left to right and bottom to top on every face as seen from
  * outside, so the woven calligraphy — the name of Allah and the Shahada — reads the right way
  * on all four walls; a projected mapping would mirror it on two of them.
+ *
+ * The door wall (+Z) leaves the doorway open, behind the curtain, so the door can be opened
+ * (kaaba-door.ts): it is built in four pieces round it, their coordinates continuing the box's.
  */
 function kiswahBody(): BufferGeometry {
-  const { width, depth, height, kiswahWeave } = KAABA;
+  const { width, depth, height, kiswahWeave, door } = KAABA;
   const box = new BoxGeometry(width, height, depth);
   const uv = box.getAttribute('uv');
   const normal = box.getAttribute('normal');
@@ -193,7 +199,55 @@ function kiswahBody(): BufferGeometry {
     const upwards = Math.abs(normal.getY(i)) > 0.5 ? depth : height;
     uv.setXY(i, (uv.getX(i) * sideways) / kiswahWeave.tileWidth, (uv.getY(i) * upwards) / kiswahWeave.tileHeight);
   }
-  return box;
+  // BoxGeometry's faces are +X, −X, +Y, −Y, +Z, −Z: drop the fifth.
+  const doorWall = box.groups[4];
+  const index = Array.from(box.getIndex()?.array ?? []);
+  index.splice(doorWall.start, doorWall.count);
+  box.setIndex(index);
+  box.clearGroups();
+  const x0 = door.centerX - door.width / 2;
+  const x1 = door.centerX + door.width / 2;
+  const y0 = door.bottom;
+  const y1 = door.bottom + door.height;
+  const pieces: BufferGeometry[] = [box];
+  // Left and right of the doorway, below it and above it (x from, x to, y from, y to; y up from the floor).
+  for (const [a, b, c, d] of [
+    [-width / 2, x0, 0, height],
+    [x1, width / 2, 0, height],
+    [x0, x1, 0, y0],
+    [x0, x1, y1, height],
+  ]) {
+    const piece = new PlaneGeometry(b - a, d - c).translate((a + b) / 2, (c + d) / 2 - height / 2, depth / 2);
+    const position = piece.getAttribute('position');
+    const pieceUV = piece.getAttribute('uv');
+    for (let i = 0; i < pieceUV.count; i++) {
+      pieceUV.setXY(i, (position.getX(i) + width / 2) / kiswahWeave.tileWidth, (position.getY(i) + height / 2) / kiswahWeave.tileHeight);
+    }
+    pieces.push(piece);
+  }
+  const body = mergeGeometries(pieces, false);
+  if (!body) throw new Error('Could not build the Kaaba');
+  for (const piece of pieces) piece.dispose();
+  return body;
+}
+
+/**
+ * The doorway through the wall, behind the curtain: gilded jambs and lintel, and a marble sill
+ * level with the room's floor. Seen only when the door is open.
+ */
+function addDoorway(batch: StaticBatcher, marbleSize: number): void {
+  const { door } = KAABA;
+  const wall = KAABA_INTERIOR.wall;
+  const middle = KAABA_HALF_D - wall / 2;
+  const top = door.bottom + door.height;
+  const jambs = [
+    new PlaneGeometry(wall, door.height).rotateY(Math.PI / 2).translate(door.centerX - door.width / 2, door.bottom + door.height / 2, middle),
+    new PlaneGeometry(wall, door.height).rotateY(-Math.PI / 2).translate(door.centerX + door.width / 2, door.bottom + door.height / 2, middle),
+    new PlaneGeometry(door.width, wall).rotateX(Math.PI / 2).translate(door.centerX, top, middle),
+  ];
+  for (const jamb of jambs) batch.add(local(jamb, new Matrix4()), 'gold', { uv: 'keep', castShadow: false });
+  const sill = new PlaneGeometry(door.width, wall).rotateX(-Math.PI / 2).translate(door.centerX, KAABA_INTERIOR.floorY + 0.004, middle);
+  batch.add(local(sill, new Matrix4(), marbleSize), 'marbleWhite', { uv: 'keep', castShadow: false });
 }
 
 export function buildKaaba(batch: StaticBatcher): void {
@@ -219,17 +273,8 @@ export function buildKaaba(batch: StaticBatcher): void {
     { uv: 'keep' }
   );
 
-  // The door, on the north-eastern wall (local +Z), shown covered by its embroidered curtain
-  // (the sitara), which hangs from the band to just below the door.
-  const sitaraHeight = KAABA.hizam.bottom - KAABA.sitara.bottom;
-  batch.add(
-    local(
-      new BoxGeometry(KAABA.sitara.width, sitaraHeight, 0.06),
-      translation(KAABA.door.centerX, KAABA.sitara.bottom + sitaraHeight / 2, KAABA_HALF_D + 0.03)
-    ),
-    'sitara',
-    { uv: 'keep' }
-  );
+  // The doorway on the north-eastern wall (local +Z); its curtain and the door are in kaaba-door.ts.
+  addDoorway(batch, marbleSize);
 
   // The embroidered panels under the band at the four corners.
   for (const [sx, sz] of [

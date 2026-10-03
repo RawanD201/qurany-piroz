@@ -1,8 +1,10 @@
 // A small 2D collision world for a walking visitor.
 //
-// The explorer has a single floor level, so collision is solved top-down: the visitor is a
+// Each world has a single floor level, so collision is solved top-down: the visitor is a
 // circle on the XZ plane, and everything they can bump into is a circle (columns, the Maqam,
 // minarets, rocks) or a thick line segment (walls, piers, the Hijr's curve, the Kaaba's sides).
+// The one thing to climb, the stairs at the Kaaba's door, is a raised surface walled in on its
+// sides: it changes only how high the visitor stands, never where they can go.
 // Shapes are bucketed in a uniform grid, so each frame only looks at the handful of shapes in
 // the cells around the visitor — cheap enough for any phone, with no physics library.
 //
@@ -66,6 +68,7 @@ export class CollisionWorld {
   private readonly cells = new Map<number, number[]>();
   private stamps = new Uint32Array(64);
   private queryId = 0;
+  private raised: ((x: number, z: number) => number) | null = null;
 
   constructor(
     readonly bounds: Bounds,
@@ -109,9 +112,17 @@ export class CollisionWorld {
     this.addPolyline(pts, 0.02, options);
   }
 
-  /** Ground height under a point. Each world is a single level, so this is its floor. */
-  groundHeight(_x: number, _z: number): number {
-    return this.floor;
+  /**
+   * Adds a raised walking surface (the stairs at the Kaaba's door): its height at a point, or
+   * anything at or below the floor where there is none.
+   */
+  setRaised(height: (x: number, z: number) => number): void {
+    this.raised = height;
+  }
+
+  /** Ground height under a point: the floor, or the raised surface there. */
+  groundHeight(x: number, z: number): number {
+    return this.raised ? Math.max(this.floor, this.raised(x, z)) : this.floor;
   }
 
   /** Whether a circle of `radius` at (x, z) overlaps nothing. */

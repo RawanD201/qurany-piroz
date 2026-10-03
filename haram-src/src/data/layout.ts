@@ -314,6 +314,11 @@ export function kaabaToWorld(x: number, z: number): Vec2 {
   return { x: x * COS_R + z * SIN_R, z: -x * SIN_R + z * COS_R };
 }
 
+/** Converts a world position to the Kaaba's local frame (the inverse of kaabaToWorld). */
+export function worldToKaaba(x: number, z: number): Vec2 {
+  return { x: x * COS_R - z * SIN_R, z: x * SIN_R + z * COS_R };
+}
+
 export function kaabaToWorld3(x: number, y: number, z: number): Vec3 {
   const p = kaabaToWorld(x, z);
   return { x: p.x, y, z: p.z };

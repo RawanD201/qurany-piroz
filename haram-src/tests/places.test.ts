@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { KAABA_ENTRY } from '../src/data/kaaba-interior';
+import { KAABA_ENTRY, KAABA_EXIT } from '../src/data/kaaba-interior';
 import { PLAYER, SPAWN, WORLD_BOUNDS, type Vec2 } from '../src/data/layout';
 import type { Level } from '../src/data/levels';
 import { PLACE_LOCATIONS, type PlaceLocation } from '../src/data/place-locations';
@@ -142,6 +142,45 @@ describe('walkable layout', () => {
     const targets = onLevel('kaaba');
     expect(Object.keys(targets).length).toBeGreaterThan(0);
     const reached = reachable(interior, interior.bounds, KAABA_ENTRY.position, targets, 0.2);
+    for (const [id, ok] of Object.entries(reached)) expect(ok, `${id} viewpoint is reachable inside the Kaaba`).toBe(true);
+  });
+});
+
+describe('walkable layout with the people praying in the courtyard', () => {
+  for (const kaabaStairs of [false, true]) {
+    const world = buildCollisionWorld({ people: true, kaabaStairs, kaabaDoorway: kaabaStairs });
+
+    it(`keeps every viewpoint free and in reach on foot${kaabaStairs ? ', with the stairs at the door' : ''}`, () => {
+      expect(world.isFree(SPAWN.x, SPAWN.z, PLAYER.radius)).toBe(true);
+      expect(world.isFree(KAABA_EXIT.position.x, KAABA_EXIT.position.z, PLAYER.radius)).toBe(true);
+      const targets = onLevel('ground');
+      for (const [id, p] of Object.entries(targets)) expect(world.isFree(p.x, p.z, PLAYER.radius), `${id} viewpoint`).toBe(true);
+      const reached = reachable(world, WORLD_BOUNDS, SPAWN, targets, 1);
+      for (const [id, ok] of Object.entries(reached)) expect(ok, `${id} viewpoint is reachable on foot`).toBe(true);
+    });
+  }
+});
+
+describe('walkable layout with the stairs at the Kaaba\'s door', () => {
+  const world = buildCollisionWorld({ kaabaStairs: true, kaabaDoorway: true });
+  const interior = buildKaabaInteriorWorld({ doorOpen: true, exit: true });
+
+  it('keeps every viewpoint, the way out of the Kaaba and the way in free', () => {
+    for (const [id, location] of Object.entries(PLACE_LOCATIONS)) {
+      const here = (location.level ?? 'ground') === 'kaaba' ? interior : world;
+      expect(here.isFree(location.viewpoint.x, location.viewpoint.z, PLAYER.radius), `${id} viewpoint`).toBe(true);
+    }
+    expect(world.isFree(KAABA_EXIT.position.x, KAABA_EXIT.position.z, PLAYER.radius)).toBe(true);
+    expect(interior.isFree(KAABA_ENTRY.position.x, KAABA_ENTRY.position.z, PLAYER.radius)).toBe(true);
+  });
+
+  it('can still walk from the starting point to every viewpoint on the ground', () => {
+    const reached = reachable(world, WORLD_BOUNDS, SPAWN, onLevel('ground'), 1);
+    for (const [id, ok] of Object.entries(reached)) expect(ok, `${id} viewpoint is reachable on foot`).toBe(true);
+  });
+
+  it('can walk from just inside the open door to every viewpoint inside the Kaaba', () => {
+    const reached = reachable(interior, interior.bounds, KAABA_ENTRY.position, onLevel('kaaba'), 0.2);
     for (const [id, ok] of Object.entries(reached)) expect(ok, `${id} viewpoint is reachable inside the Kaaba`).toBe(true);
   });
 });

@@ -1,5 +1,5 @@
 // Settings: graphics quality, walking speed, look sensitivity, label and text size, drag
-// direction, markers.
+// direction, markers, people praying and going round the Kaaba.
 
 import { SETTINGS_RANGES } from '../config';
 import type { QualityPreference, QualityTier } from '../engine/quality';
@@ -90,6 +90,8 @@ export class SettingsPanel {
     );
     body.append(this.checkbox('reverse-drag', t('settings.reverseDrag'), settings.reverseDrag, (reverseDrag) => this.update({ reverseDrag })));
     body.append(this.checkbox('show-markers', t('settings.showMarkers'), settings.showMarkers, (showMarkers) => this.update({ showMarkers })));
+    body.append(this.checkbox('show-people', t('settings.showPeople'), settings.showPeople, (showPeople) => this.update({ showPeople })));
+    body.append(this.checkbox('show-tawaf', t('settings.showTawaf'), settings.showTawaf, (showTawaf) => this.update({ showTawaf })));
 
     const actionsRow = el('div', { className: 'dialog__actions' });
     actionsRow.append(
@@ -152,8 +154,9 @@ export class SettingsPanel {
     return el('div', { className: 'field' }, el('div', { className: 'field__row' }, el('label', { text: label, attrs: { for: id } }), output), input);
   }
 
+  /** An on/off switch (a checkbox, announced as a switch). */
   private checkbox(id: string, label: string, checked: boolean, onChange: (checked: boolean) => void): HTMLElement {
-    const input = el('input', { id, attrs: { type: 'checkbox' } });
+    const input = el('input', { id, className: 'switch', attrs: { type: 'checkbox', role: 'switch' } });
     input.checked = checked;
     input.addEventListener('change', () => onChange(input.checked));
     return el('div', { className: 'field field--check' }, input, el('label', { text: label, attrs: { for: id } }));

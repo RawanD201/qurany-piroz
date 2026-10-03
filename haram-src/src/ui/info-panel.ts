@@ -17,6 +17,10 @@ export interface InfoPanelActions {
   onBalcony?(id: PlaceId): void;
   /** Goes inside the Kaaba (offered on the Kaaba's and its door's panels). */
   onEnterKaaba?(id: PlaceId): void;
+  /** Brings the stairs to the Kaaba's door, or takes them away (offered with "Go inside"). */
+  onToggleStairs?(): void;
+  /** Opens or closes the Kaaba's door. */
+  onToggleDoor?(): void;
   onClose(id: PlaceId): void;
 }
 
@@ -26,6 +30,10 @@ export class InfoPanel {
   private readonly scroller: HTMLDivElement;
   private current: PlaceId | null = null;
   private returnFocus: HTMLElement | null = null;
+  private stairs = false;
+  private stairsButton: HTMLButtonElement | null = null;
+  private doorOpen = false;
+  private doorButton: HTMLButtonElement | null = null;
 
   constructor(
     parent: HTMLElement,
@@ -63,10 +71,41 @@ export class InfoPanel {
     return this.current;
   }
 
+  /** Whether the stairs stand at the Kaaba's door (their button then offers to take them away). */
+  setStairs(shown: boolean): void {
+    this.stairs = shown;
+    const text = this.stairsButton?.querySelector('.button__text');
+    if (text) text.textContent = this.stairsLabel();
+  }
+
+  private stairsLabel(): string {
+    return t(this.stairs ? 'panel.removeStairs' : 'panel.bringStairs');
+  }
+
+  /** Whether the Kaaba's door is open (its button then offers to close it). */
+  setDoor(open: boolean): void {
+    this.doorOpen = open;
+    const text = this.doorButton?.querySelector('.button__text');
+    if (text) text.textContent = this.doorLabel();
+  }
+
+  private doorLabel(): string {
+    return t(this.doorOpen ? 'panel.closeDoor' : 'panel.openDoor');
+  }
+
   show(id: PlaceId, returnFocus?: HTMLElement | null, moveFocus = true): void {
     const place = getPlaceContent(id);
     this.current = id;
     this.returnFocus = returnFocus ?? null;
+    const inside = PLACE_LOCATIONS[id].inside ?? false;
+    this.stairsButton =
+      inside && this.actions.onToggleStairs
+        ? button(this.stairsLabel(), { className: 'pill-button', icon: 'stairs', onClick: () => this.actions.onToggleStairs?.() })
+        : null;
+    this.doorButton =
+      PLACE_LOCATIONS[id].door && this.actions.onToggleDoor
+        ? button(this.doorLabel(), { className: 'pill-button', icon: 'door', onClick: () => this.actions.onToggleDoor?.() })
+        : null;
     this.content.replaceChildren(
       placeHeading(place, 'info-panel-title'),
       el(
@@ -77,9 +116,11 @@ export class InfoPanel {
         ...(PLACE_LOCATIONS[id].balcony && this.actions.onBalcony
           ? [button(t('panel.balcony'), { className: 'pill-button', icon: 'up', onClick: () => this.actions.onBalcony?.(id) })]
           : []),
-        ...(PLACE_LOCATIONS[id].inside && this.actions.onEnterKaaba
+        ...(inside && this.actions.onEnterKaaba
           ? [button(t('panel.enterKaaba'), { className: 'pill-button', icon: 'home', onClick: () => this.actions.onEnterKaaba?.(id) })]
-          : [])
+          : []),
+        this.stairsButton,
+        this.doorButton
       ),
       placeBody(place)
     );

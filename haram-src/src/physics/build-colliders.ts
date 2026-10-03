@@ -12,6 +12,7 @@ import {
   kaabaToWorld,
   MAQAM,
   maqamPosition,
+  worldToKaaba,
   type Vec2,
 } from '../data/layout';
 import { LANDMARKS, MARWAH_CENTER, SAFA_CENTER } from '../data/plan-data';
@@ -29,7 +30,9 @@ import {
   porticoColumns,
   porticoPiers,
 } from '../data/structure';
-import { KAABA_INTERIOR } from '../data/kaaba-interior';
+import { KAABA_INTERIOR, DOOR_LEAVES, doorLeaves } from '../data/kaaba-interior';
+import { DOORWAY, KAABA_STAIRS, stairsHeight } from '../data/kaaba-stairs';
+import { footprint, placePrayingPeople, type PrayingPerson } from '../data/praying-people';
 import { CollisionWorld } from './collision';
 
 export const ROCK_RADIUS = 7;
@@ -44,17 +47,37 @@ export function buildBalconyWorld(): CollisionWorld {
   return new CollisionWorld({ minX: minX + inset, maxX: maxX - inset, minZ: innerZ - depth + inset, maxZ: innerZ - inset }, 8, floorY);
 }
 
+/** Kaaba-local points in world coordinates. */
+const fromKaaba = (points: readonly [number, number][]): Vec2[] => points.map(([x, z]) => kaabaToWorld(x, z));
+
 /**
  * Inside the Kaaba: a room of its own at the door's sill height, bounded by its four walls,
- * with the pillars, the cupboard and the staircase enclosure in the way.
+ * with the pillars, the cupboard and the staircase enclosure in the way. With the door open, its
+ * leaves stand open in the room and the visitor can step into the doorway; with the stairs at it
+ * too (`exit`), the doorway leads out through the wall to just beyond it, where the visitor passes
+ * onto the Haram's ground (see data/kaaba-stairs.ts). Without them it stops short of the drop.
  */
-export function buildKaabaInteriorWorld(): CollisionWorld {
+export function buildKaabaInteriorWorld(options: { doorOpen?: boolean; exit?: boolean } = {}): CollisionWorld {
   const { halfW, halfD, floorY, pillars, pillarBase, cupboard, stair } = KAABA_INTERIOR;
-  const corners = [kaabaToWorld(-halfW, -halfD), kaabaToWorld(halfW, -halfD), kaabaToWorld(halfW, halfD), kaabaToWorld(-halfW, halfD)];
-  const xs = corners.map((c) => c.x);
-  const zs = corners.map((c) => c.z);
+  const { left, right } = KAABA_STAIRS;
+  const corners = fromKaaba([[-halfW, -halfD], [halfW, -halfD], [halfW, halfD], [-halfW, halfD]]);
+  const corridorEnd = options.exit ? DOORWAY.roomEnd : DOORWAY.outer - 0.1;
+  const corridor = fromKaaba([[right, halfD], [right, corridorEnd], [left, corridorEnd], [left, halfD]]);
+  const extent = options.doorOpen ? [...corners, ...corridor] : corners;
+  const xs = extent.map((c) => c.x);
+  const zs = extent.map((c) => c.z);
   const world = new CollisionWorld({ minX: Math.min(...xs), maxX: Math.max(...xs), minZ: Math.min(...zs), maxZ: Math.max(...zs) }, 2, floorY);
-  world.addPolyline([...corners, corners[0]], 0.12, { tall: true });
+  if (options.doorOpen) {
+    // The walls from one side of the doorway round to the other, and the doorway's sides.
+    world.addPolyline(fromKaaba([[left, halfD], [-halfW, halfD], [-halfW, -halfD], [halfW, -halfD], [halfW, halfD], [right, halfD]]), 0.12, { tall: true });
+    world.addPolyline(corridor, 0.02, { tall: true });
+    for (const leaf of doorLeaves()) {
+      const [a, b] = fromKaaba([[leaf.hinge.x, leaf.hinge.z], [leaf.openEdge.x, leaf.openEdge.z]]);
+      world.addSegment(a.x, a.z, b.x, b.z, DOOR_LEAVES.thickness / 2, { tall: true });
+    }
+  } else {
+    world.addPolyline([...corners, corners[0]], 0.12, { tall: true });
+  }
   for (const x of pillars.xs) {
     const p = kaabaToWorld(x, pillars.z);
     world.addBox(p.x, p.z, pillarBase.half, pillarBase.half, KAABA.rotationY, { tall: true });
@@ -75,18 +98,73 @@ function nearBounds(p: Vec2, margin: number): boolean {
   );
 }
 
-export function buildCollisionWorld(): CollisionWorld {
+/**
+ * The Kaaba with the stairs at its door: the stairs' sides run out to their foot, and the stairs
+ * are raised to the sill (data/kaaba-stairs.ts). With the door open (`doorway`), the Kaaba's
+ * outline (round the marble base) has a corridor as wide as the door cut through the wall and on
+ * into the room, raised too; with it shut, the landing ends at the closed door.
+ */
+function addKaabaWithStairs(world: CollisionWorld, doorway: boolean): void {
+  const hw = KAABA_HALF_W + KAABA.base.overhang;
+  const hd = KAABA_HALF_D + KAABA.base.overhang;
+  const { left, right, foot } = KAABA_STAIRS;
+  const end = DOORWAY.groundEnd;
+  const notch: [number, number][] = doorway ? [[right, hd], [right, end], [left, end], [left, hd]] : [];
+  world.addPolyline(fromKaaba([[-hw, -hd], [hw, -hd], [hw, hd], ...notch, [-hw, hd], [-hw, -hd]]), 0.02, { tall: true });
+  for (const x of [left, right]) {
+    const [a, b] = fromKaaba([[x, hd], [x, foot]]);
+    world.addSegment(a.x, a.z, b.x, b.z, 0.05);
+  }
+  world.setRaised((x, z) => {
+    const p = worldToKaaba(x, z);
+    return stairsHeight(p.x, p.z);
+  });
+}
+
+export interface GroundOptions {
+  /** The stairs stand at the Kaaba's door (see data/kaaba-stairs.ts)... */
+  kaabaStairs?: boolean;
+  /** ...and its door is open, so the visitor can walk through the doorway. */
+  kaabaDoorway?: boolean;
+  /** The people praying in the courtyard are shown (see data/praying-people.ts). */
+  people?: boolean;
+}
+
+let people: readonly PrayingPerson[] | null = null;
+
+/** The people praying, laid out once, clear of the mosque's own columns, piers and walls. */
+export function prayingPeople(): readonly PrayingPerson[] {
+  if (!people) {
+    const mosque = buildCollisionWorld();
+    people = placePrayingPeople((x, z) => mosque.isFree(x, z, 0.9));
+  }
+  return people;
+}
+
+export function buildCollisionWorld(options: GroundOptions = {}): CollisionWorld {
   const world = new CollisionWorld(WORLD_BOUNDS, 8);
 
   // The Kaaba, including its marble base. Tall: it hides markers on its far side.
-  world.addBox(
-    0,
-    0,
-    KAABA_HALF_W + KAABA.base.overhang,
-    KAABA_HALF_D + KAABA.base.overhang,
-    KAABA.rotationY,
-    { tall: true }
-  );
+  if (options.kaabaStairs) {
+    addKaabaWithStairs(world, options.kaabaDoorway ?? false);
+  } else {
+    world.addBox(
+      0,
+      0,
+      KAABA_HALF_W + KAABA.base.overhang,
+      KAABA_HALF_D + KAABA.base.overhang,
+      KAABA.rotationY,
+      { tall: true }
+    );
+  }
+
+  // The people praying: the visitor walks round them (they hide nothing).
+  if (options.people) {
+    for (const person of prayingPeople()) {
+      const { from, to, halfWidth } = footprint(person);
+      world.addSegment(from.x, from.z, to.x, to.z, halfWidth);
+    }
+  }
 
   // Hijr Ismail's low wall: blocks walking, not sight.
   world.addPolyline(

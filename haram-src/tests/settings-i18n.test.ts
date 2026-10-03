@@ -16,6 +16,24 @@ describe('settings', () => {
     expect(DEFAULT_SETTINGS.timeOfDay).toBe('day');
   });
 
+  it('leaves the Kaaba\'s stairs away (and its door closed) unless the visitor brought them', () => {
+    expect(DEFAULT_SETTINGS.kaabaStairs).toBe(false);
+    expect(sanitizeSettings({ kaabaStairs: true }).kaabaStairs).toBe(true);
+    expect(sanitizeSettings({ kaabaStairs: 'yes' }).kaabaStairs).toBe(false);
+    // The door: shut by default, open with the stairs in settings saved before it opened on its own.
+    expect(DEFAULT_SETTINGS.kaabaDoorOpen).toBe(false);
+    expect(sanitizeSettings({ kaabaStairs: true }).kaabaDoorOpen).toBe(true);
+    expect(sanitizeSettings({ kaabaStairs: true, kaabaDoorOpen: false }).kaabaDoorOpen).toBe(false);
+  });
+
+  it('shows the people praying unless the visitor hides them', () => {
+    expect(DEFAULT_SETTINGS.showPeople).toBe(true);
+    expect(sanitizeSettings({ showPeople: false }).showPeople).toBe(false);
+    expect(sanitizeSettings({ showPeople: 0 }).showPeople).toBe(true);
+    expect(DEFAULT_SETTINGS.showTawaf).toBe(true);
+    expect(sanitizeSettings({ showTawaf: false }).showTawaf).toBe(false);
+  });
+
   it('clamps numeric settings to their ranges', () => {
     const s = sanitizeSettings({ quality: 'low', speed: 99, sensitivity: -4, reverseDrag: true });
     expect(s.quality).toBe('low');
@@ -48,5 +66,12 @@ describe('label and text size settings', () => {
       textSize: SETTINGS_RANGES.textSize.min,
     });
     expect(sanitizeSettings({ labelSize: 'big' }).labelSize).toBe(DEFAULT_SETTINGS.labelSize);
+  });
+
+  it('shows labels at 60% by default, also to visitors who kept the old 85% default', async () => {
+    const { sanitizeSettings, migrateSettings, DEFAULT_SETTINGS } = await import('../src/settings');
+    expect(DEFAULT_SETTINGS.labelSize).toBe(0.6);
+    expect(sanitizeSettings(migrateSettings({ labelSize: 0.85, timeOfDay: 'night' }))).toMatchObject({ labelSize: 0.6, timeOfDay: 'night' });
+    expect(sanitizeSettings(migrateSettings({ labelSize: 1.1 })).labelSize).toBe(1.1);
   });
 });

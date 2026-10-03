@@ -14,6 +14,11 @@ export const MOVEMENT = {
   gravity: 9.81,
   /** The largest distance moved per collision sub-step, metres (prevents tunnelling). */
   maxSubstep: 0.2,
+  /**
+   * How far the ground may drop under a walking visitor (going down the Kaaba's stairs) and be
+   * stepped down onto rather than fallen to, metres.
+   */
+  stepDown: 0.45,
   /** Frame times longer than this are clamped (seconds), e.g. after a tab switch. */
   maxFrameTime: 0.1,
 } as const;
