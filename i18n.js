@@ -36,7 +36,7 @@
 
   // Bumped with every change to this file or to the tables in /i18n/ (the pages load this file
   // as /i18n.js?v=… with the same value, and it loads the tables with it).
-  var VERSION = '20261003a';
+  var VERSION = '20261010a';
 
   // Menu order: the app's own — Kurdish and its dialects first, then the other languages the
   // app is available in.
@@ -331,6 +331,11 @@
     'index.donations': '🤍 بەخشین',
     'index.haram': 'بە حەرەمدا بگەڕێ',
     'index.haramNote': 'سوجدەگای حەرام بە سێڕەهەندی، لە وێبگەڕەکەتدا',
+    'index.explore3d': 'بگەڕە سێ-ڕەهەندییەکان',
+    'index.explore3dNote': 'حەرەم و گێڕانەوەکانی قورئان بە سێڕەهەندی، لە وێبگەڕەکەتدا',
+    'sims.title': 'سێ-ڕەهەندییەکان',
+    'sims.accounts': 'گێڕانەوەکانی قورئان',
+    'sims.langNote': 'گێڕانەوەکان بە کوردی، عەرەبی و ئینگلیزی بەردەستن.',
     'index.demo': 'دیمۆی بەرنامەکە',
     'index.demoNote': 'بەرنامەکە ڕاستەوخۆ لە وێبگەڕەکەتدا تاقی بکەرەوە',
 
@@ -453,6 +458,11 @@
     'index.donations': '🤍 Donate',
     'index.haram': 'Explore the Haram',
     'index.haramNote': 'Masjid al-Haram in 3D, in your web browser',
+    'index.explore3d': 'Explore in 3D',
+    'index.explore3dNote': 'The Haram and the Quran’s accounts in 3D, in your web browser',
+    'sims.title': 'In 3D',
+    'sims.accounts': 'Accounts from the Quran',
+    'sims.langNote': 'The accounts are available in English, Kurdish and Arabic.',
     'index.demo': 'App demo',
     'index.demoNote': 'Try the app right in your web browser',
 
@@ -576,6 +586,11 @@
     'index.donations': '🤍 عطیہ',
     'index.haram': 'حرم کی سیر کریں',
     'index.haramNote': 'مسجد الحرام 3D میں، آپ کے ویب براؤزر میں',
+    'index.explore3d': '3D میں سیر کریں',
+    'index.explore3dNote': 'حرم اور قرآن کے واقعات 3D میں، آپ کے ویب براؤزر میں',
+    'sims.title': '3D',
+    'sims.accounts': 'قرآن کے واقعات',
+    'sims.langNote': 'یہ واقعات انگریزی، کردی اور عربی میں دستیاب ہیں۔',
     'index.demo': 'ایپ ڈیمو',
     'index.demoNote': 'ایپ کو براہِ راست اپنے ویب براؤزر میں آزمائیں',
 
@@ -698,6 +713,11 @@
     'index.donations': '🤍 تبرّع',
     'index.haram': 'استكشف الحرم',
     'index.haramNote': 'المسجد الحرام ثلاثي الأبعاد، في متصفحك',
+    'index.explore3d': 'استكشف بالأبعاد الثلاثية',
+    'index.explore3dNote': 'الحرم وقصص القرآن ثلاثية الأبعاد، في متصفحك',
+    'sims.title': 'ثلاثي الأبعاد',
+    'sims.accounts': 'قصص من القرآن',
+    'sims.langNote': 'القصص متاحة بالعربية والكردية والإنجليزية.',
     'index.demo': 'تجربة التطبيق',
     'index.demoNote': 'جرّب التطبيق مباشرةً في متصفحك',
 
@@ -820,6 +840,11 @@
     'index.donations': '🤍 کمک مالی',
     'index.haram': 'حرم را کاوش کنید',
     'index.haramNote': 'مسجدالحرام به‌صورت سه‌بعدی، در مرورگر شما',
+    'index.explore3d': 'کاوش سه‌بعدی',
+    'index.explore3dNote': 'حرم و داستان‌های قرآن به‌صورت سه‌بعدی، در مرورگر شما',
+    'sims.title': 'سه‌بعدی',
+    'sims.accounts': 'داستان‌های قرآن',
+    'sims.langNote': 'داستان‌ها به انگلیسی، کردی و عربی در دسترس‌اند.',
     'index.demo': 'دموی برنامه',
     'index.demoNote': 'برنامه را مستقیماً در مرورگر خود امتحان کنید',
 
@@ -942,6 +967,11 @@
     'index.donations': '🤍 Bağış',
     'index.haram': 'Harem\'i keşfedin',
     'index.haramNote': 'Mescid-i Haram 3D olarak, web tarayıcınızda',
+    'index.explore3d': '3D olarak keşfedin',
+    'index.explore3dNote': 'Harem ve Kur’an kıssaları 3D olarak, web tarayıcınızda',
+    'sims.title': '3D',
+    'sims.accounts': 'Kur’an’dan kıssalar',
+    'sims.langNote': 'Kıssalar İngilizce, Kürtçe ve Arapça olarak sunulur.',
     'index.demo': 'Uygulama demosu',
     'index.demoNote': 'Uygulamayı doğrudan web tarayıcınızda deneyin',
 

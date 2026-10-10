@@ -4,3 +4,6 @@ haram-src
 
 # Local editor settings (also in .gitignore), in case they are ever committed again.
 .claude
+
+# Build tooling for /3d/ (see SIMULATIONS.md): not part of the site.
+scripts
