@@ -22,8 +22,6 @@ QPI18n.register('de', {
   "sims.title": "In 3D",
   "sims.accounts": "Erzählungen aus dem Koran",
   "sims.langNote": "Die Erzählungen gibt es auf Englisch, Kurdisch und Arabisch.",
-  "index.demo": "App-Demo",
-  "index.demoNote": "Die App direkt im Webbrowser ausprobieren",
   "link.openHint": "Wenn Sie die App bereits haben, öffnet der Link sie normalerweise von selbst. Falls das nicht geschehen ist, tippen Sie auf die Schaltfläche oben.",
   "link.brokenLabel": "Dieser Link funktioniert nicht",
   "ayat.pageTitle": "Ein Vers — Qurany Piroz",

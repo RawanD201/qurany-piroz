@@ -22,8 +22,6 @@ QPI18n.register('ku', {
   "sims.title": "3D",
   "sims.accounts": "Çîrokên Quranê",
   "sims.langNote": "Çîrok bi Îngilîzî, Kurdiya Navendî û Erebî hene.",
-  "index.demo": "Demoya sepanê",
-  "index.demoNote": "Sepanê rasterast di geroka xwe ya webê de biceribîne",
   "link.openHint": "Heke sepan li cem te hebe, girêdan bi gelemperî bi xwe wê vedike. Heke wisa nebû, li bişkoka jorîn bitikîne.",
   "link.brokenLabel": "Ev girêdan naxebite",
   "ayat.pageTitle": "Ayetek — Quranê Pîroz",

@@ -22,8 +22,6 @@ QPI18n.register('ms', {
   "sims.title": "Dalam 3D",
   "sims.accounts": "Kisah-kisah al-Quran",
   "sims.langNote": "Kisah-kisah ini tersedia dalam bahasa Inggeris, Kurdi dan Arab.",
-  "index.demo": "Demo aplikasi",
-  "index.demoNote": "Cuba aplikasi terus dalam pelayar web anda",
   "link.openHint": "Jika anda sudah mempunyai aplikasi ini, pautan ini biasanya membukanya dengan sendiri. Jika itu tidak berlaku, ketik butang di atas.",
   "link.brokenLabel": "Pautan ini tidak berfungsi",
   "ayat.pageTitle": "Satu ayat — Qurany Piroz",

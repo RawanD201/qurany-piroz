@@ -336,8 +336,6 @@
     'sims.title': 'سێ-ڕەهەندییەکان',
     'sims.accounts': 'گێڕانەوەکانی قورئان',
     'sims.langNote': 'گێڕانەوەکان بە کوردی، عەرەبی و ئینگلیزی بەردەستن.',
-    'index.demo': 'دیمۆی بەرنامەکە',
-    'index.demoNote': 'بەرنامەکە ڕاستەوخۆ لە وێبگەڕەکەتدا تاقی بکەرەوە',
 
     'link.openHint': 'ئەگەر بەرنامەکەت دامەزراندبێت، بەشێوەی ئاسایی بەستەرەکە خۆی بەرنامەکە دەکاتەوە. ئەگەر ئەوە ڕووی نەدا، دوگمەی سەرەوە دابگرە.',
     'link.brokenLabel': 'بەستەرەکە کارا نییە',
@@ -463,8 +461,6 @@
     'sims.title': 'In 3D',
     'sims.accounts': 'Accounts from the Quran',
     'sims.langNote': 'The accounts are available in English, Kurdish and Arabic.',
-    'index.demo': 'App demo',
-    'index.demoNote': 'Try the app right in your web browser',
 
     'link.openHint': 'If you already have the app, the link normally opens it by itself. If that did not happen, tap the button above.',
     'link.brokenLabel': 'This link does not work',
@@ -591,8 +587,6 @@
     'sims.title': '3D',
     'sims.accounts': 'قرآن کے واقعات',
     'sims.langNote': 'یہ واقعات انگریزی، کردی اور عربی میں دستیاب ہیں۔',
-    'index.demo': 'ایپ ڈیمو',
-    'index.demoNote': 'ایپ کو براہِ راست اپنے ویب براؤزر میں آزمائیں',
 
     'link.openHint': 'اگر ایپ پہلے سے موجود ہے تو لنک عام طور پر خود ہی ایپ کھول دیتا ہے۔ اگر ایسا نہ ہو تو اوپر والا بٹن دبائیں۔',
     'link.brokenLabel': 'یہ لنک کام نہیں کرتا',
@@ -718,8 +712,6 @@
     'sims.title': 'ثلاثي الأبعاد',
     'sims.accounts': 'قصص من القرآن',
     'sims.langNote': 'القصص متاحة بالعربية والكردية والإنجليزية.',
-    'index.demo': 'تجربة التطبيق',
-    'index.demoNote': 'جرّب التطبيق مباشرةً في متصفحك',
 
     'link.openHint': 'إذا كان التطبيق مثبتًا لديك، فالرابط يفتحه عادةً من تلقاء نفسه. وإن لم يحدث ذلك، فاضغط الزر أعلاه.',
     'link.brokenLabel': 'هذا الرابط لا يعمل',
@@ -845,8 +837,6 @@
     'sims.title': 'سه‌بعدی',
     'sims.accounts': 'داستان‌های قرآن',
     'sims.langNote': 'داستان‌ها به انگلیسی، کردی و عربی در دسترس‌اند.',
-    'index.demo': 'دموی برنامه',
-    'index.demoNote': 'برنامه را مستقیماً در مرورگر خود امتحان کنید',
 
     'link.openHint': 'اگر برنامه را نصب کرده باشید، پیوند معمولاً خودش آن را باز می‌کند. اگر چنین نشد، دکمهٔ بالا را بزنید.',
     'link.brokenLabel': 'این پیوند کار نمی‌کند',
@@ -972,8 +962,6 @@
     'sims.title': '3D',
     'sims.accounts': 'Kur’an’dan kıssalar',
     'sims.langNote': 'Kıssalar İngilizce, Kürtçe ve Arapça olarak sunulur.',
-    'index.demo': 'Uygulama demosu',
-    'index.demoNote': 'Uygulamayı doğrudan web tarayıcınızda deneyin',
 
     'link.openHint': 'Uygulama zaten kuruluysa bağlantı normalde onu kendisi açar. Bu olmadıysa yukarıdaki düğmeye dokunun.',
     'link.brokenLabel': 'Bu bağlantı çalışmıyor',

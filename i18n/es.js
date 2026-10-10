@@ -22,8 +22,6 @@ QPI18n.register('es', {
   "sims.title": "En 3D",
   "sims.accounts": "Relatos del Corán",
   "sims.langNote": "Los relatos están disponibles en inglés, kurdo y árabe.",
-  "index.demo": "Demo de la app",
-  "index.demoNote": "Prueba la app directamente en tu navegador",
   "link.openHint": "Si ya tienes la aplicación, normalmente el enlace la abre por sí solo. Si no ha sido así, toca el botón de arriba.",
   "link.brokenLabel": "Este enlace no funciona",
   "ayat.pageTitle": "Una aleya — Qurany Piroz",

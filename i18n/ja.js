@@ -22,8 +22,6 @@ QPI18n.register('ja', {
   "sims.title": "3D",
   "sims.accounts": "クルアーンの物語",
   "sims.langNote": "物語は英語、クルド語、アラビア語で利用できます。",
-  "index.demo": "アプリのデモ",
-  "index.demoNote": "ウェブブラウザでそのままアプリを試せます",
   "link.openHint": "アプリをすでにお持ちの場合、通常はこのリンクで自動的にアプリが開きます。開かなかった場合は、上のボタンをタップしてください。",
   "link.brokenLabel": "このリンクは無効です",
   "ayat.pageTitle": "クルアーンの節 — Qurany Piroz",
