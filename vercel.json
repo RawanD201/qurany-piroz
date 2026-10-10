@@ -3,7 +3,9 @@
   "cleanUrls": true,
   "redirects": [
     { "source": "/haram-src", "destination": "/haram", "permanent": false },
-    { "source": "/haram-src/:path*", "destination": "/haram", "permanent": false }
+    { "source": "/haram-src/:path*", "destination": "/haram", "permanent": false },
+    { "source": "/demo", "destination": "/", "permanent": false },
+    { "source": "/demo/:path*", "destination": "/", "permanent": false }
   ],
   "rewrites": [
     { "source": "/ayat/:path*", "destination": "/ayat" },
