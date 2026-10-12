@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title data-i18n="index.pageTitle">قورئانی پیرۆز — پەڕتووکی خودا</title>
-    <meta name="description" data-i18n-attr="content:index.metaDescription" content="بەرنامەی مۆبایلیی &quot;قورئانی پیرۆز — پەڕتووکی خودا&quot; بۆ گرتنەبەری گەشتێکی پڕ لە تێگەیشتنە بەنێو ئایەتەکانی قورئان بە زمانی شیرینی کوردی (هەرسێ زار و شێوەزاری کوردیی ناوەندی و بادینانی و هەورامانی) بەسیازدە تەفسیری کوردی و فەرهەنگێکی ڕیشەییی وشەکانی قورئانەوە.">
+    <meta name="description" data-i18n-attr="content:index.metaDescription" content="بەرنامەی مۆبایلیی 'قورئانی پیرۆز — پەڕتووکی خودا' بەرنامەیەکی کوردییە بە شازدە زمانی جیهان و بە ٤٧ تەفسیری جیهانییەوە لەپێناو گرتنەبەری گەشتێکی پڕ لە تێگەیشتن بەنێو ئایەتەکانی قورئان بە هەبوونی دەیان تایبەتمەندێتیی پێویست و بێوێنە.">
     <meta name="keywords" data-i18n-attr="content:index.metaKeywords" content="قورئان, قورئانی پیرۆز, کوردی, تەفسیر, پەڕتووکی خودا, Quran, Kurdish">
     <meta name="format-detection" content="telephone=no">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -25,7 +25,7 @@
          before the body is painted, so a reader outside Kurdistan never sees a frame of
          Kurdish first. -->
     <!-- ?v= is bumped whenever i18n.js changes — see donations.html for why. -->
-    <script src="/i18n.js?v=20261010a"></script>
+    <script src="/i18n.js?v=20261012a"></script>
 
     <meta property="og:title" data-i18n-attr="content:index.pageTitle" content="قورئانی پیرۆز — پەڕتووکی خودا">
     <meta property="og:description" data-i18n-attr="content:index.ogDescription" content="بەرنامەی مۆبایلیی بۆ گرتنەبەری گەشتێکی پڕ لە تێگەیشتنە بەنێو ئایەتەکانی قورئان بە زمانی شیرینی کوردی">
@@ -224,6 +224,9 @@
 
       /* Points the way the line reads. */
       [dir="rtl"] .haram-link__arrow { transform: scaleX(-1); }
+
+      /* The photo album's card sits just before the 3D one, as a pair. */
+      .haram-link + .haram-link { margin-top: 12px; }
 
       /* The sheet of 3D experiences opened by the card above: a bottom sheet on phones, a
          centred panel on wider screens. */
@@ -430,7 +433,7 @@
       <h1 data-i18n="common.appName">قورئانی پیرۆز — پەڕتووکی خودا</h1>
 
       <p class="description" data-i18n="index.description">
-        بەرنامەی مۆبایلیی «قورئانی پیرۆز — پەڕتووکی خودا» بۆ گرتنەبەری گەشتێکی پڕ لە تێگەیشتنە بەنێو ئایەتەکانی قورئان بە زمانی شیرینی کوردی (هەرسێ زار و شێوەزاری کوردیی ناوەندی و بادینانی و هەورامانی) بەسیازدە تەفسیری کوردی و فەرهەنگێکی ڕیشەییی وشەکانی قورئانەوە.
+        بەرنامەی مۆبایلیی 'قورئانی پیرۆز — پەڕتووکی خودا' بەرنامەیەکی کوردییە بە شازدە زمانی جیهان و بە ٤٧ تەفسیری جیهانییەوە لەپێناو گرتنەبەری گەشتێکی پڕ لە تێگەیشتن بەنێو ئایەتەکانی قورئان بە هەبوونی دەیان تایبەتمەندێتیی پێویست و بێوێنە.
       </p>
 
       <div class="downloads">
@@ -456,6 +459,32 @@
       <p class="note" id="unsupported-note" data-i18n="common.unsupported" hidden>
         ئەم بەرنامەیە تەنیا بۆ ئەندرۆید و ئایئۆئێس بەردەستە.
       </p>
+
+      <!-- The photo album (/album/, see ALBUM.md). The script below adds this page's language to
+           the link. -->
+      <a class="haram-link" id="album-link" href="/album/">
+        <svg class="haram-link__icon" viewBox="0 0 44 44" aria-hidden="true">
+          <defs>
+            <linearGradient id="album-tile" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#E9C95A"/>
+              <stop offset="1" stop-color="#B8891F"/>
+            </linearGradient>
+          </defs>
+          <rect width="44" height="44" rx="12" fill="url(#album-tile)"/>
+          <rect x="14" y="8" width="22" height="18" rx="3" fill="#3A4052" transform="rotate(10 25 17)"/>
+          <rect x="8" y="14" width="25" height="21" rx="3" fill="#F6E7A8"/>
+          <rect x="10.5" y="16.5" width="20" height="16" rx="1.5" fill="#232838"/>
+          <path d="M10.5 32.5l6-7.5 4.5 4.5 3-3 6.5 6z" fill="#E9CF6E"/>
+          <circle cx="25.5" cy="21" r="2.2" fill="#F6E7A8"/>
+        </svg>
+        <span class="haram-link__text">
+          <span class="haram-link__title" data-i18n="index.album">ئەلبومی وێنەکان</span>
+          <span class="haram-link__note" data-i18n="index.albumNote">وێنەکانی پێغەمبەران محەممەد، عیسا و مووسا</span>
+        </span>
+        <svg class="haram-link__arrow" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
 
       <!-- Opens the sheet of 3D experiences below: the Haram and the Quranic simulations in /3d/.
            Without JavaScript it is still a plain link to the Haram. -->
@@ -593,6 +622,12 @@
       }
       buildSims();
       document.addEventListener('qp:langchange', buildSims);
+
+      // The photo album is in the same three languages as the simulations.
+      var albumLink = document.getElementById('album-link');
+      function setAlbumLang() { albumLink.href = '/album/?lang=' + simLang(); }
+      setAlbumLang();
+      document.addEventListener('qp:langchange', setAlbumLang);
 
       opener.addEventListener('click', function (e) {
         if (typeof sheet.showModal !== 'function') return; // very old browsers keep the plain link
