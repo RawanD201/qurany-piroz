@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ئەلبومی وێنەکان — قورئانی پیرۆز</title>
-    <meta name="description" content="وێنەکانی پێغەمبەران محەممەد، عیسا و مووسا.">
+    <meta name="description" content="وێنەکانی پێغەمبەران موحەممەد (د.خ)، عیسا (د.خ) و مووسا (د.خ).">
     <meta name="format-detection" content="telephone=no">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -136,6 +136,13 @@
       .tab:hover { color: var(--text); }
       .tab[aria-selected="true"] { background: var(--brand); color: var(--on-brand); }
       .tab .n { font-size: 12px; font-weight: 500; opacity: 0.8; font-variant-numeric: tabular-nums; }
+
+      /* On a phone the three names fill the bar; their counts are under the heading anyway. */
+      @media (max-width: 480px) {
+        .tabs { width: 100%; }
+        .tab { flex: 1 1 auto; justify-content: center; padding: 7px 8px; font-size: 13px; }
+        .tab .n { display: none; }
+      }
 
       .tab:focus-visible,
       .tile:focus-visible,
@@ -306,7 +313,7 @@
             close: 'داخستن',
             prev: 'وێنەی پێشوو',
             next: 'وێنەی دواتر',
-            names: { muhammad: 'محەممەد', jesus: 'عیسا', moses: 'مووسا' }
+            names: { muhammad: 'موحەممەد (د.خ)', jesus: 'عیسا (د.خ)', moses: 'مووسا (د.خ)' }
           },
           ar: {
             pageTitle: 'ألبوم الصور — قرآني بيروز',
