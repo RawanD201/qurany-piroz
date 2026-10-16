@@ -100,11 +100,15 @@
         margin: 0 auto 24px;
       }
 
+      /* The app's name always takes exactly one line. Where it is wider than the page at this
+         size — a phone, or a language with a long name — fitTitle() below shrinks it until it
+         fits. */
       h1 {
         font-size: 34px;
         font-weight: 700;
         margin: 0 0 22px;
         letter-spacing: -0.01em;
+        white-space: nowrap;
       }
 
       .description {
@@ -422,95 +426,174 @@
         h1 { font-size: 28px; }
         .logo { width: 112px; height: 112px; border-radius: 26px; }
       }
+
+      /* Everything above is the phone layout, and none of it changes below 720px. From there the
+         page gets a larger hero with the two cards side by side, and from 1080px it becomes two
+         columns: the app on the reading side, and what can be done here in the browser beside
+         it. */
+      @media (min-width: 720px) {
+        main { max-width: 760px; padding: 56px 40px 64px; }
+        .logo { width: 148px; height: 148px; border-radius: 34px; margin-bottom: 28px; }
+        h1 { font-size: 42px; line-height: 1.35; margin-bottom: 20px; }
+        .description { max-width: 600px; font-size: 17.5px; line-height: 1.85; margin-bottom: 36px; }
+
+        .explore {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 14px;
+          margin-top: 36px;
+        }
+
+        .explore .haram-link { max-width: none; margin: 0; }
+        .donations-link { grid-column: 1 / -1; justify-self: center; margin-top: 18px; }
+
+        .sims-sheet { width: min(720px, calc(100% - 48px)); }
+      }
+
+      @media (min-width: 1080px) {
+        /* A column that fills the window, so the two halves sit in the middle of the screen
+           rather than at its top. */
+        body {
+          display: flex;
+          flex-direction: column;
+          min-height: 100vh;
+        }
+
+        body > .qp-lang-bar {
+          width: 100%;
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 24px 56px 0;
+          justify-content: flex-end;
+        }
+
+        main {
+          flex: 1;
+          width: 100%;
+          max-width: 1200px;
+          display: grid;
+          grid-template-columns: minmax(0, 1.4fr) minmax(340px, 1fr);
+          align-content: center;
+          align-items: center;
+          column-gap: clamp(48px, 5vw, 96px);
+          padding: 40px 56px 72px;
+          text-align: start;
+        }
+
+        .logo { width: 128px; height: 128px; border-radius: 30px; margin-inline: 0; margin-bottom: 32px; }
+        h1 { font-size: 48px; line-height: 1.3; margin-bottom: 24px; }
+        .description { max-width: 620px; font-size: 18px; margin-inline: 0; }
+        .downloads { max-width: 320px; margin: 0; }
+        .note { max-width: 520px; margin-inline: 0; }
+
+        .explore { grid-template-columns: minmax(0, 1fr); gap: 16px; margin-top: 0; }
+        .explore .haram-link { gap: 18px; padding: 20px 22px; border-radius: 20px; }
+        .haram-link__icon { width: 56px; height: 56px; }
+        .haram-link__title { font-size: 18px; }
+        .haram-link__note { font-size: 14px; }
+        .donations-link { justify-self: start; margin-top: 8px; }
+
+        .sims-sheet { width: min(900px, calc(100% - 64px)); }
+      }
     </style>
   </head>
   <body>
     <div class="qp-lang-bar"></div>
 
     <main>
-      <img class="logo" src="logo.png" data-i18n-attr="alt:common.logoAlt" alt="لۆگۆی ئەپی قورئانی پیرۆز" width="132" height="132">
+      <!-- Two groups that only matter from 720px up (see the media queries above): the app
+           itself, and what can be done here in the browser. On a phone both are plain blocks. -->
+      <div class="hero">
+        <img class="logo" src="logo.png" data-i18n-attr="alt:common.logoAlt" alt="لۆگۆی ئەپی قورئانی پیرۆز" width="132" height="132">
 
-      <h1 data-i18n="common.appName">قورئانی پیرۆز — پەڕتووکی خودا</h1>
+        <h1 data-i18n="common.appName">قورئانی پیرۆز — پەڕتووکی خودا</h1>
 
-      <p class="description" data-i18n="index.description">
-        بەرنامەی مۆبایلیی 'قورئانی پیرۆز — پەڕتووکی خودا' بەرنامەیەکی کوردییە بە شازدە زمانی جیهان و بە ٤٧ تەفسیری جیهانییەوە لەپێناو گرتنەبەری گەشتێکی پڕ لە تێگەیشتن بەنێو ئایەتەکانی قورئان بە هەبوونی دەیان تایبەتمەندێتیی پێویست و بێوێنە.
-      </p>
+        <p class="description" data-i18n="index.description">
+          بەرنامەی مۆبایلیی 'قورئانی پیرۆز — پەڕتووکی خودا' بەرنامەیەکی کوردییە بە شازدە زمانی جیهان و بە ٤٧ تەفسیری جیهانییەوە لەپێناو گرتنەبەری گەشتێکی پڕ لە تێگەیشتن بەنێو ئایەتەکانی قورئان بە هەبوونی دەیان تایبەتمەندێتیی پێویست و بێوێنە.
+        </p>
 
-      <div class="downloads">
-        <a id="ios-btn" class="btn btn-ios" hidden href="https://apps.apple.com/us/app/%D9%82%D9%88%D8%B1%D8%A6%D8%A7%D9%86%DB%8C-%D9%BE%DB%8C%D8%B1%DB%86%D8%B2-%D9%BE%DB%95%DA%95%D8%AA%D9%88%D9%88%DA%A9%DB%8C-%D8%AE%D9%88%D8%AF%D8%A7/id1240368293?ign-itscg=30200&ign-itsct=apps_box_link&mttnsubad=1240368293" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M16.365 1.43c0 1.14-.42 2.2-1.12 3-.79.9-2.06 1.6-3.09 1.52-.13-1.1.44-2.25 1.11-3.01.76-.87 2.1-1.53 3.1-1.51zM20.9 17.03c-.55 1.27-.81 1.84-1.52 2.96-.99 1.56-2.39 3.5-4.12 3.51-1.54.02-1.94-1-4.03-.99-2.09.01-2.52 1.01-4.06.99-1.73-.01-3.06-1.76-4.05-3.32C.32 15.8-.02 10.7 1.72 8.03c1.24-1.9 3.2-3.01 5.04-3.01 1.87 0 3.05 1.03 4.6 1.03 1.5 0 2.42-1.03 4.59-1.03 1.64 0 3.37.89 4.61 2.43-4.05 2.22-3.39 8.01.34 9.58z"/>
-          </svg>
-          <span data-i18n="common.download">دابارکردن (Download)</span>
-        </a>
+        <div class="downloads">
+          <a id="ios-btn" class="btn btn-ios" hidden href="https://apps.apple.com/us/app/%D9%82%D9%88%D8%B1%D8%A6%D8%A7%D9%86%DB%8C-%D9%BE%DB%8C%D8%B1%DB%86%D8%B2-%D9%BE%DB%95%DA%95%D8%AA%D9%88%D9%88%DA%A9%DB%8C-%D8%AE%D9%88%D8%AF%D8%A7/id1240368293?ign-itscg=30200&ign-itsct=apps_box_link&mttnsubad=1240368293" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M16.365 1.43c0 1.14-.42 2.2-1.12 3-.79.9-2.06 1.6-3.09 1.52-.13-1.1.44-2.25 1.11-3.01.76-.87 2.1-1.53 3.1-1.51zM20.9 17.03c-.55 1.27-.81 1.84-1.52 2.96-.99 1.56-2.39 3.5-4.12 3.51-1.54.02-1.94-1-4.03-.99-2.09.01-2.52 1.01-4.06.99-1.73-.01-3.06-1.76-4.05-3.32C.32 15.8-.02 10.7 1.72 8.03c1.24-1.9 3.2-3.01 5.04-3.01 1.87 0 3.05 1.03 4.6 1.03 1.5 0 2.42-1.03 4.59-1.03 1.64 0 3.37.89 4.61 2.43-4.05 2.22-3.39 8.01.34 9.58z"/>
+            </svg>
+            <span data-i18n="common.download">دابارکردن (Download)</span>
+          </a>
 
-        <a id="android-btn" class="btn btn-android" hidden href="https://github.com/RawanD201/qurany-piroz/releases/download/v2.0.3/qurany-piroz.apk" download>
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M17.6 9.48l1.84-3.18a.38.38 0 10-.66-.38l-1.87 3.23a11.4 11.4 0 00-9.82 0L5.22 5.92a.38.38 0 10-.66.38L6.4 9.48A10.7 10.7 0 001 17.86h22a10.7 10.7 0 00-5.4-8.38zM7 14.87a.92.92 0 110-1.84.92.92 0 010 1.84zm10 0a.92.92 0 110-1.84.92.92 0 010 1.84z"/>
-          </svg>
-          <span data-i18n="common.download">دابارکردن (Download)</span>
-        </a>
+          <a id="android-btn" class="btn btn-android" hidden href="https://github.com/RawanD201/qurany-piroz/releases/download/v2.0.3/qurany-piroz.apk" download>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M17.6 9.48l1.84-3.18a.38.38 0 10-.66-.38l-1.87 3.23a11.4 11.4 0 00-9.82 0L5.22 5.92a.38.38 0 10-.66.38L6.4 9.48A10.7 10.7 0 001 17.86h22a10.7 10.7 0 00-5.4-8.38zM7 14.87a.92.92 0 110-1.84.92.92 0 010 1.84zm10 0a.92.92 0 110-1.84.92.92 0 010 1.84z"/>
+            </svg>
+            <span data-i18n="common.download">دابارکردن (Download)</span>
+          </a>
+        </div>
+
+        <p class="note" id="android-note" data-i18n="index.androidNote" hidden>
+          بۆ ئەندرۆید: دوای دابارکردن، ڕێگە بە دامەزراندنی ئەپ لە سەرچاوەی نەناسراو بدە.
+        </p>
+
+        <p class="note" id="unsupported-note" data-i18n="common.unsupported" hidden>
+          ئەم بەرنامەیە تەنیا بۆ ئەندرۆید و ئایئۆئێس بەردەستە.
+        </p>
       </div>
 
-      <p class="note" id="android-note" data-i18n="index.androidNote" hidden>
-        بۆ ئەندرۆید: دوای دابارکردن، ڕێگە بە دامەزراندنی ئەپ لە سەرچاوەی نەناسراو بدە.
-      </p>
+      <div class="explore">
+        <!-- The photo album (/album/, see ALBUM.md). The script below adds this page's language to
+             the link. -->
+        <a class="haram-link" id="album-link" href="/album/">
+          <svg class="haram-link__icon" viewBox="0 0 44 44" aria-hidden="true">
+            <defs>
+              <linearGradient id="album-tile" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#E9C95A"/>
+                <stop offset="1" stop-color="#B8891F"/>
+              </linearGradient>
+            </defs>
+            <rect width="44" height="44" rx="12" fill="url(#album-tile)"/>
+            <rect x="14" y="8" width="22" height="18" rx="3" fill="#3A4052" transform="rotate(10 25 17)"/>
+            <rect x="8" y="14" width="25" height="21" rx="3" fill="#F6E7A8"/>
+            <rect x="10.5" y="16.5" width="20" height="16" rx="1.5" fill="#232838"/>
+            <path d="M10.5 32.5l6-7.5 4.5 4.5 3-3 6.5 6z" fill="#E9CF6E"/>
+            <circle cx="25.5" cy="21" r="2.2" fill="#F6E7A8"/>
+          </svg>
+          <span class="haram-link__text">
+            <span class="haram-link__title" data-i18n="index.album">ئەلبومی وێنەکان</span>
+            <span class="haram-link__note" data-i18n="index.albumNote">وێنەکانی پێغەمبەران موحەممەد (د.خ)، عیسا (د.خ) و مووسا (د.خ)</span>
+          </span>
+          <svg class="haram-link__arrow" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
 
-      <p class="note" id="unsupported-note" data-i18n="common.unsupported" hidden>
-        ئەم بەرنامەیە تەنیا بۆ ئەندرۆید و ئایئۆئێس بەردەستە.
-      </p>
+        <!-- Opens the sheet of 3D experiences below: the Haram and the Quranic simulations in /3d/.
+             Without JavaScript it is still a plain link to the Haram. -->
+        <a class="haram-link" id="explore-3d" href="/haram/" aria-haspopup="dialog" aria-controls="sims-sheet">
+          <svg class="haram-link__icon" viewBox="0 0 44 44" aria-hidden="true">
+            <defs>
+              <linearGradient id="haram-tile" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#E9C95A"/>
+                <stop offset="1" stop-color="#B8891F"/>
+              </linearGradient>
+            </defs>
+            <rect width="44" height="44" rx="12" fill="url(#haram-tile)"/>
+            <path d="M8 16l14-5 14 5-14 5z" fill="#3A4052"/>
+            <path d="M8 16l14 5v14L8 30z" fill="#14161E"/>
+            <path d="M22 21l14-5v14l-14 5z" fill="#232838"/>
+            <path d="M8 19.2l14 5v2.2l-14-5z" fill="#F6E7A8"/>
+            <path d="M22 24.2l14-5v2.2l-14 5z" fill="#E9CF6E"/>
+          </svg>
+          <span class="haram-link__text">
+            <span class="haram-link__title" data-i18n="index.explore3d">بگەڕە سێ-ڕەهەندییەکان</span>
+            <span class="haram-link__note" data-i18n="index.explore3dNote">حەرەم و گێڕانەوەکانی قورئان بە سێڕەهەندی، لە وێبگەڕەکەتدا</span>
+          </span>
+          <svg class="haram-link__arrow" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
 
-      <!-- The photo album (/album/, see ALBUM.md). The script below adds this page's language to
-           the link. -->
-      <a class="haram-link" id="album-link" href="/album/">
-        <svg class="haram-link__icon" viewBox="0 0 44 44" aria-hidden="true">
-          <defs>
-            <linearGradient id="album-tile" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#E9C95A"/>
-              <stop offset="1" stop-color="#B8891F"/>
-            </linearGradient>
-          </defs>
-          <rect width="44" height="44" rx="12" fill="url(#album-tile)"/>
-          <rect x="14" y="8" width="22" height="18" rx="3" fill="#3A4052" transform="rotate(10 25 17)"/>
-          <rect x="8" y="14" width="25" height="21" rx="3" fill="#F6E7A8"/>
-          <rect x="10.5" y="16.5" width="20" height="16" rx="1.5" fill="#232838"/>
-          <path d="M10.5 32.5l6-7.5 4.5 4.5 3-3 6.5 6z" fill="#E9CF6E"/>
-          <circle cx="25.5" cy="21" r="2.2" fill="#F6E7A8"/>
-        </svg>
-        <span class="haram-link__text">
-          <span class="haram-link__title" data-i18n="index.album">ئەلبومی وێنەکان</span>
-          <span class="haram-link__note" data-i18n="index.albumNote">وێنەکانی پێغەمبەران موحەممەد (د.خ)، عیسا (د.خ) و مووسا (د.خ)</span>
-        </span>
-        <svg class="haram-link__arrow" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
-
-      <!-- Opens the sheet of 3D experiences below: the Haram and the Quranic simulations in /3d/.
-           Without JavaScript it is still a plain link to the Haram. -->
-      <a class="haram-link" id="explore-3d" href="/haram/" aria-haspopup="dialog" aria-controls="sims-sheet">
-        <svg class="haram-link__icon" viewBox="0 0 44 44" aria-hidden="true">
-          <defs>
-            <linearGradient id="haram-tile" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#E9C95A"/>
-              <stop offset="1" stop-color="#B8891F"/>
-            </linearGradient>
-          </defs>
-          <rect width="44" height="44" rx="12" fill="url(#haram-tile)"/>
-          <path d="M8 16l14-5 14 5-14 5z" fill="#3A4052"/>
-          <path d="M8 16l14 5v14L8 30z" fill="#14161E"/>
-          <path d="M22 21l14-5v14l-14 5z" fill="#232838"/>
-          <path d="M8 19.2l14 5v2.2l-14-5z" fill="#F6E7A8"/>
-          <path d="M22 24.2l14-5v2.2l-14 5z" fill="#E9CF6E"/>
-        </svg>
-        <span class="haram-link__text">
-          <span class="haram-link__title" data-i18n="index.explore3d">بگەڕە سێ-ڕەهەندییەکان</span>
-          <span class="haram-link__note" data-i18n="index.explore3dNote">حەرەم و گێڕانەوەکانی قورئان بە سێڕەهەندی، لە وێبگەڕەکەتدا</span>
-        </span>
-        <svg class="haram-link__arrow" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
+        <a class="donations-link" href="donations">
+          <span data-i18n="index.donations">🤍 بەخشین</span>
+        </a>
+      </div>
 
       <dialog class="sims-sheet" id="sims-sheet" aria-labelledby="sims-sheet-title">
         <div class="sims-sheet__grip" aria-hidden="true"></div>
@@ -540,10 +623,6 @@
           <div class="sims-sheet__list" id="sims-list"></div>
         </div>
       </dialog>
-
-      <a class="donations-link" href="donations">
-        <span data-i18n="index.donations">🤍 بەخشین</span>
-      </a>
     </main>
 
     <footer data-i18n-html="common.footer">
@@ -622,6 +701,30 @@
       }
       buildSims();
       document.addEventListener('qp:langchange', buildSims);
+
+      // Keeps the app's name on one line (see the h1 rule above): it starts at the stylesheet's
+      // size for this width and shrinks only as far as the name, in this language and font, needs
+      // to fit. Measured again whenever any of those can have changed it — a new language, a
+      // resize, and Vazirmatn arriving after the fallback font it was first measured in.
+      var appTitle = document.querySelector('.hero h1');
+
+      function fitTitle() {
+        appTitle.style.fontSize = '';
+        var range = document.createRange();
+        range.selectNodeContents(appTitle);
+        for (var i = 0; i < 3; i++) {
+          var room = appTitle.clientWidth;
+          var needed = range.getBoundingClientRect().width;
+          if (needed <= room) break;
+          var size = parseFloat(getComputedStyle(appTitle).fontSize);
+          appTitle.style.fontSize = Math.floor(size * room / needed * 10) / 10 + 'px';
+        }
+      }
+      fitTitle();
+      document.addEventListener('DOMContentLoaded', fitTitle);
+      document.addEventListener('qp:langchange', fitTitle);
+      window.addEventListener('resize', fitTitle);
+      if (document.fonts) document.fonts.addEventListener('loadingdone', fitTitle);
 
       // The photo album is in the same three languages as the simulations.
       var albumLink = document.getElementById('album-link');

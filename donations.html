@@ -539,6 +539,60 @@
         border-top: 1px solid var(--border);
         font-weight: 700;
       }
+
+      /* Everything above is the phone layout, and none of it changes below 720px. From there the
+         column widens, and from 1080px the page splits in two: the treasury and what it has paid
+         for on the reading side, and the requests and donors beside them. */
+      @media (min-width: 720px) {
+        header.top, main { max-width: 760px; }
+        header.top { padding: 32px 32px 8px; }
+
+        /* The language switch moves up into the middle of the header row (32px down, 44px tall,
+           like the logo beside it) instead of taking a row of its own. The bar spans the whole
+           width, so only the switch itself takes clicks. */
+        body { position: relative; }
+
+        body > .qp-lang-bar {
+          position: absolute;
+          top: 32px;
+          inset-inline: 0;
+          height: 44px;
+          align-items: center;
+          padding: 0;
+          pointer-events: none;
+        }
+
+        body > .qp-lang-bar .qp-lang-switch { pointer-events: auto; }
+
+        main { padding: 16px 32px 64px; }
+        h1.page-title { font-size: 30px; margin: 16px 0 24px; }
+        .card { padding: 22px 24px; border-radius: 20px; margin-bottom: 20px; }
+        .card h2 { font-size: 17px; }
+        .treasury-balance { font-size: 30px; }
+        .modal-box { max-width: 480px; }
+      }
+
+      @media (min-width: 1080px) {
+        header.top, main { max-width: 1180px; }
+        header.top { padding-inline: 40px; }
+
+        main {
+          display: grid;
+          grid-template-columns: minmax(340px, 400px) minmax(0, 1fr);
+          align-items: start;
+          column-gap: 28px;
+          padding-inline: 40px;
+        }
+
+        h1.page-title { grid-column: 1 / -1; font-size: 32px; }
+
+        /* While the page is still loading, or if one side has nothing to show, the other one
+           takes the whole width instead of leaving an empty column beside it. */
+        #content:has(+ #content-dynamic:empty) { grid-column: 1 / -1; width: 100%; max-width: 640px; justify-self: center; }
+        #content:empty + #content-dynamic { grid-column: 1 / -1; }
+
+        .campaign-title .name { font-size: 16px; }
+      }
     </style>
   </head>
   <body>
