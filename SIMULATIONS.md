@@ -4,7 +4,7 @@ The home page's "بگەڕە سێ-ڕەهەندییەکان" card opens a sheet wi
 and the Quranic 3D simulations, each served from `/3d/<id>/`.
 
 - **Source:** the simulations are separate Vite + three.js projects kept outside this repository
-  (by default in `~/Downloads/3D Simulations/`). Only their build output is committed here, as
+  (by default in `~/Documents/3D Simulations/`). Only their build output is committed here, as
   with `haram/`.
 - **List:** `simulations.js` holds the order, the titles (English, Central Kurdish, Arabic) and the
   main passage of each. The sheet is built from it, and the sync script builds what it lists.

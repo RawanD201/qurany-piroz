@@ -3,7 +3,7 @@
  * Builds the Quranic 3D simulations into this site, one folder each under /3d/<name>/.
  *
  * The simulations are separate Vite projects kept outside this repository (by default in
- * ~/Downloads/3D Simulations). Only their build output is copied here, like haram/. Each one is
+ * ~/Documents/3D Simulations). Only their build output is copied here, like haram/. Each one is
  * built with its base path set to /3d/<name>/ (vite --base, which overrides each project's own
  * base-path setting) so its scripts, fonts and favicon load from there, and its "Return to the
  * website" link goes to /.
@@ -25,7 +25,7 @@ import { fileURLToPath } from 'node:url';
 const SITE = join(dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
 const srcIndex = args.indexOf('--src');
-const SRC = srcIndex >= 0 ? args.splice(srcIndex, 2)[1] : join(homedir(), 'Downloads', '3D Simulations');
+const SRC = srcIndex >= 0 ? args.splice(srcIndex, 2)[1] : join(homedir(), 'Documents', '3D Simulations');
 
 // The list shown on the home page is the source of truth for which simulations are published.
 const listed = [...readFileSync(join(SITE, 'simulations.js'), 'utf8').matchAll(/\bid: '([a-z0-9-]+)'/g)].map((m) => m[1]);
