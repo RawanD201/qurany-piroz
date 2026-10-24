@@ -22,6 +22,7 @@
     { id: 'ruined-town-and-restoration', ref: [2, 259, 259], title: { en: 'The Ruined Town', ckb: 'باژێڕە وێرانەکە', ar: 'القرية الخاوية' } },
     { id: 'companions-of-the-cave', ref: [18, 9, 26], title: { en: 'Companions of the Cave', ckb: 'هاودەمانی ئەشکەوتەکە', ar: 'أصحاب الكهف' } },
     { id: 'owners-of-two-gardens', ref: [18, 32, 44], title: { en: 'The Two Gardens', ckb: 'دوو باخەکە', ar: 'الجنتان' } },
+    { id: 'house-of-the-spider', ref: [29, 41, 41], title: { en: 'The Spider’s House', ckb: 'ماڵی جاڵجاڵۆکە', ar: 'بيت العنكبوت' } },
     { id: 'army-of-the-elephant', ref: [105, 1, 5], title: { en: 'The Army of the Elephant', ckb: 'سوپای فیل', ar: 'جيش الفيل' } },
     { id: 'night-journey-al-isra', ref: [17, 1, 1], title: { en: 'The Night Journey', ckb: 'شەوڕەوی', ar: 'الإسراء' } },
     { id: 'battle-of-badr', ref: [8, 5, 19], title: { en: 'The Battle of Badr', ckb: 'جەنگی بەدر', ar: 'غزوة بدر' } },
