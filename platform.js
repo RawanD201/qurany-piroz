@@ -27,7 +27,8 @@
     /// console, some other phone OS — has nothing to download.
     isSupported: isAndroid || isIOS,
 
-    /// Shows the one download button that belongs to this reader's platform and hides the other.
+    /// Shows the download button that belongs to this reader's platform and hides the other.
+    /// Android has a second, smaller link as well (`androidFullId`), for the full APK.
     /// On anything else both go, and `unsupportedNoteId` (if the page has one) takes their place
     /// saying why. Every id is optional, so a page can opt into whichever parts it has.
     applyDownloadVisibility: function (ids) {
@@ -42,8 +43,9 @@
       show(ids.iosButtonId, isIOS);
       show(ids.androidButtonId, isAndroid);
       // "Allow installing from unknown sources" only means anything to somebody about to
-      // install an APK.
+      // install an APK, and so does the second, full APK offered below the main one.
       show(ids.androidNoteId, isAndroid);
+      show(ids.androidFullId, isAndroid);
       show(ids.unsupportedNoteId, !isAndroid && !isIOS);
     }
   };

@@ -14,6 +14,8 @@ QPI18n.register('ku', {
   "index.ogDescription": "Sepaneke mobîl ji bo rêwîtiyeke têgihiştinê di nav ayetên Quranê de bi kurdî",
   "index.description": "Sepana mobîl a «Quranê Pîroz — Pirtûka Xwedê» sepaneke kurdî ye bi şazdeh zimanên cîhanê û bi 47 tefsîrên cîhanî, ji bo rêwîtiyeke tijî têgihiştin di nav ayetên Quranê de, bi dehan taybetmendiyên pêwîst û bêhempa.",
   "index.androidNote": "Li ser Androidê: piştî daxistinê, destûrê bide ku sepan ji çavkaniyeke nenas were sazkirin.",
+  "index.androidFull": "Guhertoya temam daxîne — bi Qufilê sepanan",
+  "index.androidFullNote": "Tenê heke te Qufilê sepanan divê. Ji bo sazkirina wê, divê tu Play Protect ji bo demeke kurt bitemirînî.",
   "index.donations": "🤍 Bexşîn",
   "index.haram": "Li Heremê bigere",
   "index.haramNote": "Mizgefta Heram bi 3D, di geroka xwe ya webê de",
@@ -119,6 +121,10 @@ QPI18n.register('ku', {
   "guide.ask": "Te rêberiyên jorîn xwendin?",
   "guide.go": "Erê, dest pê bike",
   "guide.back": "Na, bila bixwînim",
+  "guide.liteSummary": "Heke Play Protect hişyariyekê nîşan bide",
+  "guide.liteBody": "Ji bo vê guhertoyê ne hewce ye ku tu Play Protect bitemirînî. Heke Play Protect bixwaze sepanê kontrol bike, destûrê bide. Heke bêje ku sepanê an pêşdebirê wê nas nake, li <span class=\"qp-ig-ui\">More details</span> (Hûrguliyên zêdetir) û paşê li <span class=\"qp-ig-ui\">Install anyway</span> (Dîsa jî saz bike) bitikîne.",
+  "guide.fullLead": "Qufilê sepanan di vê guhertoyê de heye, ji ber vê yekê heta ku tu Play Protect netemirînî Android rê nade sazkirina wê. Heke ev taybetmendî ji te re ne pêwîst be, bişkoka sereke ya daxistinê bi kar bîne; ew ne hewceyî vê gavê ye.",
+  "guide.fullSummary": "Play Protect çawa tê temirandin",
   "test.pageTitle": "Ceribandina rêbera Androidê — Quranê Pîroz",
   "test.banner": "⚠️ Ev rûpeleke ceribandinê ye, ne ya rastîn — moda Androidê bi zorê hatiye vêxistin da ku rêbera sazkirinê li ser komputerê were dîtin. Rûpela rastîn <code>/index.html</code> e."
 });

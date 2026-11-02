@@ -1,10 +1,12 @@
 # android_guide
 
 The Play Protect screenshots shown inside the install sheet on Android
-(`../android-install-guide.js`).
+(`../android-install-guide.js`). Only the full APK's sheet (the "دابارکردنی وەشانی تەواو"
+link) shows them: the main download is the lite APK, which installs without Play Protect
+being switched off, so its sheet has no switch-off steps to illustrate.
 
 The filenames below are hardcoded in that file, in this order, inside the
-"ئەگەر «Play Protect» ڕێگری لە دامەزراندنەکە کرد" section — one per numbered step, plus the
+"چۆن Play Protect بکوژێنیتەوە" section — one per numbered step, plus the
 blocked-install dialog above them. Add a file under the exact name and it appears in its
 place; anything missing removes itself, so the written steps stay correct either way.
 

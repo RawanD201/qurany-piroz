@@ -14,6 +14,8 @@ QPI18n.register('ms', {
   "index.ogDescription": "Aplikasi mudah alih untuk satu perjalanan memahami ayat-ayat al-Quran dalam bahasa Kurdi",
   "index.description": "Aplikasi mudah alih “Qurany Piroz — Kitab Allah” ialah aplikasi Kurdi dalam enam belas bahasa dunia, dengan 47 tafsir dari seluruh dunia, untuk satu perjalanan yang penuh kefahaman menelusuri ayat-ayat al-Quran — dengan berpuluh-puluh ciri penting dan unik.",
   "index.androidNote": "Di Android: selepas memuat turun, benarkan aplikasi dipasang daripada sumber yang tidak diketahui.",
+  "index.androidFull": "Muat turun versi penuh — dengan Kunci Aplikasi",
+  "index.androidFullNote": "Hanya jika anda mahukan Kunci Aplikasi. Untuk memasangnya, anda perlu mematikan Play Protect sebentar.",
   "index.donations": "🤍 Beri sumbangan",
   "index.haram": "Terokai Haram",
   "index.haramNote": "Masjidil Haram dalam 3D, terus dalam pelayar web anda",
@@ -119,6 +121,10 @@ QPI18n.register('ms', {
   "guide.ask": "Adakah anda sudah membaca arahan di atas?",
   "guide.go": "Ya, mulakan",
   "guide.back": "Tidak, biar saya membacanya",
+  "guide.liteSummary": "Jika Play Protect memaparkan amaran",
+  "guide.liteBody": "Versi ini tidak memerlukan Play Protect dimatikan. Jika Play Protect menawarkan untuk mengimbas apl, benarkan. Jika ia mengatakan ia tidak mengenali apl atau pembangunnya, ketik <span class=\"qp-ig-ui\">Butiran lanjut</span>, kemudian <span class=\"qp-ig-ui\">Pasang juga</span>.",
+  "guide.fullLead": "Versi ini mengandungi Kunci Aplikasi, jadi Android tidak akan memasangnya selagi Play Protect tidak dimatikan. Jika anda tidak memerlukan Kunci Aplikasi, gunakan butang muat turun utama, yang tidak memerlukan langkah ini.",
+  "guide.fullSummary": "Cara mematikan Play Protect",
   "test.pageTitle": "Ujian panduan Android — Qurany Piroz",
   "test.banner": "⚠️ Ini ialah halaman ujian, bukan halaman sebenar — mod Android dipaksa hidup supaya panduan pemasangan dapat dilihat pada komputer. Halaman sebenar ialah <code>/index.html</code>."
 });

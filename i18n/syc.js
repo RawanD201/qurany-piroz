@@ -14,6 +14,8 @@ QPI18n.register('syc', {
   "index.ogDescription": "ܡܦܠܚܢܘܬܐ ܕܡܐܢܐ ܠܐܘܪܚܐ ܕܣܘܟܠܐ ܒܝܬ ܦܬܓܡ̈ܐ ܕܩܘܪܐܢ ܒܟܘܪܕܝܐ",
   "index.description": "ܡܦܠܚܢܘܬܐ ܕܡܐܢܐ «ܩܘܪܐܢܝ ܦܝܪܘܙ — ܟܬܒܐ ܕܐܠܗܐ» ܡܦܠܚܢܘܬܐ ܟܘܪܕܝܬܐ ܗܝ ܒ 16 ܠܫܢ̈ܐ ܕܥܠܡܐ ܘܥܡ 47 ܦܘܫܩ̈ܐ ܡܢ ܟܠܗ ܥܠܡܐ، ܠܐܘܪܚܐ ܕܡܠܝܐ ܣܘܟܠܐ ܒܝܬ ܦܬܓܡ̈ܐ ܕܩܘܪܐܢ — ܥܡ ܥܣܪ̈ܝܬܐ ܕܦܘܪ̈ܫܢܐ ܣܢܝܩ̈ܐ ܘܝܚܝܕ̈ܝܐ.",
   "index.androidNote": "ܥܠ Android: ܒܬܪ ܡܚܬܢܘܬܐ، ܦܣ ܠܬܘܩܢܐ ܕܡܦܠܚܢܘܬܐ ܡܢ ܡܒܘܥܐ ܠܐ ܝܕܝܥܐ.",
+  "index.androidFull": "ܐܚܬ ܢܘܣܚܐ ܓܡܝܪܐ — ܥܡ ܚܬܡܐ ܕܡܦܠܚܢܘ̈ܝܬܐ",
+  "index.androidFullNote": "ܒܠܚܘܕ ܐܢ ܨܒܐ ܐܢܬ ܚܬܡܐ ܕܡܦܠܚܢܘ̈ܝܬܐ. ܠܬܘܩܢܗ، ܘܠܐ ܠܟ ܠܡܕܥܟ Play Protect ܙܒܢܐ ܙܥܘܪܐ.",
   "index.donations": "🤍 ܗܒ ܡܘܗܒܬܐ",
   "index.haram": "ܣܥܘܪ ܠܡܣܓܕ ܐܠܚܪܐܡ",
   "index.haramNote": "ܒܕܡܘܬܐ ܕ 3D، ܒܡܦܠܚܢܘܬܐ ܕܐܢܛܪܢܝܛ ܕܝܠܟ",
@@ -119,6 +121,10 @@ QPI18n.register('syc', {
   "guide.ask": "ܩܪܝܬ ܦܘܩ̈ܕܢܐ ܕܠܥܠ؟",
   "guide.go": "ܐܝܢ، ܫܪܝ",
   "guide.back": "ܠܐ، ܐܩܪܐ ܐܢܘܢ ܠܘܩܕܡ",
+  "guide.liteSummary": "ܐܢ Play Protect ܡܚܘܐ ܙܘܗܪܐ",
+  "guide.liteBody": "ܗܢܐ ܢܘܣܚܐ ܠܐ ܣܢܝܩ ܠܡܕܥܟܘ ܕ Play Protect. ܐܢ Play Protect ܨܒܐ ܠܡܒܨܝܘ ܠܡܦܠܚܢܘܬܐ، ܦܣ ܠܗ. ܐܢ ܐܡܪ ܕܠܐ ܝܕܥ ܠܡܦܠܚܢܘܬܐ ܐܘ ܠܥܒܘܕܗ̇، ܩܪܘܒ ܠ<span class=\"qp-ig-ui\">ܝܬܝܪ ܦܘܪ̈ܫܢܐ</span> (More details) ܘܗܝܕܝܢ ܠ<span class=\"qp-ig-ui\">ܬܩܢ ܐܦܢ ܗܟܢ</span> (Install anyway).",
+  "guide.fullLead": "ܗܢܐ ܢܘܣܚܐ ܐܝܬ ܒܗ ܚܬܡܐ ܕܡܦܠܚܢܘ̈ܝܬܐ، ܘܡܛܠ ܗܢܐ Android ܠܐ ܡܬܩܢ ܠܗ ܥܕܡܐ ܕܬܕܥܟ Play Protect. ܐܢ ܠܐ ܣܢܝܩ ܐܢܬ ܠܚܬܡܐ ܕܡܦܠܚܢܘ̈ܝܬܐ، ܦܠܘܚ ܒܩܪܘܒܐ ܪܫܝܐ ܕܡܚܬܢܘܬܐ، ܕܠܐ ܣܢܝܩ ܠܗܢܐ ܕܪܓܐ.",
+  "guide.fullSummary": "ܐܝܟܢܐ ܬܕܥܟ Play Protect",
   "test.pageTitle": "ܢܣܝܢܐ ܕܡܕܒܪܢܘܬܐ ܕ Android — ܩܘܪܐܢܝ ܦܝܪܘܙ",
   "test.banner": "⚠️ ܗܕܐ ܦܐܬܐ ܕܢܣܝܢܐ ܗܝ، ܘܠܐ ܫܪܝܪܬܐ — ܙܢܐ ܕ Android ܒܩܛܝܪܐ ܕܠܝܩ، ܕܬܬܚܙܐ ܡܕܒܪܢܘܬܐ ܕܬܘܩܢܐ ܥܠ ܡܚܫܒܢܐ. ܦܐܬܐ ܫܪܝܪܬܐ ܗܝ <code>/index.html</code>."
 });

@@ -36,7 +36,7 @@
 
   // Bumped with every change to this file or to the tables in /i18n/ (the pages load this file
   // as /i18n.js?v=… with the same value, and it loads the tables with it).
-  var VERSION = '20261012a';
+  var VERSION = '20261102a';
 
   // Menu order: the app's own — Kurdish and its dialects first, then the other languages the
   // app is available in.
@@ -328,6 +328,8 @@
     'index.ogDescription': 'بەرنامەی مۆبایلیی بۆ گرتنەبەری گەشتێکی پڕ لە تێگەیشتنە بەنێو ئایەتەکانی قورئان بە زمانی شیرینی کوردی',
     'index.description': 'بەرنامەی مۆبایلیی \'قورئانی پیرۆز — پەڕتووکی خودا\' بەرنامەیەکی کوردییە بە شازدە زمانی جیهان و بە ٤٧ تەفسیری جیهانییەوە لەپێناو گرتنەبەری گەشتێکی پڕ لە تێگەیشتن بەنێو ئایەتەکانی قورئان بە هەبوونی دەیان تایبەتمەندێتیی پێویست و بێوێنە.',
     'index.androidNote': 'بۆ ئەندرۆید: دوای دابارکردن، ڕێگە بە دامەزراندنی ئەپ لە سەرچاوەی نەناسراو بدە.',
+    'index.androidFull': 'دابارکردنی وەشانی تەواو — لەگەڵ قوفڵی بەرنامەکان',
+    'index.androidFullNote': 'تەنیا ئەگەر قوفڵی بەرنامەکانت پێویستە. بۆ دامەزراندنی، دەبێت بۆ ماوەیەکی کورت Play Protect بکوژێنیتەوە.',
     'index.donations': '🤍 بەخشین',
     'index.haram': 'بە حەرەمدا بگەڕێ',
     'index.haramNote': 'سوجدەگای حەرام بە سێڕەهەندی، لە وێبگەڕەکەتدا',
@@ -428,6 +430,10 @@
     'guide.ask': 'ڕێنمایییەکانی پێش دابەزاندت خوێندەوە؟',
     'guide.go': 'بەڵێ، دەستی پێبکە',
     'guide.back': 'نەخێر، دەیخوێنمەوە',
+    'guide.liteSummary': 'ئەگەر Play Protect ئاگادارکردنەوەیەکی پیشاندا',
+    'guide.liteBody': 'ئەم وەشانە پێویستی بە کوژاندنەوەی Play Protect نییە. ئەگەر Play Protect ویستی ئەپەکە بپشکنێت، ڕێگەی پێبدە. ئەگەر نووسی کە ئەپەکە یان گەشەپێدەرەکەی ناناسێت، <span class="qp-ig-ui">More details</span> (وردەکاریی زیاتر) و پاشان <span class="qp-ig-ui">Install anyway</span> (لەگەڵ ئەوەشدا دایبمەزرێنە) لێبدە.',
+    'guide.fullLead': 'ئەم وەشانە قوفڵی بەرنامەکانی تێدایە، بۆیە ئەندرۆید تا Play Protect نەکوژێنیتەوە ڕێگە بە دامەزراندنی نادات. ئەگەر ئەو تایبەتمەندییەت پێویست نییە، دوگمەی سەرەکیی دابارکردن بەکاربهێنە، کە پێویستی بەم هەنگاوە نییە.',
+    'guide.fullSummary': 'چۆن Play Protect بکوژێنیتەوە',
 
     'test.pageTitle': 'تاقیکردنەوەی ڕێنمایی ئەندرۆید — قورئانی پیرۆز',
     'test.banner': '⚠️ لاپەڕەی تاقیکردنەوەیە، نەک لاپەڕەی ڕاستەقینە — دۆخی ئەندرۆید بەزۆر هەڵکراوە تاکو ڕێنمایی دامەزراندن لەسەر کۆمپیوتەر ببینرێت. لاپەڕەی ڕاستەقینە <code>/index.html</code>ە.'
@@ -455,6 +461,8 @@
     'index.ogDescription': 'A mobile app for a journey of understanding through the verses of the Quran in Kurdish',
     'index.description': 'The “Qurany Piroz — The Book of God” mobile app is a Kurdish app in sixteen of the world’s languages, with 47 tafsirs from around the world, for a journey full of understanding through the verses of the Quran — with dozens of essential and one-of-a-kind features.',
     'index.androidNote': 'On Android: after downloading, allow the app to be installed from an unknown source.',
+    'index.androidFull': 'Download the full version — with App Lock',
+    'index.androidFullNote': 'Only if you want App Lock. To install it, you have to switch Play Protect off for a moment.',
     'index.donations': '🤍 Donate',
     'index.haram': 'Explore the Haram',
     'index.haramNote': 'Masjid al-Haram in 3D, in your web browser',
@@ -555,6 +563,10 @@
     'guide.ask': 'Did you read the instructions above?',
     'guide.go': 'Yes, start it',
     'guide.back': 'No, let me read them',
+    'guide.liteSummary': 'If Play Protect shows a warning',
+    'guide.liteBody': 'This version does not need Play Protect switched off. If Play Protect offers to scan the app, let it. If it says it does not recognise the app or its developer, tap <span class="qp-ig-ui">More details</span>, then <span class="qp-ig-ui">Install anyway</span>.',
+    'guide.fullLead': 'This version includes App Lock, so Android will not install it until Play Protect is switched off. If you do not need App Lock, use the main download button instead, which needs no such step.',
+    'guide.fullSummary': 'How to switch Play Protect off',
 
     'test.pageTitle': 'Android guide test — Qurany Piroz',
     'test.banner': '⚠️ This is a test page, not the real one — Android mode is forced on so the install guide can be seen on a computer. The real page is <code>/index.html</code>.'
@@ -583,6 +595,8 @@
     'index.ogDescription': 'کُردی زبان میں قرآن کی آیات کے ذریعے فہم و بصیرت کے سفر کے لیے ایک موبائل ایپ',
     'index.description': 'موبائل ایپ «قرآنِ پیروز — اللہ کی کتاب» ایک کُردی ایپ ہے جو دنیا کی سولہ زبانوں میں، دنیا بھر کی ۴۷ تفاسیر کے ساتھ، قرآن کی آیات کے درمیان فہم و بصیرت سے بھرپور سفر کے لیے بنائی گئی ہے — درجنوں ضروری اور بے مثال خصوصیات کے ساتھ۔',
     'index.androidNote': 'اینڈرائیڈ پر: ڈاؤن لوڈ کے بعد نامعلوم ذریعے سے ایپ انسٹال کرنے کی اجازت دیں۔',
+    'index.androidFull': 'مکمل ورژن ڈاؤن لوڈ کریں — ایپ لاک کے ساتھ',
+    'index.androidFullNote': 'صرف اس صورت میں جب آپ کو ایپ لاک چاہیے۔ اسے انسٹال کرنے کے لیے تھوڑی دیر کے لیے Play Protect بند کرنا ہوگا۔',
     'index.donations': '🤍 عطیہ',
     'index.haram': 'حرم کی سیر کریں',
     'index.haramNote': 'مسجد الحرام 3D میں، آپ کے ویب براؤزر میں',
@@ -683,6 +697,10 @@
     'guide.ask': 'کیا آپ نے اوپر دی گئی ہدایات پڑھ لی ہیں؟',
     'guide.go': 'جی ہاں، شروع کریں',
     'guide.back': 'نہیں، پہلے پڑھوں گا',
+    'guide.liteSummary': 'اگر Play Protect کوئی انتباہ دکھائے',
+    'guide.liteBody': 'اس ورژن کے لیے Play Protect بند کرنے کی ضرورت نہیں۔ اگر Play Protect ایپ کو اسکین کرنا چاہے تو اسے اجازت دیں۔ اگر وہ کہے کہ وہ ایپ یا اس کے ڈویلپر کو نہیں پہچانتا، تو <span class="qp-ig-ui">More details</span> (مزید تفصیلات) اور پھر <span class="qp-ig-ui">Install anyway</span> (پھر بھی انسٹال کریں) پر ٹیپ کریں۔',
+    'guide.fullLead': 'اس ورژن میں ایپ لاک شامل ہے، اس لیے جب تک Play Protect بند نہ ہو، اینڈرائیڈ اسے انسٹال نہیں ہونے دے گا۔ اگر آپ کو ایپ لاک کی ضرورت نہیں تو اصل ڈاؤن لوڈ بٹن استعمال کریں، جس میں یہ مرحلہ نہیں ہے۔',
+    'guide.fullSummary': 'Play Protect بند کرنے کا طریقہ',
 
     'test.pageTitle': 'اینڈرائیڈ گائیڈ کا ٹیسٹ — قرآنِ پیروز',
     'test.banner': '⚠️ یہ ٹیسٹ صفحہ ہے، اصل نہیں — اینڈرائیڈ موڈ زبردستی آن کیا گیا ہے تاکہ انسٹالیشن گائیڈ کمپیوٹر پر دیکھی جا سکے۔ اصل صفحہ <code>/index.html</code> ہے۔'
@@ -710,6 +728,8 @@
     'index.ogDescription': 'تطبيق للهواتف لرحلة فهم بين آيات القرآن باللغة الكردية',
     'index.description': 'تطبيق «قرآني بيروز — كتاب الله» للهواتف تطبيقٌ كرديٌّ بستّ عشرة لغةً من لغات العالم، ومعه ٤٧ تفسيرًا من أنحاء العالم، لرحلةٍ مليئةٍ بالفهم بين آيات القرآن، مع عشرات الميزات الضرورية والفريدة.',
     'index.androidNote': 'على أندرويد: بعد التنزيل، اسمح بتثبيت التطبيق من مصدر غير معروف.',
+    'index.androidFull': 'تنزيل النسخة الكاملة — مع قفل التطبيقات',
+    'index.androidFullNote': 'فقط إذا كنت تريد قفل التطبيقات. لتثبيتها عليك إيقاف Play Protect لبعض الوقت.',
     'index.donations': '🤍 تبرّع',
     'index.haram': 'استكشف الحرم',
     'index.haramNote': 'المسجد الحرام ثلاثي الأبعاد، في متصفحك',
@@ -810,6 +830,10 @@
     'guide.ask': 'هل قرأت الإرشادات أعلاه؟',
     'guide.go': 'نعم، ابدأ',
     'guide.back': 'لا، سأقرأها',
+    'guide.liteSummary': 'إذا أظهر Play Protect تحذيرًا',
+    'guide.liteBody': 'لا تحتاج هذه النسخة إلى إيقاف Play Protect. إذا عرض Play Protect فحص التطبيق فاسمح له بذلك. وإذا ذكر أنه لا يتعرّف على التطبيق أو على مطوّره، فاضغط <span class="qp-ig-ui">More details</span> (مزيد من التفاصيل) ثم <span class="qp-ig-ui">Install anyway</span> (التثبيت على أي حال).',
+    'guide.fullLead': 'تتضمّن هذه النسخة قفل التطبيقات، لذا لن يسمح أندرويد بتثبيتها ما لم توقف Play Protect. إذا لم تكن بحاجة إلى قفل التطبيقات فاستخدم زر التنزيل الرئيسي، فهو لا يحتاج إلى هذه الخطوة.',
+    'guide.fullSummary': 'كيف توقف Play Protect',
 
     'test.pageTitle': 'اختبار دليل أندرويد — قرآني بيروز',
     'test.banner': '⚠️ هذه صفحة اختبار وليست الصفحة الحقيقية — فُرِض وضع أندرويد كي يمكن رؤية دليل التثبيت على الحاسوب. الصفحة الحقيقية هي <code>/index.html</code>.'
@@ -837,6 +861,8 @@
     'index.ogDescription': 'برنامه‌ای موبایلی برای سفری در فهم آیات قرآن به زبان کُردی',
     'index.description': 'برنامهٔ موبایل «قرآنی پیروز — کتاب خدا» برنامه‌ای کُردی است به شانزده زبان دنیا و با ۴۷ تفسیر از سراسر جهان، برای سفری سرشار از فهم در میان آیات قرآن، با ده‌ها ویژگی ضروری و بی‌همتا.',
     'index.androidNote': 'در اندروید: پس از دانلود، اجازهٔ نصب برنامه از منبع ناشناس را بدهید.',
+    'index.androidFull': 'دانلود نسخهٔ کامل — همراه با قفل برنامه‌ها',
+    'index.androidFullNote': 'فقط اگر قفل برنامه‌ها را می‌خواهید. برای نصب آن باید Play Protect را برای مدت کوتاهی خاموش کنید.',
     'index.donations': '🤍 کمک مالی',
     'index.haram': 'حرم را کاوش کنید',
     'index.haramNote': 'مسجدالحرام به‌صورت سه‌بعدی، در مرورگر شما',
@@ -937,6 +963,10 @@
     'guide.ask': 'آیا راهنمای بالا را خواندید؟',
     'guide.go': 'بله، آغاز کن',
     'guide.back': 'نه، می‌خوانمش',
+    'guide.liteSummary': 'اگر Play Protect هشداری نشان داد',
+    'guide.liteBody': 'این نسخه نیازی به خاموش کردن Play Protect ندارد. اگر Play Protect خواست برنامه را بررسی کند، اجازه دهید. اگر نوشت که برنامه یا سازندهٔ آن را نمی‌شناسد، روی <span class="qp-ig-ui">More details</span> (جزئیات بیشتر) و سپس <span class="qp-ig-ui">Install anyway</span> (در هر صورت نصب شود) بزنید.',
+    'guide.fullLead': 'این نسخه قفل برنامه‌ها را دارد، پس تا Play Protect را خاموش نکنید اندروید اجازهٔ نصب آن را نمی‌دهد. اگر به قفل برنامه‌ها نیازی ندارید، از دکمهٔ اصلی دانلود استفاده کنید که به این مرحله نیاز ندارد.',
+    'guide.fullSummary': 'چگونه Play Protect را خاموش کنید',
 
     'test.pageTitle': 'آزمون راهنمای اندروید — قرآنی پیروز',
     'test.banner': '⚠️ این صفحهٔ آزمایشی است، نه صفحهٔ اصلی — حالت اندروید به‌زور روشن شده تا راهنمای نصب روی رایانه دیده شود. صفحهٔ اصلی <code>/index.html</code> است.'
@@ -964,6 +994,8 @@
     'index.ogDescription': 'Kürtçe Kur\'an âyetleri arasında bir anlama yolculuğu için mobil uygulama',
     'index.description': '“Qurany Piroz — Allah\'ın Kitabı” mobil uygulaması, Kur\'an âyetleri arasında anlayışla dolu bir yolculuk için hazırlanmış bir Kürt uygulamasıdır: dünyanın on altı dilinde, dünyanın dört bir yanından 47 tefsirle ve onlarca gerekli ve eşsiz özellikle.',
     'index.androidNote': 'Android\'de: indirdikten sonra uygulamanın bilinmeyen kaynaktan yüklenmesine izin verin.',
+    'index.androidFull': 'Tam sürümü indir — Uygulama Kilidi ile',
+    'index.androidFullNote': 'Yalnızca Uygulama Kilidi istiyorsanız. Kurmak için Play Protect\'i kısa bir süreliğine kapatmanız gerekir.',
     'index.donations': '🤍 Bağış',
     'index.haram': 'Harem\'i keşfedin',
     'index.haramNote': 'Mescid-i Haram 3D olarak, web tarayıcınızda',
@@ -1064,6 +1096,10 @@
     'guide.ask': 'Yukarıdaki yönergeleri okudunuz mu?',
     'guide.go': 'Evet, başlat',
     'guide.back': 'Hayır, okuyayım',
+    'guide.liteSummary': 'Play Protect bir uyarı gösterirse',
+    'guide.liteBody': 'Bu sürüm için Play Protect\'i kapatmanız gerekmez. Play Protect uygulamayı taramayı önerirse izin verin. Uygulamayı veya geliştiricisini tanımadığını söylerse <span class="qp-ig-ui">More details</span> (Diğer ayrıntılar) ve ardından <span class="qp-ig-ui">Install anyway</span> (Yine de yükle) seçeneğine dokunun.',
+    'guide.fullLead': 'Bu sürüm Uygulama Kilidi\'ni içerir, bu yüzden Play Protect kapatılmadan Android onu kurmaz. Uygulama Kilidi\'ne ihtiyacınız yoksa bunun yerine ana indirme düğmesini kullanın; onun için bu adım gerekmez.',
+    'guide.fullSummary': 'Play Protect nasıl kapatılır',
 
     'test.pageTitle': 'Android kılavuz testi — Qurany Piroz',
     'test.banner': '⚠️ Bu bir test sayfasıdır, gerçek sayfa değil — kurulum kılavuzu bilgisayarda görülebilsin diye Android modu zorlanmıştır. Gerçek sayfa <code>/index.html</code>.'

@@ -14,6 +14,8 @@ QPI18n.register('es', {
   "index.ogDescription": "Una aplicación móvil para un viaje de comprensión a través de las aleyas del Corán en kurdo",
   "index.description": "La aplicación móvil «Qurany Piroz — El Libro de Dios» es una aplicación kurda en dieciséis idiomas del mundo, con 47 tafsires de todo el mundo, para emprender un viaje lleno de comprensión a través de las aleyas del Corán, con decenas de funciones esenciales y únicas.",
   "index.androidNote": "En Android: después de descargarla, permite que la aplicación se instale desde una fuente desconocida.",
+  "index.androidFull": "Descargar la versión completa — con Bloqueo de apps",
+  "index.androidFullNote": "Solo si quieres el Bloqueo de apps. Para instalarla tienes que desactivar Play Protect un momento.",
   "index.donations": "🤍 Donar",
   "index.haram": "Explora el Haram",
   "index.haramNote": "Masjid al-Haram en 3D, en tu navegador",
@@ -119,6 +121,10 @@ QPI18n.register('es', {
   "guide.ask": "¿Has leído las instrucciones de arriba?",
   "guide.go": "Sí, iniciarla",
   "guide.back": "No, déjame leerlas",
+  "guide.liteSummary": "Si Play Protect muestra una advertencia",
+  "guide.liteBody": "Esta versión no necesita que desactives Play Protect. Si Play Protect ofrece analizar la aplicación, déjalo. Si dice que no reconoce la aplicación o a su desarrollador, toca <span class=\"qp-ig-ui\">Más detalles</span> y después <span class=\"qp-ig-ui\">Instalar de todas formas</span>.",
+  "guide.fullLead": "Esta versión incluye el Bloqueo de apps, así que Android no la instala hasta que desactives Play Protect. Si no necesitas el Bloqueo de apps, usa el botón principal de descarga, que no requiere este paso.",
+  "guide.fullSummary": "Cómo desactivar Play Protect",
   "test.pageTitle": "Prueba de la guía de Android — Qurany Piroz",
   "test.banner": "⚠️ Esta es una página de prueba, no la real: el modo Android está forzado para que la guía de instalación se pueda ver en un ordenador. La página real es <code>/index.html</code>."
 });

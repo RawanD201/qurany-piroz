@@ -855,7 +855,7 @@ impossible, and nothing here claims otherwise.
 > the explorer's full, commented source in `haram-src/` is readable on GitHub regardless of the
 > measures above. If protecting the source matters, keep `haram-src/` in a separate **private**
 > repository and commit only the built `haram/` folder here. (Making this whole repository
-> private is not a drop-in alternative: the site's Android download link points to this
+> private is not a drop-in alternative: the site's two Android download links point to this
 > repository's public GitHub Releases.)
 
 ## What is approximate

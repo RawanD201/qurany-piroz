@@ -14,6 +14,8 @@ QPI18n.register('ja', {
   "index.ogDescription": "クルド語でクルアーンの節を理解する旅のためのモバイルアプリ",
   "index.description": "モバイルアプリ「Qurany Piroz — アッラーの書」は、世界16言語に対応し、世界各地の47のタフスィールを収録したクルドのアプリです。数十もの必要かつ唯一無二の機能とともに、クルアーンの節を深く理解する旅へとあなたを導きます。",
   "index.androidNote": "Android の場合：ダウンロード後、提供元不明のアプリのインストールを許可してください。",
+  "index.androidFull": "完全版をダウンロード — アプリロック付き",
+  "index.androidFullNote": "アプリロックが必要な場合のみ。インストールするには、一時的に Play プロテクトをオフにする必要があります。",
   "index.donations": "🤍 寄付する",
   "index.haram": "ハラームを探索",
   "index.haramNote": "マスジド・ハラームを3Dで、Webブラウザから",
@@ -119,6 +121,10 @@ QPI18n.register('ja', {
   "guide.ask": "上の説明を読みましたか？",
   "guide.go": "はい、開始します",
   "guide.back": "いいえ、読みます",
+  "guide.liteSummary": "Play プロテクトが警告を表示した場合",
+  "guide.liteBody": "このバージョンでは Play プロテクトをオフにする必要はありません。Play プロテクトがアプリのスキャンを求めたら、許可してください。アプリまたはデベロッパーを認識できないと表示された場合は、<span class=\"qp-ig-ui\">詳細</span>をタップしてから、<span class=\"qp-ig-ui\">インストールする</span>をタップします。",
+  "guide.fullLead": "このバージョンにはアプリロックが含まれているため、Play プロテクトをオフにしない限り Android はインストールしません。アプリロックが不要な場合は、代わりにメインのダウンロード ボタンを使ってください。この手順は必要ありません。",
+  "guide.fullSummary": "Play プロテクトをオフにする方法",
   "test.pageTitle": "Android ガイドのテスト — Qurany Piroz",
   "test.banner": "⚠️ これはテストページであり、実際のページではありません。コンピューターでインストールガイドを確認できるよう、Android モードを強制的にオンにしています。実際のページは <code>/index.html</code> です。"
 });

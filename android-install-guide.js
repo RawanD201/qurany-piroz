@@ -6,9 +6,9 @@
 //   * an older build of the app is still installed, and because both builds carry the same
 //     package name Android refuses the new APK as a package conflict — a bare "App not
 //     installed" on most phones, with the fix (uninstall the old one first) nowhere in it, and
-//   * Play Protect blocks the install outright, because the APK is signed by us and handed
-//     over by a browser rather than by the Play Store. Its wording ("Unsafe app blocked")
-//     reads like an accusation, so a reader who gets it usually just stops.
+//   * Play Protect gets in the way, because the APK is handed over by a browser rather than
+//     by the Play Store. Its wording ("Unsafe app blocked") reads like an accusation, so a
+//     reader who gets it usually just stops.
 //
 // So the tap opens a sheet that says both things in Kurdish first, and holds the download
 // behind two deliberate taps inside it: "I understand", and then an answer to a plain question
@@ -16,9 +16,20 @@
 // own because the reader is one tap away from the thing they came for, and navigating them
 // somewhere else to read instructions loses more of them than the instructions save.
 //
+// There are two APKs, and each download link gets a sheet of its own (see ANDROID_APKS.md in
+// the app's repo):
+//
+//   * #android-btn, the main download, is the lite APK: everything except App Lock. Play
+//     Protect lets it install, at most after a warning with an "Install anyway" button, so its
+//     sheet only says how to get past that warning.
+//   * #android-full-btn is the full APK. App Lock's accessibility service is something Play
+//     Protect blocks with no way past it but switching Play Protect off, so that sheet opens
+//     with the reason and the steps to do it already showing.
+//
 // Android only, on every page that offers the APK — index.html and the two deep-link landing
-// pages all use the same #android-btn, so they all get it from this one file. Loaded after
-// platform.js, which is what knows whether this reader is on Android at all.
+// pages all use the same #android-btn (only index.html offers the full APK as well), so they
+// all get it from this one file. Loaded after platform.js, which is what knows whether this
+// reader is on Android at all.
 
 (function () {
   'use strict';
@@ -28,8 +39,11 @@
   // the sheet at all.
   if (!window.QPPlatform || !QPPlatform.isAndroid) return;
 
-  var trigger = document.getElementById('android-btn');
-  if (!trigger) return;
+  var downloads = [
+    { trigger: document.getElementById('android-btn'), edition: 'lite' },
+    { trigger: document.getElementById('android-full-btn'), edition: 'full' }
+  ].filter(function (download) { return download.trigger; });
+  if (!downloads.length) return;
 
   // Where the android_guide/ screenshots live, worked out from this script's own URL rather
   // than written down. A fixed path can't satisfy every page that loads this file: ayat.html
@@ -287,17 +301,8 @@
     '}'
   ].join('\n');
 
-  var MARKUP =
-    '<div class="qp-ig-sheet" role="dialog" aria-modal="true" aria-labelledby="qp-ig-title">' +
-      '<span class="qp-ig-grabber" aria-hidden="true"></span>' +
-
-      '<div class="qp-ig-head">' +
-        '<h2 class="qp-ig-title" id="qp-ig-title" tabindex="-1" data-i18n="guide.title">' +
-          'پێش دابەزاندن ئەمە بخوێنەوە</h2>' +
-        '<p class="qp-ig-lead" data-i18n="guide.lead">دوو هەنگاوی کورت هەن؛ بەبێ ئەوان ' +
-          'دامەزراندنی ئەپەکە سەرکەوتوو نابێت.</p>' +
-      '</div>' +
-
+  // The two steps every install needs, whichever APK it is.
+  var STEPS =
       '<div class="qp-ig-step">' +
         '<span class="qp-ig-num" data-i18n="guide.num1">١</span>' +
         '<div>' +
@@ -322,10 +327,24 @@
             'وێبگەڕەی پێی دابەزاندووی بدە کە ئەپ دامەزرێنێت، پاشان بگەڕێوە و ' +
             '<span class="qp-ig-ui">Install</span> (دامەزراندن) لێبدە.</p>' +
         '</div>' +
-      '</div>' +
+      '</div>';
 
+  // The lite APK declares nothing Play Protect blocks outright. The most it gets is the warning
+  // for an app Play Protect doesn't know, which has its own way past, so that is all this says.
+  var LITE_PLAY_PROTECT =
       '<details class="qp-ig-details">' +
-        '<summary data-i18n="guide.ppSummary">ئەگەر «Play Protect» ڕێگری لە دامەزراندنەکە کرد</summary>' +
+        '<summary data-i18n="guide.liteSummary">ئەگەر Play Protect ئاگادارکردنەوەیەکی پیشاندا</summary>' +
+        '<p data-i18n-html="guide.liteBody">ئەم وەشانە پێویستی بە کوژاندنەوەی Play Protect نییە. ' +
+          'ئەگەر Play Protect ویستی ئەپەکە بپشکنێت، ڕێگەی پێبدە. ئەگەر نووسی کە ئەپەکە یان ' +
+          'گەشەپێدەرەکەی ناناسێت، <span class="qp-ig-ui">More details</span> (وردەکاریی زیاتر) و ' +
+          'پاشان <span class="qp-ig-ui">Install anyway</span> (لەگەڵ ئەوەشدا دایبمەزرێنە) لێبدە.</p>' +
+      '</details>';
+
+  // The full APK can't be installed with Play Protect on, so the steps to switch it off are
+  // open from the start rather than tucked away as an "if".
+  var FULL_PLAY_PROTECT =
+      '<details class="qp-ig-details" open>' +
+        '<summary data-i18n="guide.fullSummary">چۆن Play Protect بکوژێنیتەوە</summary>' +
         '<p data-i18n-html="guide.ppIntro">پەیامی <span class="qp-ig-ui">Unsafe app blocked</span>، ' +
           '<span class="qp-ig-ui">Blocked by Play Protect</span> یان ' +
           '<span class="qp-ig-ui">App blocked to protect your device</span> واتای ئەوە نییە کە ' +
@@ -361,173 +380,209 @@
           '<li><span data-i18n-html="guide.pp7">دوای تەواوبوونی دامەزراندن، هەردوو کلیلەکە ' +
             'دووبارە هەڵبکەوە، بۆ ئەوەی پارێزگاریی مۆبایلەکەت بمێنێتەوە.</span></li>' +
         '</ol>' +
-      '</details>' +
+      '</details>';
+
+  // The ids carry the edition because both sheets can be in one page, and aria-labelledby and
+  // aria-describedby need ids that are unique in it. Everything the script itself looks up
+  // inside a sheet goes by data-stage or data-action instead.
+  function markup(edition) {
+    var full = edition === 'full';
+    var titleId = 'qp-ig-title-' + edition;
+    var askId = 'qp-ig-ask-' + edition;
+
+    return '<div class="qp-ig-sheet" role="dialog" aria-modal="true" aria-labelledby="' +
+        titleId + '">' +
+      '<span class="qp-ig-grabber" aria-hidden="true"></span>' +
+
+      '<div class="qp-ig-head">' +
+        '<h2 class="qp-ig-title" id="' + titleId + '" tabindex="-1" data-i18n="guide.title">' +
+          'پێش دابەزاندن ئەمە بخوێنەوە</h2>' +
+        (full
+          ? '<p class="qp-ig-lead" data-i18n="guide.fullLead">ئەم وەشانە قوفڵی بەرنامەکانی ' +
+              'تێدایە، بۆیە ئەندرۆید تا Play Protect نەکوژێنیتەوە ڕێگە بە دامەزراندنی نادات. ' +
+              'ئەگەر ئەو تایبەتمەندییەت پێویست نییە، دوگمەی سەرەکیی دابارکردن بەکاربهێنە، کە ' +
+              'پێویستی بەم هەنگاوە نییە.</p>'
+          : '<p class="qp-ig-lead" data-i18n="guide.lead">دوو هەنگاوی کورت هەن؛ بەبێ ئەوان ' +
+              'دامەزراندنی ئەپەکە سەرکەوتوو نابێت.</p>') +
+      '</div>' +
+
+      STEPS +
+      (full ? FULL_PLAY_PROTECT : LITE_PLAY_PROTECT) +
 
       // Two footers, one shown at a time. "I understand" no longer starts the download
       // itself; it asks the question below first, because a reader who taps it two seconds
       // after the sheet appears hasn't read anything, and they are the reader this whole
       // sheet exists for.
-      '<div id="qp-ig-ack-stage">' +
-        '<button type="button" class="qp-ig-go" id="qp-ig-ack" data-i18n="guide.ack">' +
+      '<div data-stage="ack">' +
+        '<button type="button" class="qp-ig-go" data-action="ack" data-i18n="guide.ack">' +
           'تێگەیشتم — دەستپێکردنی دابەزاندن</button>' +
-        '<button type="button" class="qp-ig-cancel" id="qp-ig-cancel" data-i18n="guide.cancel">' +
+        '<button type="button" class="qp-ig-cancel" data-action="cancel" data-i18n="guide.cancel">' +
           'پاشگەزبوونەوە</button>' +
       '</div>' +
 
-      '<div id="qp-ig-confirm-stage" hidden>' +
-        '<p class="qp-ig-ask" id="qp-ig-ask" data-i18n="guide.ask">' +
+      '<div data-stage="confirm" hidden>' +
+        '<p class="qp-ig-ask" id="' + askId + '" data-i18n="guide.ask">' +
           'ڕێنمایییەکانی پێش دابەزاندت خوێندەوە؟</p>' +
-        '<a class="qp-ig-go" id="qp-ig-go" href="#" aria-describedby="qp-ig-ask" ' +
+        '<a class="qp-ig-go" data-action="go" href="#" aria-describedby="' + askId + '" ' +
           'data-i18n="guide.go">بەڵێ، دەستی پێبکە</a>' +
-        '<button type="button" class="qp-ig-cancel" id="qp-ig-back" data-i18n="guide.back">' +
+        '<button type="button" class="qp-ig-cancel" data-action="back" data-i18n="guide.back">' +
           'نەخێر، دەیخوێنمەوە</button>' +
       '</div>' +
     '</div>';
+  }
 
   var style = document.createElement('style');
   style.textContent = CSS;
   document.head.appendChild(style);
 
-  var backdrop = document.createElement('div');
-  backdrop.className = 'qp-ig-backdrop';
-  backdrop.hidden = true;
-  backdrop.innerHTML = MARKUP;
-  document.body.appendChild(backdrop);
+  downloads.forEach(function (download) {
+    attachSheet(download.trigger, download.edition);
+  });
 
-  // A screenshot that isn't there yet must not leave a broken-image icon in the middle of a
-  // numbered step. Each one removes itself instead, so the guide reads correctly with no
-  // images at all and starts showing them the moment the files are added.
-  Array.prototype.forEach.call(backdrop.querySelectorAll('.qp-ig-shot'), function (image) {
-    image.addEventListener('error', function () {
-      image.remove();
+  // Builds the sheet for one download link and takes over that link's tap.
+  function attachSheet(trigger, edition) {
+    var backdrop = document.createElement('div');
+    backdrop.className = 'qp-ig-backdrop';
+    backdrop.hidden = true;
+    backdrop.innerHTML = markup(edition);
+    document.body.appendChild(backdrop);
+
+    // A screenshot that isn't there yet must not leave a broken-image icon in the middle of a
+    // numbered step. Each one removes itself instead, so the guide reads correctly with no
+    // images at all and starts showing them the moment the files are added.
+    Array.prototype.forEach.call(backdrop.querySelectorAll('.qp-ig-shot'), function (image) {
+      image.addEventListener('error', function () {
+        image.remove();
+      });
     });
-  });
 
-  var sheet = backdrop.querySelector('.qp-ig-sheet');
-  var title = backdrop.querySelector('#qp-ig-title');
-  var ackStage = backdrop.querySelector('#qp-ig-ack-stage');
-  var confirmStage = backdrop.querySelector('#qp-ig-confirm-stage');
-  var ackButton = backdrop.querySelector('#qp-ig-ack');
-  var backButton = backdrop.querySelector('#qp-ig-back');
-  var goButton = backdrop.querySelector('#qp-ig-go');
-  var cancelButton = backdrop.querySelector('#qp-ig-cancel');
+    var sheet = backdrop.querySelector('.qp-ig-sheet');
+    var title = backdrop.querySelector('.qp-ig-title');
+    var ackStage = backdrop.querySelector('[data-stage="ack"]');
+    var confirmStage = backdrop.querySelector('[data-stage="confirm"]');
+    var ackButton = backdrop.querySelector('[data-action="ack"]');
+    var backButton = backdrop.querySelector('[data-action="back"]');
+    var goButton = backdrop.querySelector('[data-action="go"]');
+    var cancelButton = backdrop.querySelector('[data-action="cancel"]');
 
-  // The download is started by a real tap on a real link inside the sheet, carrying the same
-  // href and download attribute as the button that was intercepted. Re-dispatching a click on
-  // the original button instead would be a synthetic navigation, which some Android browsers
-  // treat as a pop-up and block. That is also why the confirmation is a second stage of the
-  // sheet rather than a window.confirm(): the reader's last tap has to land on this link.
-  goButton.href = trigger.href;
-  goButton.setAttribute('download', trigger.getAttribute('download') || '');
+    // The download is started by a real tap on a real link inside the sheet, carrying the same
+    // href and download attribute as the link that was intercepted. Re-dispatching a click on
+    // the original link instead would be a synthetic navigation, which some Android browsers
+    // treat as a pop-up and block. That is also why the confirmation is a second stage of the
+    // sheet rather than a window.confirm(): the reader's last tap has to land on this link.
+    goButton.href = trigger.href;
+    goButton.setAttribute('download', trigger.getAttribute('download') || '');
 
-  // Back to the "I understand" footer — on the way out, so a reader who reopens the sheet is
-  // asked again rather than finding the download a single tap away.
-  function resetStages() {
-    confirmStage.hidden = true;
-    ackStage.hidden = false;
-  }
+    // Back to the "I understand" footer — on the way out, so a reader who reopens the sheet is
+    // asked again rather than finding the download a single tap away.
+    function resetStages() {
+      confirmStage.hidden = true;
+      ackStage.hidden = false;
+    }
 
-  var lastFocused = null;
-  var previousOverflow = '';
+    var lastFocused = null;
+    var previousOverflow = '';
 
-  function open() {
-    lastFocused = document.activeElement;
-    previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    function open() {
+      lastFocused = document.activeElement;
+      previousOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
 
-    backdrop.hidden = false;
-    // Reading a layout property between the two commits the off-screen starting position, so
-    // the sheet slides up instead of arriving already in place. An animation frame would do
-    // the same, except a browser that is withholding frames — a backgrounded tab gets none —
-    // never runs the callback, and the sheet would sit invisible behind a visible backdrop
-    // until the reader came back to the page.
-    void backdrop.offsetHeight;
-    backdrop.classList.add('is-open');
-    // The title, not a button: it is what the reader has to take in, a screen reader
-    // announces the sheet by it, and on a short screen focusing anything further down would
-    // scroll the sheet past it.
-    title.focus();
+      backdrop.hidden = false;
+      // Reading a layout property between the two commits the off-screen starting position,
+      // so the sheet slides up instead of arriving already in place. An animation frame would
+      // do the same, except a browser that is withholding frames — a backgrounded tab gets
+      // none — never runs the callback, and the sheet would sit invisible behind a visible
+      // backdrop until the reader came back to the page.
+      void backdrop.offsetHeight;
+      backdrop.classList.add('is-open');
+      // The title, not a button: it is what the reader has to take in, a screen reader
+      // announces the sheet by it, and on a short screen focusing anything further down would
+      // scroll the sheet past it.
+      title.focus();
 
-    document.addEventListener('keydown', onKeyDown);
-  }
+      document.addEventListener('keydown', onKeyDown);
+    }
 
-  function close() {
-    backdrop.classList.remove('is-open');
-    document.removeEventListener('keydown', onKeyDown);
-    document.body.style.overflow = previousOverflow;
+    function close() {
+      backdrop.classList.remove('is-open');
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = previousOverflow;
 
-    // Kept in the DOM until the slide-out finishes; hiding it immediately would cut the
-    // animation off half way. The footer goes back to its first stage at the same moment, so
-    // the swap happens behind the closed sheet rather than in front of the reader.
-    window.setTimeout(function () {
-      backdrop.hidden = true;
+      // Kept in the DOM until the slide-out finishes; hiding it immediately would cut the
+      // animation off half way. The footer goes back to its first stage at the same moment, so
+      // the swap happens behind the closed sheet rather than in front of the reader.
+      window.setTimeout(function () {
+        backdrop.hidden = true;
+        resetStages();
+      }, 240);
+
+      if (lastFocused && lastFocused.focus) lastFocused.focus();
+    }
+
+    function onKeyDown(event) {
+      if (event.key === 'Escape') {
+        close();
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+
+      // Keeps Tab inside the sheet while it is up — with the page behind it still focusable, a
+      // keyboard or screen-reader user tabs straight out of a dialog they haven't answered.
+      // Whichever footer stage is hidden is dropped from the ring: an offsetParent of null is
+      // how a `hidden` ancestor shows up here, and Tab must not reach a stage the reader can't
+      // see. (The title carries tabindex="-1" and so is already out of the selector.)
+      var focusable = Array.prototype.filter.call(
+        sheet.querySelectorAll('a[href], button, summary, [tabindex]:not([tabindex="-1"])'),
+        function (element) { return element.offsetParent !== null; }
+      );
+      if (!focusable.length) return;
+
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    trigger.addEventListener('click', function (event) {
+      event.preventDefault();
+      open();
+    });
+
+    // "I understand" only swaps the footer for the question.
+    ackButton.addEventListener('click', function () {
+      ackStage.hidden = true;
+      confirmStage.hidden = false;
+      goButton.focus();
+    });
+
+    // "No, let me read it" puts the footer back and returns the reader to the top of the
+    // sheet, where the steps are.
+    backButton.addEventListener('click', function () {
       resetStages();
-    }, 240);
+      sheet.scrollTop = 0;
+      title.focus();
+    });
 
-    if (lastFocused && lastFocused.focus) lastFocused.focus();
-  }
-
-  function onKeyDown(event) {
-    if (event.key === 'Escape') {
+    // Not preventDefault'd: the tap has to follow the link, which is what actually downloads
+    // the APK. Closing on the way out just leaves the page tidy behind the download.
+    goButton.addEventListener('click', function () {
       close();
-      return;
-    }
+    });
 
-    if (event.key !== 'Tab') return;
+    cancelButton.addEventListener('click', close);
 
-    // Keeps Tab inside the sheet while it is up — with the page behind it still focusable, a
-    // keyboard or screen-reader user tabs straight out of a dialog they haven't answered.
-    // Whichever footer stage is hidden is dropped from the ring: an offsetParent of null is
-    // how a `hidden` ancestor shows up here, and Tab must not reach a stage the reader can't
-    // see. (The title carries tabindex="-1" and so is already out of the selector.)
-    var focusable = Array.prototype.filter.call(
-      sheet.querySelectorAll('a[href], button, summary, [tabindex]:not([tabindex="-1"])'),
-      function (element) { return element.offsetParent !== null; }
-    );
-    if (!focusable.length) return;
-
-    var first = focusable[0];
-    var last = focusable[focusable.length - 1];
-
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
+    // A tap on the dimmed area around the sheet, the usual way out of a bottom sheet on
+    // Android.
+    backdrop.addEventListener('click', function (event) {
+      if (event.target === backdrop) close();
+    });
   }
-
-  trigger.addEventListener('click', function (event) {
-    event.preventDefault();
-    open();
-  });
-
-  // "I understand" only swaps the footer for the question.
-  ackButton.addEventListener('click', function () {
-    ackStage.hidden = true;
-    confirmStage.hidden = false;
-    goButton.focus();
-  });
-
-  // "No, let me read it" puts the footer back and returns the reader to the top of the sheet,
-  // where the two steps are.
-  backButton.addEventListener('click', function () {
-    resetStages();
-    sheet.scrollTop = 0;
-    title.focus();
-  });
-
-  // Not preventDefault'd: the tap has to follow the link, which is what actually downloads the
-  // APK. Closing on the way out just leaves the page tidy behind the download.
-  goButton.addEventListener('click', function () {
-    close();
-  });
-
-  cancelButton.addEventListener('click', close);
-
-  // A tap on the dimmed area around the sheet, the usual way out of a bottom sheet on Android.
-  backdrop.addEventListener('click', function (event) {
-    if (event.target === backdrop) close();
-  });
 })();

@@ -14,6 +14,8 @@ QPI18n.register('fr', {
   "index.ogDescription": "Une application mobile pour un voyage de compréhension à travers les versets du Coran en kurde",
   "index.description": "L'application mobile « Qurany Piroz — Le Livre de Dieu » est une application kurde en seize langues du monde, avec 47 tafsirs du monde entier, pour un voyage riche en compréhension à travers les versets du Coran — avec des dizaines de fonctionnalités essentielles et uniques.",
   "index.androidNote": "Sur Android : après le téléchargement, autorisez l'installation de l'application depuis une source inconnue.",
+  "index.androidFull": "Télécharger la version complète — avec le verrouillage d'apps",
+  "index.androidFullNote": "Seulement si vous voulez le verrouillage d'apps. Pour l'installer, vous devez désactiver Play Protect un moment.",
   "index.donations": "🤍 Faire un don",
   "index.haram": "Explorer le Haram",
   "index.haramNote": "Masjid al-Haram en 3D, dans votre navigateur",
@@ -119,6 +121,10 @@ QPI18n.register('fr', {
   "guide.ask": "Avez-vous lu les instructions ci-dessus ?",
   "guide.go": "Oui, lancer",
   "guide.back": "Non, je vais les lire",
+  "guide.liteSummary": "Si Play Protect affiche un avertissement",
+  "guide.liteBody": "Cette version ne demande pas de désactiver Play Protect. Si Play Protect propose d'analyser l'application, laissez-le faire. S'il indique qu'il ne reconnaît pas l'application ou son développeur, appuyez sur <span class=\"qp-ig-ui\">Plus de détails</span>, puis sur <span class=\"qp-ig-ui\">Installer quand même</span>.",
+  "guide.fullLead": "Cette version comprend le verrouillage d'apps : Android ne l'installe donc pas tant que Play Protect est activé. Si vous n'avez pas besoin du verrouillage d'apps, utilisez plutôt le bouton de téléchargement principal, qui ne demande pas cette étape.",
+  "guide.fullSummary": "Comment désactiver Play Protect",
   "test.pageTitle": "Test du guide Android — Qurany Piroz",
   "test.banner": "⚠️ Ceci est une page de test, pas la vraie — le mode Android est forcé pour que le guide d'installation soit visible sur un ordinateur. La vraie page est <code>/index.html</code>."
 });

@@ -14,6 +14,8 @@ QPI18n.register('sv', {
   "index.ogDescription": "En mobilapp för en resa mot förståelse genom Koranens verser på kurdiska",
   "index.description": "Mobilappen ”Qurany Piroz — Guds bok” är en kurdisk app på sexton av världens språk, med 47 tafsirer från hela världen, för en resa full av förståelse genom Koranens verser — med dussintals nödvändiga och unika funktioner.",
   "index.androidNote": "På Android: tillåt efter nedladdningen att appen installeras från en okänd källa.",
+  "index.androidFull": "Ladda ner hela versionen — med Applås",
+  "index.androidFullNote": "Bara om du vill ha Applås. För att installera den måste du stänga av Play Protect en kort stund.",
   "index.donations": "🤍 Donera",
   "index.haram": "Utforska Haram",
   "index.haramNote": "Masjid al-Haram i 3D, i din webbläsare",
@@ -119,6 +121,10 @@ QPI18n.register('sv', {
   "guide.ask": "Har du läst instruktionerna ovan?",
   "guide.go": "Ja, starta",
   "guide.back": "Nej, låt mig läsa dem",
+  "guide.liteSummary": "Om Play Protect visar en varning",
+  "guide.liteBody": "Den här versionen kräver inte att du stänger av Play Protect. Om Play Protect erbjuder sig att söka igenom appen, låt det göra det. Om det säger att det inte känner igen appen eller dess utvecklare, tryck på <span class=\"qp-ig-ui\">Mer information</span> och sedan på <span class=\"qp-ig-ui\">Installera ändå</span>.",
+  "guide.fullLead": "Den här versionen innehåller Applås, så Android installerar den inte förrän Play Protect är avstängt. Om du inte behöver Applås, använd hellre den vanliga nedladdningsknappen, som inte kräver det här steget.",
+  "guide.fullSummary": "Så stänger du av Play Protect",
   "test.pageTitle": "Test av Android-guiden — Qurany Piroz",
   "test.banner": "⚠️ Det här är en testsida, inte den riktiga — Android-läget är påtvingat så att installationsguiden kan visas på en dator. Den riktiga sidan är <code>/index.html</code>."
 });

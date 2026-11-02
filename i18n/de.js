@@ -14,6 +14,8 @@ QPI18n.register('de', {
   "index.ogDescription": "Eine mobile App für eine Reise des Verstehens durch die Verse des Korans auf Kurdisch",
   "index.description": "Die mobile App „Qurany Piroz — Das Buch Gottes“ ist eine kurdische App in sechzehn Sprachen der Welt, mit 47 Tafsiren aus aller Welt – für eine Reise voller Verständnis durch die Verse des Korans, mit Dutzenden notwendiger und einzigartiger Funktionen.",
   "index.androidNote": "Unter Android: Erlauben Sie nach dem Herunterladen, dass die App aus unbekannter Quelle installiert wird.",
+  "index.androidFull": "Vollversion herunterladen — mit App-Sperre",
+  "index.androidFullNote": "Nur wenn Sie die App-Sperre möchten. Zum Installieren müssen Sie Play Protect kurz ausschalten.",
   "index.donations": "🤍 Spenden",
   "index.haram": "Den Haram erkunden",
   "index.haramNote": "Masdschid al-Haram in 3D, direkt im Webbrowser",
@@ -119,6 +121,10 @@ QPI18n.register('de', {
   "guide.ask": "Haben Sie die Anleitung oben gelesen?",
   "guide.go": "Ja, starten",
   "guide.back": "Nein, ich lese sie",
+  "guide.liteSummary": "Wenn Play Protect eine Warnung anzeigt",
+  "guide.liteBody": "Für diese Version müssen Sie Play Protect nicht ausschalten. Wenn Play Protect anbietet, die App zu scannen, lassen Sie es zu. Wenn es meldet, dass es die App oder ihren Entwickler nicht kennt, tippen Sie auf <span class=\"qp-ig-ui\">Weitere Details</span> und dann auf <span class=\"qp-ig-ui\">Trotzdem installieren</span>.",
+  "guide.fullLead": "Diese Version enthält die App-Sperre, deshalb installiert Android sie erst, wenn Play Protect ausgeschaltet ist. Wenn Sie die App-Sperre nicht brauchen, nehmen Sie stattdessen die Haupt-Download-Schaltfläche, die diesen Schritt nicht braucht.",
+  "guide.fullSummary": "So schalten Sie Play Protect aus",
   "test.pageTitle": "Test der Android-Anleitung — Qurany Piroz",
   "test.banner": "⚠️ Dies ist eine Testseite, nicht die echte – der Android-Modus ist erzwungen, damit die Installationsanleitung auf einem Computer zu sehen ist. Die echte Seite ist <code>/index.html</code>."
 });

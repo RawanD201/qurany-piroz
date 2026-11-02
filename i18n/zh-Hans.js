@@ -14,6 +14,8 @@ QPI18n.register('zh-Hans', {
   "index.ogDescription": "一款以库尔德语理解古兰经经文的手机应用",
   "index.description": "“Qurany Piroz — 真主的经典”手机应用是一款库尔德应用，支持全球十六种语言，收录来自世界各地的47部经注，带您踏上充满领悟的古兰经经文之旅，并具备数十项必要而独特的功能。",
   "index.androidNote": "Android 用户：下载后，请允许安装来自未知来源的应用。",
+  "index.androidFull": "下载完整版 — 含应用锁",
+  "index.androidFullNote": "仅在您需要应用锁时使用。安装它需要暂时关闭 Play 保护机制。",
   "index.donations": "🤍 捐助",
   "index.haram": "探索禁寺",
   "index.haramNote": "在网页浏览器中以 3D 游览禁寺",
@@ -119,6 +121,10 @@ QPI18n.register('zh-Hans', {
   "guide.ask": "您读过上面的说明了吗？",
   "guide.go": "是的，开始下载",
   "guide.back": "没有，我先读一下",
+  "guide.liteSummary": "如果 Play 保护机制显示警告",
+  "guide.liteBody": "此版本无需关闭 Play 保护机制。如果 Play 保护机制提出要扫描应用，请允许。如果它提示无法识别该应用或其开发者，请点按<span class=\"qp-ig-ui\">更多详情</span>，然后点按<span class=\"qp-ig-ui\">仍然安装</span>。",
+  "guide.fullLead": "此版本包含应用锁，因此在关闭 Play 保护机制之前，Android 不会安装它。如果您不需要应用锁，请改用主下载按钮，它不需要这一步。",
+  "guide.fullSummary": "如何关闭 Play 保护机制",
   "test.pageTitle": "Android 指南测试 — Qurany Piroz",
   "test.banner": "⚠️ 这是测试页面，不是正式页面——已强制开启 Android 模式，以便在电脑上查看安装指南。正式页面是 <code>/index.html</code>。"
 });
