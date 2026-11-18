@@ -18,3 +18,8 @@ and the Quranic 3D simulations, each served from `/3d/<id>/`.
   as Central Kurdish, and every other language as English.
 - **Headers:** `vercel.json` gives `/3d/` the same security headers as the rest of the site, and
   long-term caching for each simulation's hashed `assets/`.
+- **The Stars and the Shape of the Earth** (`stars-and-the-shape-of-the-earth`, An-Nahl 16:16)
+  is an astronomy story rather than an account, so it comes last in the list. Its project is the
+  EarthVsFlatEarth lab, linked into `~/Documents/3D Simulations/`. Its folder holds two pages:
+  the 16-step story as `index.html` (English, Central Kurdish, Arabic) and the full science lab
+  as `lab.html` (English only, served as `/3d/stars-and-the-shape-of-the-earth/lab`).

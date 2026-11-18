@@ -29,5 +29,6 @@
     { id: 'battle-of-uhud', ref: [3, 121, 180], title: { en: 'Uhud', ckb: 'ئوحود', ar: 'أُحد' } },
     { id: 'battle-of-the-trench', ref: [33, 9, 27], title: { en: 'The Battle of the Trench', ckb: 'جەنگی خەندەق', ar: 'غزوة الخندق' } },
     { id: 'hudaybiyyah-treaty-and-pledge', ref: [48, 1, 29], title: { en: 'Hudaybiyyah', ckb: 'حودەیبیە', ar: 'الحديبية' } },
+    { id: 'stars-and-the-shape-of-the-earth', ref: [16, 16, 16], title: { en: 'The Stars and the Shape of the Earth', ckb: 'ئەستێرەکان و شێوەی زەوی', ar: 'النجوم وشكل الأرض' } },
   ];
 })();

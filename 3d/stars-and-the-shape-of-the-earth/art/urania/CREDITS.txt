@@ -1,0 +1,15 @@
+Constellation pictures: Sidney Hall, "Urania's Mirror" (London, 1824).
+Public domain (PD-old-100-expired / PD-Art). Scans via Wikimedia Commons;
+restorations by Adam Cuerden (who requests attribution) and the Library of Congress.
+
+The .webp files here are derived from resized copies (960/1280 px wide) of these
+Commons files: each engraving was turned into light line art on transparency, masked
+to its own figure and cropped (see src/eli5/art.js for the star anchors).
+  orion.webp      Sidney Hall - Urania's Mirror - Orion (best currently available version - 2014).jpg
+  leo.webp        Sidney Hall - Urania's Mirror - Leo Major and Leo Minor.jpg
+  scorpio.webp    Sidney Hall - Urania's Mirror - Scorpio.jpg
+  ophiuchus.webp  Sidney Hall - Urania's Mirror - Taurus Poniatowski, Serpentarius, Scutum Sobiesky, and Serpens.jpg
+  hercules.webp   Sidney Hall - Urania's Mirror - Hercules and Corona Borealis.jpg
+  perseus.webp    Sidney Hall - Urania's Mirror - Perseus.jpg
+  cygnus.webp     Sidney Hall - Urania's Mirror - Lacerta, Cygnus, Lyra, Vulpecula and Anser.jpg
+  ursamajor.webp  Sidney Hall - Urania's Mirror - Ursa Major.jpg
