@@ -1,5 +1,4 @@
-// The Quranic 3D simulations offered on the home page. The stars simulation comes first; the
-// rest follow the order of the accounts they tell.
+// The Quranic 3D simulations offered on the home page, in the order of the accounts they tell.
 // Each is a separate project built into /3d/<id>/ by scripts/sync-3d-simulations.mjs, which also
 // reads this list to know which ones to build.
 //
@@ -10,7 +9,6 @@
   'use strict';
 
   window.QPSimulations = [
-    { id: 'stars-and-the-shape-of-the-earth', ref: [16, 16, 16], title: { en: 'The Stars and the Shape of the Earth', ckb: 'ئەستێرەکان و شێوەی زەوی', ar: 'النجوم وشكل الأرض' } },
     { id: 'noahs-flood', ref: [11, 25, 49], title: { en: 'The Flood of Noah', ckb: 'تۆفانەکەی نوح', ar: 'طوفان نوح' } },
     { id: 'people-of-ad-and-devastating-wind', ref: [46, 21, 25], title: { en: 'The People of ʿĀd', ckb: 'قەومی عاد', ar: 'قوم عاد' } },
     { id: 'thamud-and-the-she-camel', ref: [7, 73, 79], title: { en: 'Thamud and the She-Camel', ckb: 'سەموود و وشترمێکە', ar: 'ثمود والناقة' } },
