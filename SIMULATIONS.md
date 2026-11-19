@@ -32,5 +32,6 @@ mosques that shows each of the five prayers is always being prayed somewhere.
 - **Languages:** English, Central Kurdish and Arabic, opened with `?lang=` the same way as the
   simulations.
 - **Data:** `mosques/data/more-mosques.json` (about 11 MB, 3 MB compressed) is fetched only when a
-  reader ticks "More mosques". `vercel.json` caches it for a day, and the hashed `assets/` for
-  good.
+  reader ticks "More mosques". The Earth pictures in `mosques/earth/` (NASA Blue Marble and
+  relief, 3.3 MB in all) load smallest first: 1K, then 4K, then 8K on computers. `vercel.json`
+  caches both for a day, and the hashed `assets/` for good.

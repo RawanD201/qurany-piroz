@@ -82,7 +82,7 @@
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
     },
     {
-      "source": "/mosques/data/(.*)",
+      "source": "/mosques/(data|earth)/(.*)",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }]
     },
     {
