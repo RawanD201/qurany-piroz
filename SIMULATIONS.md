@@ -18,3 +18,19 @@ and the Quranic 3D simulations, each served from `/3d/<id>/`.
   as Central Kurdish, and every other language as English.
 - **Headers:** `vercel.json` gives `/3d/` the same security headers as the rest of the site, and
   long-term caching for each simulation's hashed `assets/`.
+
+# AllMosques (/mosques/)
+
+The home page's third card, "نوێژ هەرگیز ناوەستێت", opens AllMosques: a 3D Earth with the world's
+mosques that shows each of the five prayers is always being prayed somewhere.
+
+- **Source:** a separate Vite + three.js project kept outside this repository (by default in
+  `../AllMosques`, next to this site's folder). Only its build output is committed here.
+- **Rebuilding:** after changing it, run `node scripts/sync-allmosques.mjs` (`--src <path>` if the
+  project is elsewhere). It is built with `--base /mosques/`, and its "Return to the website" link
+  goes to `/`.
+- **Languages:** English, Central Kurdish and Arabic, opened with `?lang=` the same way as the
+  simulations.
+- **Data:** `mosques/data/more-mosques.json` (about 11 MB, 3 MB compressed) is fetched only when a
+  reader ticks "More mosques". `vercel.json` caches it for a day, and the hashed `assets/` for
+  good.

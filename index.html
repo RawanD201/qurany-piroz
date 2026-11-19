@@ -461,6 +461,8 @@
         }
 
         .explore .haram-link { max-width: none; margin: 0; }
+        /* The third card, AllMosques, takes the full row under the pair. */
+        #mosques-link { grid-column: 1 / -1; }
         .donations-link { grid-column: 1 / -1; justify-self: center; margin-top: 18px; }
 
         .sims-sheet { width: min(720px, calc(100% - 48px)); }
@@ -614,6 +616,32 @@
           </svg>
         </a>
 
+        <!-- AllMosques (/mosques/, see SIMULATIONS.md): the 3D Earth showing that prayer never
+             stops. The script below hands it this page's language. -->
+        <a class="haram-link" id="mosques-link" href="/mosques/">
+          <svg class="haram-link__icon" viewBox="0 0 44 44" aria-hidden="true">
+            <rect width="44" height="44" rx="12" fill="url(#haram-tile)"/>
+            <!-- A globe, its sunlit half lighter, with mosque pins on it. -->
+            <circle cx="22" cy="22" r="13" fill="#14161E"/>
+            <path d="M22 9a13 13 0 0 1 0 26z" fill="#3A4052"/>
+            <g fill="none" stroke="#F6E7A8" stroke-opacity="0.55" stroke-width="1.2">
+              <ellipse cx="22" cy="22" rx="6" ry="13"/>
+              <path d="M9 22h26M10.6 15.5h22.8M10.6 28.5h22.8M22 9v26"/>
+            </g>
+            <circle cx="22" cy="22" r="13" fill="none" stroke="#F6E7A8" stroke-width="1.6"/>
+            <circle cx="16" cy="18.5" r="2" fill="#E9CF6E"/>
+            <circle cx="27.5" cy="25.5" r="2" fill="#E9CF6E"/>
+            <circle cx="25" cy="15.5" r="2" fill="#E9CF6E"/>
+          </svg>
+          <span class="haram-link__text">
+            <span class="haram-link__title" data-i18n="index.mosques">نوێژ هەرگیز ناوەستێت</span>
+            <span class="haram-link__note" data-i18n="index.mosquesNote">مزگەوتەکانی جیهان و کاتەکانی نوێژ بە سێڕەهەندی، لە وێبگەڕەکەتدا</span>
+          </span>
+          <svg class="haram-link__arrow" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+
         <a class="donations-link" href="donations">
           <span data-i18n="index.donations">🤍 بەخشین</span>
         </a>
@@ -751,9 +779,13 @@
       window.addEventListener('resize', fitTitle);
       if (document.fonts) document.fonts.addEventListener('loadingdone', fitTitle);
 
-      // The photo album is in the same three languages as the simulations.
+      // The photo album and AllMosques are in the same three languages as the simulations.
       var albumLink = document.getElementById('album-link');
-      function setAlbumLang() { albumLink.href = '/album/?lang=' + simLang(); }
+      var mosquesLink = document.getElementById('mosques-link');
+      function setAlbumLang() {
+        albumLink.href = '/album/?lang=' + simLang();
+        mosquesLink.href = '/mosques/?lang=' + simLang();
+      }
       setAlbumLang();
       document.addEventListener('qp:langchange', setAlbumLang);
 

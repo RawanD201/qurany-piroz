@@ -23,6 +23,8 @@ QPI18n.register('es', {
   "index.explore3dNote": "El Haram y los relatos del Corán en 3D, en tu navegador",
   "index.album": "Álbum de fotos",
   "index.albumNote": "Imágenes de los profetas Muhammad, Jesús y Moisés",
+  "index.mosques": "La oración nunca se detiene",
+  "index.mosquesNote": "Las mezquitas del mundo y los horarios de oración en 3D, en tu navegador",
   "sims.title": "En 3D",
   "sims.accounts": "Relatos del Corán",
   "sims.langNote": "Los relatos están disponibles en inglés, kurdo y árabe.",

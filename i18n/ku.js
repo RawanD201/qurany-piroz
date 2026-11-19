@@ -23,6 +23,8 @@ QPI18n.register('ku', {
   "index.explore3dNote": "Herem û çîrokên Quranê bi 3D, di geroka xwe ya webê de",
   "index.album": "Albûma wêneyan",
   "index.albumNote": "Wêneyên pêxemberan Muhammed, Îsa û Mûsa",
+  "index.mosques": "Nimêj Qet Naraweste",
+  "index.mosquesNote": "Mizgeftên cîhanê û demên nimêjê bi 3D, di geroka xwe ya webê de",
   "sims.title": "3D",
   "sims.accounts": "Çîrokên Quranê",
   "sims.langNote": "Çîrok bi Îngilîzî, Kurdiya Navendî û Erebî hene.",

@@ -23,6 +23,8 @@ QPI18n.register('sv', {
   "index.explore3dNote": "Haram och Koranens berättelser i 3D, i din webbläsare",
   "index.album": "Fotoalbum",
   "index.albumNote": "Bilder av profeterna Muhammed, Jesus och Mose",
+  "index.mosques": "Bönen upphör aldrig",
+  "index.mosquesNote": "Världens moskéer och bönetiderna i 3D, i din webbläsare",
   "sims.title": "I 3D",
   "sims.accounts": "Berättelser ur Koranen",
   "sims.langNote": "Berättelserna finns på engelska, kurdiska och arabiska.",

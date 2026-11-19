@@ -23,6 +23,8 @@ QPI18n.register('zh-Hans', {
   "index.explore3dNote": "以 3D 游览禁寺与《古兰经》中的故事，直接在网页浏览器中",
   "index.album": "相册",
   "index.albumNote": "先知穆罕默德、耶稣和摩西的图片",
+  "index.mosques": "礼拜从不停止",
+  "index.mosquesNote": "以 3D 查看世界各地的清真寺与礼拜时间，直接在网页浏览器中",
   "sims.title": "3D 体验",
   "sims.accounts": "《古兰经》中的故事",
   "sims.langNote": "这些故事提供英语、库尔德语和阿拉伯语版本。",

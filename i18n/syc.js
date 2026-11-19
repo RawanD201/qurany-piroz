@@ -23,6 +23,8 @@ QPI18n.register('syc', {
   "index.explore3dNote": "ܡܣܓܕ ܐܠܚܪܐܡ ܘܫܪ̈ܥܐ ܕܩܘܪܐܢ ܒ 3D، ܒܡܦܠܚܢܘܬܐ ܕܐܢܛܪܢܝܛ ܕܝܠܟ",
   "index.album": "ܐܠܒܘܡ ܕܨܘܪ̈ܬܐ",
   "index.albumNote": "ܨܘܪ̈ܬܐ ܕܢܒܝ̈ܐ ܡܘܚܡܕ، ܝܫܘܥ ܘܡܘܫܐ",
+  "index.mosques": "ܨܠܘܬܐ ܠܐ ܦܣܩܐ",
+  "index.mosquesNote": "ܡܣܓܕ̈ܐ ܕܥܠܡܐ ܘܥܕܢ̈ܐ ܕܨܠܘܬܐ ܒ 3D، ܒܡܦܠܚܢܘܬܐ ܕܐܢܛܪܢܝܛ ܕܝܠܟ",
   "sims.title": "3D",
   "sims.accounts": "ܫܪ̈ܥܐ ܡܢ ܩܘܪܐܢ",
   "sims.langNote": "ܫܪ̈ܥܐ ܐܝܬܝܗܘܢ ܒܐܢܓܠܝܙܝܐ ܘܟܘܪܕܝܐ ܘܥܪܒܝܐ.",

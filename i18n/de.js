@@ -23,6 +23,8 @@ QPI18n.register('de', {
   "index.explore3dNote": "Der Haram und die Erzählungen des Korans in 3D, direkt im Webbrowser",
   "index.album": "Fotoalbum",
   "index.albumNote": "Bilder der Propheten Muhammad, Jesus und Mose",
+  "index.mosques": "Das Gebet hört nie auf",
+  "index.mosquesNote": "Die Moscheen der Welt und die Gebetszeiten in 3D, direkt im Webbrowser",
   "sims.title": "In 3D",
   "sims.accounts": "Erzählungen aus dem Koran",
   "sims.langNote": "Die Erzählungen gibt es auf Englisch, Kurdisch und Arabisch.",

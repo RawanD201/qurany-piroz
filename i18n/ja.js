@@ -23,6 +23,8 @@ QPI18n.register('ja', {
   "index.explore3dNote": "ハラームとクルアーンの物語を3Dで、Webブラウザから",
   "index.album": "フォトアルバム",
   "index.albumNote": "預言者ムハンマド、イエス、モーセの絵",
+  "index.mosques": "礼拝は止まらない",
+  "index.mosquesNote": "世界のモスクと礼拝の時刻を3Dで、Webブラウザから",
   "sims.title": "3D",
   "sims.accounts": "クルアーンの物語",
   "sims.langNote": "物語は英語、クルド語、アラビア語で利用できます。",

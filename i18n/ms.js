@@ -23,6 +23,8 @@ QPI18n.register('ms', {
   "index.explore3dNote": "Haram dan kisah-kisah al-Quran dalam 3D, terus dalam pelayar web anda",
   "index.album": "Album Foto",
   "index.albumNote": "Gambar para nabi Muhammad, Isa dan Musa",
+  "index.mosques": "Solat Tidak Pernah Berhenti",
+  "index.mosquesNote": "Masjid-masjid dunia dan waktu solat dalam 3D, terus dalam pelayar web anda",
   "sims.title": "Dalam 3D",
   "sims.accounts": "Kisah-kisah al-Quran",
   "sims.langNote": "Kisah-kisah ini tersedia dalam bahasa Inggeris, Kurdi dan Arab.",
