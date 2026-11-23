@@ -155,6 +155,20 @@
         border: 1px solid var(--border);
       }
 
+      /* Google's Play badge (see play-badge.js), on Android in place of a button. Google's PNG
+         carries a transparent margin of its own; the negative margin takes it back so the badge
+         sits where a button would. Centred on a phone, at the start of the column from 720px up. */
+      .play-badge-link {
+        display: flex;
+        margin-inline: auto;
+        line-height: 0;
+        transition: transform 0.15s ease;
+      }
+
+      .play-badge-link:hover { transform: translateY(-2px); }
+
+      .play-badge { height: 72px; width: auto; margin: -11px; }
+
       .btn:hover { transform: translateY(-2px); }
       .btn:active { transform: translateY(0); }
 
@@ -486,6 +500,7 @@
         h1 { font-size: 48px; line-height: 1.3; margin-bottom: 24px; }
         .description { max-width: 620px; font-size: 18px; margin-inline: 0; }
         .downloads { max-width: 320px; margin: 0; }
+        .play-badge-link { margin-inline: 0; }
         .note { max-width: 520px; margin-inline: 0; }
 
         .explore { grid-template-columns: minmax(0, 1fr); gap: 16px; margin-top: 0; }
@@ -522,11 +537,8 @@
             <span data-i18n="common.download">دابارکردن (Download)</span>
           </a>
 
-          <a id="android-btn" class="btn btn-android" hidden href="https://play.google.com/store/apps/details?id=com.alandkawaali.qurani_piroz_partuki_xwda" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M17.6 9.48l1.84-3.18a.38.38 0 10-.66-.38l-1.87 3.23a11.4 11.4 0 00-9.82 0L5.22 5.92a.38.38 0 10-.66.38L6.4 9.48A10.7 10.7 0 001 17.86h22a10.7 10.7 0 00-5.4-8.38zM7 14.87a.92.92 0 110-1.84.92.92 0 010 1.84zm10 0a.92.92 0 110-1.84.92.92 0 010 1.84z"/>
-            </svg>
-            <span data-i18n="common.download">دابارکردن (Download)</span>
+          <a id="android-btn" class="play-badge-link" hidden href="https://play.google.com/store/apps/details?id=com.alandkawaali.qurani_piroz_partuki_xwda" target="_blank" rel="noopener">
+            <img class="play-badge" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" width="646" height="250">
           </a>
         </div>
 
@@ -656,6 +668,7 @@
     <script src="/surats.js"></script>
     <script src="/simulations.js"></script>
     <script src="/platform.js"></script>
+    <script src="/play-badge.js"></script>
     <script>
       // Only the store this reader can actually install from — a Play Store link on an iPhone
       // and an App Store link on an Android phone are both dead ends. Neither platform gets both.

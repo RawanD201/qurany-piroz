@@ -146,6 +146,16 @@ h1 {
 
 .btn svg { width: 20px; height: 20px; flex: none; }
 
+/* Google's Play badge (see play-badge.js), on Android in place of a download button. Google's PNG
+   carries a transparent margin of its own, which the negative margin takes back. */
+.play-badge-link {
+  display: flex;
+  justify-content: center;
+  line-height: 0;
+}
+
+.play-badge { height: 72px; width: auto; margin: -11px; }
+
 .note {
   color: var(--muted);
   font-size: 13px;
