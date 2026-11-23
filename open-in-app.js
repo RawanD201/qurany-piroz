@@ -50,8 +50,8 @@
       ';end';
   }
 
-  // Only the platform's own store/download button is worth showing: an iPhone reader has no use
-  // for an APK, and an Android reader has none for an App Store page. On anything else neither
+  // Only the platform's own store button is worth showing: an iPhone reader has no use for a
+  // Play Store page, and an Android reader has none for an App Store page. On anything else neither
   // button is offered — the app is built for these two platforms and no others — and the note
   // saying so takes their place. Same rule as the front page, through the same helper.
   function showRelevantDownload() {

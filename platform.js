@@ -1,7 +1,7 @@
 // Which platform is reading the page — the single source of truth for it across the site.
 //
 // It exists because the answer decides what the download area shows: only the App Store button on
-// an iPhone or iPad, only the APK button on Android, and neither anywhere else, since those are
+// an iPhone or iPad, only the Play Store button on Android, and neither anywhere else, since those are
 // the only two platforms the app is built for. Getting that wrong is visible on the front page,
 // so the detection lives in one file rather than being copied into each page that needs it.
 
@@ -28,7 +28,6 @@
     isSupported: isAndroid || isIOS,
 
     /// Shows the download button that belongs to this reader's platform and hides the other.
-    /// Android has a second, smaller link as well (`androidFullId`), for the full APK.
     /// On anything else both go, and `unsupportedNoteId` (if the page has one) takes their place
     /// saying why. Every id is optional, so a page can opt into whichever parts it has.
     applyDownloadVisibility: function (ids) {
@@ -42,10 +41,6 @@
 
       show(ids.iosButtonId, isIOS);
       show(ids.androidButtonId, isAndroid);
-      // "Allow installing from unknown sources" only means anything to somebody about to
-      // install an APK, and so does the second, full APK offered below the main one.
-      show(ids.androidNoteId, isAndroid);
-      show(ids.androidFullId, isAndroid);
       show(ids.unsupportedNoteId, !isAndroid && !isIOS);
     }
   };

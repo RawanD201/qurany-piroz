@@ -327,9 +327,6 @@
     'index.metaKeywords': 'قورئان, قورئانی پیرۆز, کوردی, تەفسیر, پەڕتووکی خودا, Quran, Kurdish',
     'index.ogDescription': 'بەرنامەی مۆبایلیی بۆ گرتنەبەری گەشتێکی پڕ لە تێگەیشتنە بەنێو ئایەتەکانی قورئان بە زمانی شیرینی کوردی',
     'index.description': 'بەرنامەی مۆبایلیی \'قورئانی پیرۆز — پەڕتووکی خودا\' بەرنامەیەکی کوردییە بە شازدە زمانی جیهان و بە ٤٧ تەفسیری جیهانییەوە لەپێناو گرتنەبەری گەشتێکی پڕ لە تێگەیشتن بەنێو ئایەتەکانی قورئان بە هەبوونی دەیان تایبەتمەندێتیی پێویست و بێوێنە.',
-    'index.androidNote': 'بۆ ئەندرۆید: دوای دابارکردن، ڕێگە بە دامەزراندنی ئەپ لە سەرچاوەی نەناسراو بدە.',
-    'index.androidFull': 'دابارکردنی وەشانی تەواو — لەگەڵ قوفڵی بەرنامەکان',
-    'index.androidFullNote': 'تەنیا ئەگەر قوفڵی بەرنامەکانت پێویستە. بۆ دامەزراندنی، دەبێت بۆ ماوەیەکی کورت Play Protect بکوژێنیتەوە.',
     'index.donations': '🤍 بەخشین',
     'index.haram': 'بە حەرەمدا بگەڕێ',
     'index.haramNote': 'سوجدەگای حەرام بە سێڕەهەندی، لە وێبگەڕەکەتدا',
@@ -401,44 +398,7 @@
       'کانوونی دووەم', 'شوبات', 'ئازار', 'نیسان', 'ئایار', 'حوزەیران',
       'تەمووز', 'ئاب', 'ئەیلوول', 'تشرینی یەکەم', 'تشرینی دووەم', 'کانوونی یەکەم'
     ],
-    'donations.monthYear': '{month} {year}',
-
-    'guide.title': 'پێش دابەزاندن ئەمە بخوێنەوە',
-    'guide.lead': 'دوو هەنگاوی کورت هەن؛ بەبێ ئەوان دامەزراندنی ئەپەکە سەرکەوتوو نابێت.',
-    'guide.num1': '١',
-    'guide.num2': '٢',
-    'guide.step1Title': 'سەرەتا وەشانی کۆنی ئەپەکە بسڕەوە',
-    'guide.step1Body': 'ئەگەر ئەپی «قورئانی پیرۆز» لەسەر شاشەی مۆبایلەکەتدا هەیە، پێش هەموو شتێک بیسڕەوە: دەست بخە سەر ئایکۆنەکەی و دایبگرە، پاشان <span class="qp-ig-ui">Uninstall</span> (سڕینەوە) هەڵبژێرە.',
-    'guide.step1Warn': 'هەردوو وەشانەکە هەمان ناوی پاکێجیان هەیە، بۆیە ئەگەر کۆنەکە نەسڕیتەوە ململانێی پاکێج <span class="qp-ig-ui">(package conflict)</span> ڕوودەدات و ئەندرۆید دامەزراندنەکە ڕادەگرێت — زۆرجار تەنیا بە پەیامی <span class="qp-ig-ui">App not installed</span>.',
-    'guide.step2Title': 'ڕێگە بە دامەزراندن لە سەرچاوەی نەناسراو بدە',
-    'guide.step2Body': 'دوای تەواوبوونی دابەزاندن، فایلەکە بکەرەوە. ئەگەر ئەندرۆید ڕێگری کرد، <span class="qp-ig-ui">Settings</span> لێبدە و ڕێگە بەو وێبگەڕەی پێی دابەزاندووی بدە کە ئەپ دامەزرێنێت، پاشان بگەڕێوە و <span class="qp-ig-ui">Install</span> (دامەزراندن) لێبدە.',
-    'guide.ppSummary': 'ئەگەر «Play Protect» ڕێگری لە دامەزراندنەکە کرد',
-    'guide.ppIntro': 'پەیامی <span class="qp-ig-ui">Unsafe app blocked</span>، <span class="qp-ig-ui">Blocked by Play Protect</span> یان <span class="qp-ig-ui">App blocked to protect your device</span> واتای ئەوە نییە کە ئەپەکە زیانبەخشە — Play Protect هەموو ئەو ئەپانە بە «نەناسراو» دەژمێرێت کە لە Google Play دانەبەزێنراون.',
-    'guide.ppLead': 'بەم هەنگاوانە ڕێگەی پێ دەدەیت:',
-    'guide.pp1': '<span class="qp-ig-ui">Settings</span> (ڕێکخستنەکان) بکەرەوە و لە خانەی گەڕاندا بنووسە <span class="qp-ig-ui">Play Protect</span>.',
-    'guide.pp2': 'لە ئەنجامەکاندا <span class="qp-ig-ui">Security and privacy</span> ← <span class="qp-ig-ui">App security</span> هەڵبژێرە.',
-    'guide.pp3': 'کرتە لە <span class="qp-ig-ui">Google Play Protect</span> بکە.',
-    'guide.pp4': 'لە سەرەوەی لاپەڕەکەوە، ئایکۆنی ڕێکخستنەکان (⚙) لێبدە.',
-    'guide.pp5': 'هەردوو کلیلەکە بکوژێنەوە: <span class="qp-ig-ui">Scan apps with Play Protect</span> و <span class="qp-ig-ui">Improve harmful app detection</span>.',
-    'guide.pp6': 'بگەڕێوە بۆ فایلە دابەزێنراوەکە و دامەزراندنەکە دووبارە تاقیبکەرەوە.',
-    'guide.pp7': 'دوای تەواوبوونی دامەزراندن، هەردوو کلیلەکە دووبارە هەڵبکەوە، بۆ ئەوەی پارێزگاریی مۆبایلەکەت بمێنێتەوە.',
-    'guide.altBlocked': 'دیالۆگی Google Play Protect کە دامەزراندنی ئەپەکە ڕاگرتووە',
-    'guide.alt01': 'ئەنجامی گەڕان بۆ Play Protect لە ڕێکخستنەکاندا',
-    'guide.alt02': 'لاپەڕەی App security و شوێنی Google Play Protect',
-    'guide.alt03': 'لاپەڕەی Play Protect و ئایکۆنی ڕێکخستنەکان لە سەرەوە',
-    'guide.alt04': 'هەردوو کلیلی ڕێکخستنەکانی Play Protect',
-    'guide.ack': 'تێگەیشتم — دەستپێکردنی دابەزاندن',
-    'guide.cancel': 'پاشگەزبوونەوە',
-    'guide.ask': 'ڕێنمایییەکانی پێش دابەزاندت خوێندەوە؟',
-    'guide.go': 'بەڵێ، دەستی پێبکە',
-    'guide.back': 'نەخێر، دەیخوێنمەوە',
-    'guide.liteSummary': 'ئەگەر Play Protect ئاگادارکردنەوەیەکی پیشاندا',
-    'guide.liteBody': 'ئەم وەشانە پێویستی بە کوژاندنەوەی Play Protect نییە. ئەگەر Play Protect ویستی ئەپەکە بپشکنێت، ڕێگەی پێبدە. ئەگەر نووسی کە ئەپەکە یان گەشەپێدەرەکەی ناناسێت، <span class="qp-ig-ui">More details</span> (وردەکاریی زیاتر) و پاشان <span class="qp-ig-ui">Install anyway</span> (لەگەڵ ئەوەشدا دایبمەزرێنە) لێبدە.',
-    'guide.fullLead': 'ئەم وەشانە قوفڵی بەرنامەکانی تێدایە، بۆیە ئەندرۆید تا Play Protect نەکوژێنیتەوە ڕێگە بە دامەزراندنی نادات. ئەگەر ئەو تایبەتمەندییەت پێویست نییە، دوگمەی سەرەکیی دابارکردن بەکاربهێنە، کە پێویستی بەم هەنگاوە نییە.',
-    'guide.fullSummary': 'چۆن Play Protect بکوژێنیتەوە',
-
-    'test.pageTitle': 'تاقیکردنەوەی ڕێنمایی ئەندرۆید — قورئانی پیرۆز',
-    'test.banner': '⚠️ لاپەڕەی تاقیکردنەوەیە، نەک لاپەڕەی ڕاستەقینە — دۆخی ئەندرۆید بەزۆر هەڵکراوە تاکو ڕێنمایی دامەزراندن لەسەر کۆمپیوتەر ببینرێت. لاپەڕەی ڕاستەقینە <code>/index.html</code>ە.'
+    'donations.monthYear': '{month} {year}'
   };
 
   // ---- English ------------------------------------------------------------------------------
@@ -462,9 +422,6 @@
     'index.metaKeywords': 'Quran, Qurany Piroz, Kurdish Quran, tafsir, Book of God, Sorani, Badini, Hawrami',
     'index.ogDescription': 'A mobile app for a journey of understanding through the verses of the Quran in Kurdish',
     'index.description': 'The “Qurany Piroz — The Book of God” mobile app is a Kurdish app in sixteen of the world’s languages, with 47 tafsirs from around the world, for a journey full of understanding through the verses of the Quran — with dozens of essential and one-of-a-kind features.',
-    'index.androidNote': 'On Android: after downloading, allow the app to be installed from an unknown source.',
-    'index.androidFull': 'Download the full version — with App Lock',
-    'index.androidFullNote': 'Only if you want App Lock. To install it, you have to switch Play Protect off for a moment.',
     'index.donations': '🤍 Donate',
     'index.haram': 'Explore the Haram',
     'index.haramNote': 'Masjid al-Haram in 3D, in your web browser',
@@ -536,44 +493,7 @@
       'January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December'
     ],
-    'donations.monthYear': '{month} {year}',
-
-    'guide.title': 'Read this before downloading',
-    'guide.lead': 'There are two short steps; without them the install will not succeed.',
-    'guide.num1': '1',
-    'guide.num2': '2',
-    'guide.step1Title': 'First uninstall the old version of the app',
-    'guide.step1Body': 'If “Qurany Piroz” is already on your phone, remove it before anything else: press and hold its icon, then choose <span class="qp-ig-ui">Uninstall</span>.',
-    'guide.step1Warn': 'Both versions carry the same package name, so if you do not remove the old one Android hits a <span class="qp-ig-ui">package conflict</span> and stops the install — usually with nothing more than <span class="qp-ig-ui">App not installed</span>.',
-    'guide.step2Title': 'Allow installing from an unknown source',
-    'guide.step2Body': 'When the download finishes, open the file. If Android blocks it, tap <span class="qp-ig-ui">Settings</span> and allow the browser you downloaded with to install apps, then go back and tap <span class="qp-ig-ui">Install</span>.',
-    'guide.ppSummary': 'If Play Protect blocks the install',
-    'guide.ppIntro': '<span class="qp-ig-ui">Unsafe app blocked</span>, <span class="qp-ig-ui">Blocked by Play Protect</span> or <span class="qp-ig-ui">App blocked to protect your device</span> does not mean the app is harmful — Play Protect counts every app that was not downloaded from Google Play as "unknown".',
-    'guide.ppLead': 'These steps allow it:',
-    'guide.pp1': 'Open <span class="qp-ig-ui">Settings</span> and type <span class="qp-ig-ui">Play Protect</span> into the search box.',
-    'guide.pp2': 'In the results choose <span class="qp-ig-ui">Security and privacy</span> → <span class="qp-ig-ui">App security</span>.',
-    'guide.pp3': 'Tap <span class="qp-ig-ui">Google Play Protect</span>.',
-    'guide.pp4': 'At the top of the page, tap the settings icon (⚙).',
-    'guide.pp5': 'Turn both switches off: <span class="qp-ig-ui">Scan apps with Play Protect</span> and <span class="qp-ig-ui">Improve harmful app detection</span>.',
-    'guide.pp6': 'Go back to the downloaded file and try the install again.',
-    'guide.pp7': 'Once the install has finished, turn both switches back on, so your phone stays protected.',
-    'guide.altBlocked': 'The Google Play Protect dialog that has stopped the install',
-    'guide.alt01': 'Search results for Play Protect in Settings',
-    'guide.alt02': 'The App security page and where Google Play Protect sits on it',
-    'guide.alt03': 'The Play Protect page and the settings icon at the top of it',
-    'guide.alt04': 'Both Play Protect settings switches',
-    'guide.ack': 'I understand — start the download',
-    'guide.cancel': 'Cancel',
-    'guide.ask': 'Did you read the instructions above?',
-    'guide.go': 'Yes, start it',
-    'guide.back': 'No, let me read them',
-    'guide.liteSummary': 'If Play Protect shows a warning',
-    'guide.liteBody': 'This version does not need Play Protect switched off. If Play Protect offers to scan the app, let it. If it says it does not recognise the app or its developer, tap <span class="qp-ig-ui">More details</span>, then <span class="qp-ig-ui">Install anyway</span>.',
-    'guide.fullLead': 'This version includes App Lock, so Android will not install it until Play Protect is switched off. If you do not need App Lock, use the main download button instead, which needs no such step.',
-    'guide.fullSummary': 'How to switch Play Protect off',
-
-    'test.pageTitle': 'Android guide test — Qurany Piroz',
-    'test.banner': '⚠️ This is a test page, not the real one — Android mode is forced on so the install guide can be seen on a computer. The real page is <code>/index.html</code>.'
+    'donations.monthYear': '{month} {year}'
   };
 
   // ---- Urdu (Pakistan) ------------------------------------------------------------------------
@@ -598,9 +518,6 @@
     'index.metaKeywords': 'قرآن, قرآنِ پیروز, کُردی قرآن, تفسیر, اللہ کی کتاب, Quran, Kurdish',
     'index.ogDescription': 'کُردی زبان میں قرآن کی آیات کے ذریعے فہم و بصیرت کے سفر کے لیے ایک موبائل ایپ',
     'index.description': 'موبائل ایپ «قرآنِ پیروز — اللہ کی کتاب» ایک کُردی ایپ ہے جو دنیا کی سولہ زبانوں میں، دنیا بھر کی ۴۷ تفاسیر کے ساتھ، قرآن کی آیات کے درمیان فہم و بصیرت سے بھرپور سفر کے لیے بنائی گئی ہے — درجنوں ضروری اور بے مثال خصوصیات کے ساتھ۔',
-    'index.androidNote': 'اینڈرائیڈ پر: ڈاؤن لوڈ کے بعد نامعلوم ذریعے سے ایپ انسٹال کرنے کی اجازت دیں۔',
-    'index.androidFull': 'مکمل ورژن ڈاؤن لوڈ کریں — ایپ لاک کے ساتھ',
-    'index.androidFullNote': 'صرف اس صورت میں جب آپ کو ایپ لاک چاہیے۔ اسے انسٹال کرنے کے لیے تھوڑی دیر کے لیے Play Protect بند کرنا ہوگا۔',
     'index.donations': '🤍 عطیہ',
     'index.haram': 'حرم کی سیر کریں',
     'index.haramNote': 'مسجد الحرام 3D میں، آپ کے ویب براؤزر میں',
@@ -672,44 +589,7 @@
       'جنوری', 'فروری', 'مارچ', 'اپریل', 'مئی', 'جون',
       'جولائی', 'اگست', 'ستمبر', 'اکتوبر', 'نومبر', 'دسمبر'
     ],
-    'donations.monthYear': '{month} {year}',
-
-    'guide.title': 'ڈاؤن لوڈ سے پہلے یہ پڑھیں',
-    'guide.lead': 'دو مختصر مراحل ہیں؛ ان کے بغیر ایپ کی انسٹالیشن کامیاب نہیں ہوگی۔',
-    'guide.num1': '۱',
-    'guide.num2': '۲',
-    'guide.step1Title': 'پہلے ایپ کا پرانا ورژن ان انسٹال کریں',
-    'guide.step1Body': 'اگر «قرآنِ پیروز» ایپ پہلے سے آپ کے فون پر موجود ہے تو سب سے پہلے اسے ہٹا دیں: اس کے آئیکن کو دبا کر رکھیں، پھر <span class="qp-ig-ui">Uninstall</span> منتخب کریں۔',
-    'guide.step1Warn': 'دونوں ورژن کا پیکیج نام ایک ہی ہے، اس لیے اگر آپ نے پرانا ورژن نہ ہٹایا تو پیکیج کا تصادم <span class="qp-ig-ui">(package conflict)</span> پیش آتا ہے اور اینڈرائیڈ انسٹالیشن روک دیتا ہے — اکثر صرف <span class="qp-ig-ui">App not installed</span> کے پیغام کے ساتھ۔',
-    'guide.step2Title': 'نامعلوم ذریعے سے انسٹال کرنے کی اجازت دیں',
-    'guide.step2Body': 'ڈاؤن لوڈ مکمل ہونے کے بعد فائل کھولیں۔ اگر اینڈرائیڈ روک دے تو <span class="qp-ig-ui">Settings</span> پر جائیں اور جس براؤزر سے ڈاؤن لوڈ کیا ہے اسے ایپ انسٹال کرنے کی اجازت دیں، پھر واپس آ کر <span class="qp-ig-ui">Install</span> دبائیں۔',
-    'guide.ppSummary': 'اگر «Play Protect» انسٹالیشن روک دے',
-    'guide.ppIntro': '<span class="qp-ig-ui">Unsafe app blocked</span>، <span class="qp-ig-ui">Blocked by Play Protect</span> یا <span class="qp-ig-ui">App blocked to protect your device</span> کا مطلب یہ نہیں کہ ایپ نقصان دہ ہے — Play Protect ہر اُس ایپ کو "نامعلوم" شمار کرتا ہے جو Google Play سے ڈاؤن لوڈ نہ کی گئی ہو۔',
-    'guide.ppLead': 'ان مراحل سے آپ اجازت دے سکتے ہیں:',
-    'guide.pp1': '<span class="qp-ig-ui">Settings</span> کھولیں اور تلاش کے خانے میں <span class="qp-ig-ui">Play Protect</span> لکھیں۔',
-    'guide.pp2': 'نتائج میں <span class="qp-ig-ui">Security and privacy</span> ← <span class="qp-ig-ui">App security</span> منتخب کریں۔',
-    'guide.pp3': '<span class="qp-ig-ui">Google Play Protect</span> پر ٹیپ کریں۔',
-    'guide.pp4': 'صفحے کے اوپر سیٹنگز کا آئیکن (⚙) دبائیں۔',
-    'guide.pp5': 'دونوں سوئچ بند کر دیں: <span class="qp-ig-ui">Scan apps with Play Protect</span> اور <span class="qp-ig-ui">Improve harmful app detection</span>۔',
-    'guide.pp6': 'ڈاؤن لوڈ کی گئی فائل پر واپس جائیں اور انسٹالیشن دوبارہ آزمائیں۔',
-    'guide.pp7': 'انسٹالیشن مکمل ہونے کے بعد دونوں سوئچ دوبارہ آن کر دیں، تاکہ آپ کا فون محفوظ رہے۔',
-    'guide.altBlocked': 'Google Play Protect کا ڈائیلاگ جس نے انسٹالیشن روک دی ہے',
-    'guide.alt01': 'سیٹنگز میں Play Protect کی تلاش کے نتائج',
-    'guide.alt02': 'App security کا صفحہ اور اس پر Google Play Protect کی جگہ',
-    'guide.alt03': 'Play Protect کا صفحہ اور اوپر سیٹنگز کا آئیکن',
-    'guide.alt04': 'Play Protect کے دونوں سیٹنگز سوئچ',
-    'guide.ack': 'سمجھ گیا — ڈاؤن لوڈ شروع کریں',
-    'guide.cancel': 'منسوخ کریں',
-    'guide.ask': 'کیا آپ نے اوپر دی گئی ہدایات پڑھ لی ہیں؟',
-    'guide.go': 'جی ہاں، شروع کریں',
-    'guide.back': 'نہیں، پہلے پڑھوں گا',
-    'guide.liteSummary': 'اگر Play Protect کوئی انتباہ دکھائے',
-    'guide.liteBody': 'اس ورژن کے لیے Play Protect بند کرنے کی ضرورت نہیں۔ اگر Play Protect ایپ کو اسکین کرنا چاہے تو اسے اجازت دیں۔ اگر وہ کہے کہ وہ ایپ یا اس کے ڈویلپر کو نہیں پہچانتا، تو <span class="qp-ig-ui">More details</span> (مزید تفصیلات) اور پھر <span class="qp-ig-ui">Install anyway</span> (پھر بھی انسٹال کریں) پر ٹیپ کریں۔',
-    'guide.fullLead': 'اس ورژن میں ایپ لاک شامل ہے، اس لیے جب تک Play Protect بند نہ ہو، اینڈرائیڈ اسے انسٹال نہیں ہونے دے گا۔ اگر آپ کو ایپ لاک کی ضرورت نہیں تو اصل ڈاؤن لوڈ بٹن استعمال کریں، جس میں یہ مرحلہ نہیں ہے۔',
-    'guide.fullSummary': 'Play Protect بند کرنے کا طریقہ',
-
-    'test.pageTitle': 'اینڈرائیڈ گائیڈ کا ٹیسٹ — قرآنِ پیروز',
-    'test.banner': '⚠️ یہ ٹیسٹ صفحہ ہے، اصل نہیں — اینڈرائیڈ موڈ زبردستی آن کیا گیا ہے تاکہ انسٹالیشن گائیڈ کمپیوٹر پر دیکھی جا سکے۔ اصل صفحہ <code>/index.html</code> ہے۔'
+    'donations.monthYear': '{month} {year}'
   };
 
   // ---- Arabic -------------------------------------------------------------------------------
@@ -733,9 +613,6 @@
     'index.metaKeywords': 'القرآن, قرآني بيروز, القرآن بالكردية, تفسير, كتاب الله, سوراني, باديني, هورامي',
     'index.ogDescription': 'تطبيق للهواتف لرحلة فهم بين آيات القرآن باللغة الكردية',
     'index.description': 'تطبيق «قرآني بيروز — كتاب الله» للهواتف تطبيقٌ كرديٌّ بستّ عشرة لغةً من لغات العالم، ومعه ٤٧ تفسيرًا من أنحاء العالم، لرحلةٍ مليئةٍ بالفهم بين آيات القرآن، مع عشرات الميزات الضرورية والفريدة.',
-    'index.androidNote': 'على أندرويد: بعد التنزيل، اسمح بتثبيت التطبيق من مصدر غير معروف.',
-    'index.androidFull': 'تنزيل النسخة الكاملة — مع قفل التطبيقات',
-    'index.androidFullNote': 'فقط إذا كنت تريد قفل التطبيقات. لتثبيتها عليك إيقاف Play Protect لبعض الوقت.',
     'index.donations': '🤍 تبرّع',
     'index.haram': 'استكشف الحرم',
     'index.haramNote': 'المسجد الحرام ثلاثي الأبعاد، في متصفحك',
@@ -807,44 +684,7 @@
       'كانون الثاني', 'شباط', 'آذار', 'نيسان', 'أيار', 'حزيران',
       'تموز', 'آب', 'أيلول', 'تشرين الأول', 'تشرين الثاني', 'كانون الأول'
     ],
-    'donations.monthYear': '{month} {year}',
-
-    'guide.title': 'اقرأ هذا قبل التنزيل',
-    'guide.lead': 'هناك خطوتان قصيرتان؛ وبدونهما لن ينجح تثبيت التطبيق.',
-    'guide.num1': '١',
-    'guide.num2': '٢',
-    'guide.step1Title': 'احذف أولًا النسخة القديمة من التطبيق',
-    'guide.step1Body': 'إذا كان تطبيق «قرآني بيروز» موجودًا على هاتفك، فاحذفه قبل كل شيء: اضغط مطوّلًا على أيقونته، ثم اختر <span class="qp-ig-ui">Uninstall</span> (إلغاء التثبيت).',
-    'guide.step1Warn': 'تحمل النسختان اسم الحزمة نفسه، فإن لم تحذف القديمة واجه أندرويد تعارضًا في الحزمة <span class="qp-ig-ui">(package conflict)</span> وأوقف التثبيت — غالبًا برسالة <span class="qp-ig-ui">App not installed</span> وحدها.',
-    'guide.step2Title': 'اسمح بالتثبيت من مصدر غير معروف',
-    'guide.step2Body': 'بعد انتهاء التنزيل، افتح الملف. فإذا منعه أندرويد، فاضغط <span class="qp-ig-ui">Settings</span> واسمح للمتصفح الذي نزّلت به بتثبيت التطبيقات، ثم ارجع واضغط <span class="qp-ig-ui">Install</span>.',
-    'guide.ppSummary': 'إذا منع «Play Protect» التثبيت',
-    'guide.ppIntro': 'رسالة <span class="qp-ig-ui">Unsafe app blocked</span> أو <span class="qp-ig-ui">Blocked by Play Protect</span> أو <span class="qp-ig-ui">App blocked to protect your device</span> لا تعني أن التطبيق ضار — فـ Play Protect يَعُدّ كل تطبيق لم يُنزَّل من Google Play «غير معروف».',
-    'guide.ppLead': 'تسمح بذلك بهذه الخطوات:',
-    'guide.pp1': 'افتح <span class="qp-ig-ui">Settings</span> (الإعدادات) واكتب في خانة البحث <span class="qp-ig-ui">Play Protect</span>.',
-    'guide.pp2': 'ومن النتائج اختر <span class="qp-ig-ui">Security and privacy</span> ← <span class="qp-ig-ui">App security</span>.',
-    'guide.pp3': 'اضغط <span class="qp-ig-ui">Google Play Protect</span>.',
-    'guide.pp4': 'في أعلى الصفحة، اضغط أيقونة الإعدادات (⚙).',
-    'guide.pp5': 'أطفئ المفتاحين كليهما: <span class="qp-ig-ui">Scan apps with Play Protect</span> و<span class="qp-ig-ui">Improve harmful app detection</span>.',
-    'guide.pp6': 'ارجع إلى الملف المنزَّل وأعد محاولة التثبيت.',
-    'guide.pp7': 'وبعد انتهاء التثبيت، أعد تشغيل المفتاحين كليهما لتبقى حماية هاتفك.',
-    'guide.altBlocked': 'مربع حوار Google Play Protect الذي أوقف التثبيت',
-    'guide.alt01': 'نتائج البحث عن Play Protect في الإعدادات',
-    'guide.alt02': 'صفحة App security وموضع Google Play Protect فيها',
-    'guide.alt03': 'صفحة Play Protect وأيقونة الإعدادات في أعلاها',
-    'guide.alt04': 'مفتاحا إعدادات Play Protect كلاهما',
-    'guide.ack': 'فهمت — ابدأ التنزيل',
-    'guide.cancel': 'إلغاء',
-    'guide.ask': 'هل قرأت الإرشادات أعلاه؟',
-    'guide.go': 'نعم، ابدأ',
-    'guide.back': 'لا، سأقرأها',
-    'guide.liteSummary': 'إذا أظهر Play Protect تحذيرًا',
-    'guide.liteBody': 'لا تحتاج هذه النسخة إلى إيقاف Play Protect. إذا عرض Play Protect فحص التطبيق فاسمح له بذلك. وإذا ذكر أنه لا يتعرّف على التطبيق أو على مطوّره، فاضغط <span class="qp-ig-ui">More details</span> (مزيد من التفاصيل) ثم <span class="qp-ig-ui">Install anyway</span> (التثبيت على أي حال).',
-    'guide.fullLead': 'تتضمّن هذه النسخة قفل التطبيقات، لذا لن يسمح أندرويد بتثبيتها ما لم توقف Play Protect. إذا لم تكن بحاجة إلى قفل التطبيقات فاستخدم زر التنزيل الرئيسي، فهو لا يحتاج إلى هذه الخطوة.',
-    'guide.fullSummary': 'كيف توقف Play Protect',
-
-    'test.pageTitle': 'اختبار دليل أندرويد — قرآني بيروز',
-    'test.banner': '⚠️ هذه صفحة اختبار وليست الصفحة الحقيقية — فُرِض وضع أندرويد كي يمكن رؤية دليل التثبيت على الحاسوب. الصفحة الحقيقية هي <code>/index.html</code>.'
+    'donations.monthYear': '{month} {year}'
   };
 
   // ---- Persian ------------------------------------------------------------------------------
@@ -868,9 +708,6 @@
     'index.metaKeywords': 'قرآن, قرآنی پیروز, قرآن کُردی, تفسیر, کتاب خدا, سورانی, بادینی, هورامی',
     'index.ogDescription': 'برنامه‌ای موبایلی برای سفری در فهم آیات قرآن به زبان کُردی',
     'index.description': 'برنامهٔ موبایل «قرآنی پیروز — کتاب خدا» برنامه‌ای کُردی است به شانزده زبان دنیا و با ۴۷ تفسیر از سراسر جهان، برای سفری سرشار از فهم در میان آیات قرآن، با ده‌ها ویژگی ضروری و بی‌همتا.',
-    'index.androidNote': 'در اندروید: پس از دانلود، اجازهٔ نصب برنامه از منبع ناشناس را بدهید.',
-    'index.androidFull': 'دانلود نسخهٔ کامل — همراه با قفل برنامه‌ها',
-    'index.androidFullNote': 'فقط اگر قفل برنامه‌ها را می‌خواهید. برای نصب آن باید Play Protect را برای مدت کوتاهی خاموش کنید.',
     'index.donations': '🤍 کمک مالی',
     'index.haram': 'حرم را کاوش کنید',
     'index.haramNote': 'مسجدالحرام به‌صورت سه‌بعدی، در مرورگر شما',
@@ -942,44 +779,7 @@
       'ژانویه', 'فوریه', 'مارس', 'آوریل', 'مه', 'ژوئن',
       'ژوئیه', 'اوت', 'سپتامبر', 'اکتبر', 'نوامبر', 'دسامبر'
     ],
-    'donations.monthYear': '{month} {year}',
-
-    'guide.title': 'پیش از دانلود این را بخوانید',
-    'guide.lead': 'دو گام کوتاه هست؛ بدون آن‌ها نصب برنامه موفق نمی‌شود.',
-    'guide.num1': '۱',
-    'guide.num2': '۲',
-    'guide.step1Title': 'نخست نسخهٔ قدیمی برنامه را حذف کنید',
-    'guide.step1Body': 'اگر برنامهٔ «قرآنی پیروز» از پیش روی گوشی شماست، پیش از هر کار آن را حذف کنید: انگشت را روی نماد آن نگه دارید، سپس <span class="qp-ig-ui">Uninstall</span> (حذف) را برگزینید.',
-    'guide.step1Warn': 'هر دو نسخه نام بستهٔ یکسانی دارند، پس اگر نسخهٔ قدیمی را حذف نکنید اندروید با ناسازگاری بسته <span class="qp-ig-ui">(package conflict)</span> روبه‌رو می‌شود و نصب را متوقف می‌کند — بیشتر وقت‌ها تنها با پیام <span class="qp-ig-ui">App not installed</span>.',
-    'guide.step2Title': 'اجازهٔ نصب از منبع ناشناس را بدهید',
-    'guide.step2Body': 'پس از پایان دانلود، فایل را باز کنید. اگر اندروید جلوی آن را گرفت، <span class="qp-ig-ui">Settings</span> را بزنید و به مرورگری که با آن دانلود کرده‌اید اجازهٔ نصب برنامه بدهید، سپس بازگردید و <span class="qp-ig-ui">Install</span> را بزنید.',
-    'guide.ppSummary': 'اگر «Play Protect» جلوی نصب را گرفت',
-    'guide.ppIntro': 'پیام <span class="qp-ig-ui">Unsafe app blocked</span>، <span class="qp-ig-ui">Blocked by Play Protect</span> یا <span class="qp-ig-ui">App blocked to protect your device</span> به این معنا نیست که برنامه زیان‌بار است — Play Protect هر برنامه‌ای را که از Google Play دانلود نشده باشد «ناشناس» می‌شمارد.',
-    'guide.ppLead': 'با این گام‌ها اجازه می‌دهید:',
-    'guide.pp1': '<span class="qp-ig-ui">Settings</span> (تنظیمات) را باز کنید و در کادر جست‌وجو بنویسید <span class="qp-ig-ui">Play Protect</span>.',
-    'guide.pp2': 'از میان نتیجه‌ها <span class="qp-ig-ui">Security and privacy</span> ← <span class="qp-ig-ui">App security</span> را برگزینید.',
-    'guide.pp3': 'روی <span class="qp-ig-ui">Google Play Protect</span> بزنید.',
-    'guide.pp4': 'در بالای صفحه، نماد تنظیمات (⚙) را بزنید.',
-    'guide.pp5': 'هر دو کلید را خاموش کنید: <span class="qp-ig-ui">Scan apps with Play Protect</span> و <span class="qp-ig-ui">Improve harmful app detection</span>.',
-    'guide.pp6': 'به فایل دانلودشده بازگردید و نصب را دوباره بیازمایید.',
-    'guide.pp7': 'پس از پایان نصب، هر دو کلید را دوباره روشن کنید تا گوشی شما در امان بماند.',
-    'guide.altBlocked': 'کادر گفت‌وگوی Google Play Protect که نصب را متوقف کرده است',
-    'guide.alt01': 'نتیجه‌های جست‌وجوی Play Protect در تنظیمات',
-    'guide.alt02': 'صفحهٔ App security و جای Google Play Protect در آن',
-    'guide.alt03': 'صفحهٔ Play Protect و نماد تنظیمات در بالای آن',
-    'guide.alt04': 'هر دو کلید تنظیمات Play Protect',
-    'guide.ack': 'فهمیدم — دانلود را آغاز کن',
-    'guide.cancel': 'انصراف',
-    'guide.ask': 'آیا راهنمای بالا را خواندید؟',
-    'guide.go': 'بله، آغاز کن',
-    'guide.back': 'نه، می‌خوانمش',
-    'guide.liteSummary': 'اگر Play Protect هشداری نشان داد',
-    'guide.liteBody': 'این نسخه نیازی به خاموش کردن Play Protect ندارد. اگر Play Protect خواست برنامه را بررسی کند، اجازه دهید. اگر نوشت که برنامه یا سازندهٔ آن را نمی‌شناسد، روی <span class="qp-ig-ui">More details</span> (جزئیات بیشتر) و سپس <span class="qp-ig-ui">Install anyway</span> (در هر صورت نصب شود) بزنید.',
-    'guide.fullLead': 'این نسخه قفل برنامه‌ها را دارد، پس تا Play Protect را خاموش نکنید اندروید اجازهٔ نصب آن را نمی‌دهد. اگر به قفل برنامه‌ها نیازی ندارید، از دکمهٔ اصلی دانلود استفاده کنید که به این مرحله نیاز ندارد.',
-    'guide.fullSummary': 'چگونه Play Protect را خاموش کنید',
-
-    'test.pageTitle': 'آزمون راهنمای اندروید — قرآنی پیروز',
-    'test.banner': '⚠️ این صفحهٔ آزمایشی است، نه صفحهٔ اصلی — حالت اندروید به‌زور روشن شده تا راهنمای نصب روی رایانه دیده شود. صفحهٔ اصلی <code>/index.html</code> است.'
+    'donations.monthYear': '{month} {year}'
   };
 
   // ---- Turkish ------------------------------------------------------------------------------
@@ -1003,9 +803,6 @@
     'index.metaKeywords': 'Kuran, Qurany Piroz, Kürtçe Kuran, tefsir, Allah\'ın Kitabı, Sorani, Badini, Hawrami',
     'index.ogDescription': 'Kürtçe Kur\'an âyetleri arasında bir anlama yolculuğu için mobil uygulama',
     'index.description': '“Qurany Piroz — Allah\'ın Kitabı” mobil uygulaması, Kur\'an âyetleri arasında anlayışla dolu bir yolculuk için hazırlanmış bir Kürt uygulamasıdır: dünyanın on altı dilinde, dünyanın dört bir yanından 47 tefsirle ve onlarca gerekli ve eşsiz özellikle.',
-    'index.androidNote': 'Android\'de: indirdikten sonra uygulamanın bilinmeyen kaynaktan yüklenmesine izin verin.',
-    'index.androidFull': 'Tam sürümü indir — Uygulama Kilidi ile',
-    'index.androidFullNote': 'Yalnızca Uygulama Kilidi istiyorsanız. Kurmak için Play Protect\'i kısa bir süreliğine kapatmanız gerekir.',
     'index.donations': '🤍 Bağış',
     'index.haram': 'Harem\'i keşfedin',
     'index.haramNote': 'Mescid-i Haram 3D olarak, web tarayıcınızda',
@@ -1077,44 +874,7 @@
       'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
       'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
     ],
-    'donations.monthYear': '{month} {year}',
-
-    'guide.title': 'İndirmeden önce bunu okuyun',
-    'guide.lead': 'İki kısa adım var; bunlar olmadan kurulum başarılı olmaz.',
-    'guide.num1': '1',
-    'guide.num2': '2',
-    'guide.step1Title': 'Önce uygulamanın eski sürümünü kaldırın',
-    'guide.step1Body': '“Qurany Piroz” telefonunuzda zaten varsa her şeyden önce onu kaldırın: simgesine basılı tutun, sonra <span class="qp-ig-ui">Uninstall</span> (Kaldır) seçeneğini seçin.',
-    'guide.step1Warn': 'Her iki sürüm de aynı paket adını taşır; eskisini kaldırmazsanız Android bir <span class="qp-ig-ui">package conflict</span> ile karşılaşır ve kurulumu durdurur — çoğu zaman yalnızca <span class="qp-ig-ui">App not installed</span> mesajıyla.',
-    'guide.step2Title': 'Bilinmeyen kaynaktan kuruluma izin verin',
-    'guide.step2Body': 'İndirme bittiğinde dosyayı açın. Android engellerse <span class="qp-ig-ui">Settings</span> düğmesine dokunun ve indirme yaptığınız tarayıcıya uygulama kurma izni verin, sonra geri dönüp <span class="qp-ig-ui">Install</span> düğmesine dokunun.',
-    'guide.ppSummary': 'Play Protect kurulumu engellerse',
-    'guide.ppIntro': '<span class="qp-ig-ui">Unsafe app blocked</span>, <span class="qp-ig-ui">Blocked by Play Protect</span> veya <span class="qp-ig-ui">App blocked to protect your device</span> mesajı uygulamanın zararlı olduğu anlamına gelmez — Play Protect, Google Play\'den indirilmemiş her uygulamayı “bilinmeyen” sayar.',
-    'guide.ppLead': 'Şu adımlarla izin verirsiniz:',
-    'guide.pp1': '<span class="qp-ig-ui">Settings</span> (Ayarlar) uygulamasını açın ve arama kutusuna <span class="qp-ig-ui">Play Protect</span> yazın.',
-    'guide.pp2': 'Sonuçlardan <span class="qp-ig-ui">Security and privacy</span> → <span class="qp-ig-ui">App security</span> seçin.',
-    'guide.pp3': '<span class="qp-ig-ui">Google Play Protect</span> öğesine dokunun.',
-    'guide.pp4': 'Sayfanın üstünde ayarlar simgesine (⚙) dokunun.',
-    'guide.pp5': 'Her iki anahtarı da kapatın: <span class="qp-ig-ui">Scan apps with Play Protect</span> ve <span class="qp-ig-ui">Improve harmful app detection</span>.',
-    'guide.pp6': 'İndirilen dosyaya geri dönüp kurulumu yeniden deneyin.',
-    'guide.pp7': 'Kurulum bittikten sonra, telefonunuz korunmaya devam etsin diye her iki anahtarı da yeniden açın.',
-    'guide.altBlocked': 'Kurulumu durduran Google Play Protect iletişim kutusu',
-    'guide.alt01': 'Ayarlarda Play Protect arama sonuçları',
-    'guide.alt02': 'App security sayfası ve Google Play Protect\'in oradaki yeri',
-    'guide.alt03': 'Play Protect sayfası ve üstündeki ayarlar simgesi',
-    'guide.alt04': 'Play Protect ayarlarının her iki anahtarı',
-    'guide.ack': 'Anladım — indirmeyi başlat',
-    'guide.cancel': 'Vazgeç',
-    'guide.ask': 'Yukarıdaki yönergeleri okudunuz mu?',
-    'guide.go': 'Evet, başlat',
-    'guide.back': 'Hayır, okuyayım',
-    'guide.liteSummary': 'Play Protect bir uyarı gösterirse',
-    'guide.liteBody': 'Bu sürüm için Play Protect\'i kapatmanız gerekmez. Play Protect uygulamayı taramayı önerirse izin verin. Uygulamayı veya geliştiricisini tanımadığını söylerse <span class="qp-ig-ui">More details</span> (Diğer ayrıntılar) ve ardından <span class="qp-ig-ui">Install anyway</span> (Yine de yükle) seçeneğine dokunun.',
-    'guide.fullLead': 'Bu sürüm Uygulama Kilidi\'ni içerir, bu yüzden Play Protect kapatılmadan Android onu kurmaz. Uygulama Kilidi\'ne ihtiyacınız yoksa bunun yerine ana indirme düğmesini kullanın; onun için bu adım gerekmez.',
-    'guide.fullSummary': 'Play Protect nasıl kapatılır',
-
-    'test.pageTitle': 'Android kılavuz testi — Qurany Piroz',
-    'test.banner': '⚠️ Bu bir test sayfasıdır, gerçek sayfa değil — kurulum kılavuzu bilgisayarda görülebilsin diye Android modu zorlanmıştır. Gerçek sayfa <code>/index.html</code>.'
+    'donations.monthYear': '{month} {year}'
   };
 
   // ---- Lookup -------------------------------------------------------------------------------
@@ -1443,8 +1203,8 @@
   };
 
   // The pages load this from <head>, so the body they translate does not exist yet. Scripts at
-  // the end of a page run before this fires, which is what lets the Android install sheet be
-  // built out of data-i18n markup and picked up here along with everything else.
+  // the end of a page run before this fires, which is what lets markup they build out of
+  // data-i18n attributes be picked up here along with everything else.
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function () { apply(); });
   } else {
