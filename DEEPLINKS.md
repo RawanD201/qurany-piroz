@@ -65,9 +65,18 @@ iOS. If the Flutter app is ever released on the App Store too, add
 `5YY9H4RAS5.com.alandkawaali.quraniPirozPartukiXwda` to `appIDs` — but note that when two
 installed apps claim the same path, which one iOS picks is not something you control.
 
-**Android.** `assetlinks.json` names one SHA-256 fingerprint, `B3:B6:5C:…` — the certificate
-in `~/upload-keystore.jks`, which `android/app/build.gradle.kts` now uses for release builds
-(it reads `android/key.properties`). Any APK signed with anything else will not verify.
+**Android.** `assetlinks.json` names two SHA-256 fingerprints, one for each way the app reaches
+a phone:
+
+- `B3:B6:5C:…` — the certificate in `~/upload-keystore.jks`, which
+  `android/app/build.gradle.kts` uses for release builds (it reads `android/key.properties`).
+  The APKs on this website are signed with it.
+- `F0:66:E7:…` — Google Play's app signing key. Play re-signs every bundle it delivers with its
+  own key (Play Console → Test and release → App integrity → App signing), so a copy installed
+  from Play carries this certificate, not the upload key's. Until 2026-11-23 only the first
+  fingerprint was listed, and Play Console reported every web link as failing domain checks.
+
+Any APK signed with anything else will not verify.
 
 That means the released APK has to be a **release** build. `flutter run` and
 `flutter build apk --debug` still sign with the debug key, so App Links will not auto-open on
